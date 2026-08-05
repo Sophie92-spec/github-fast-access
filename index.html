@@ -914,8 +914,10 @@ document.querySelectorAll('.tab').forEach(tab => {
 
 // ============ 初始化 ============
 renderTable();
-// 页面加载后自动获取
-setTimeout(fetchAll, 300);
+// 页面加载后自动获取 IP，并在解析完成（selectedIp 就绪）后自动测试延迟
+setTimeout(() => {
+  fetchAll().then(() => testAll());
+}, 300);
 </script>
 </body>
 </html>
