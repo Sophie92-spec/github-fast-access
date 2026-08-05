@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GitHub Hosts 加速工具</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0e14;
+  --surface:rgba(22,27,34,.72);
+  --surface-solid:#161b22;
+  --surface-2:#21262d;
+  --border:rgba(240,246,252,.08);
+  --border-strong:rgba(240,246,252,.14);
+  --text:#e6edf3;
+  --muted:#8b949e;
+  --blue:#58a6ff;
+  --purple:#a371f7;
+  --green:#3fb950;
+  --red:#f85149;
+  --orange:#d29922;
+  --radius:14px;
+  --radius-sm:9px;
+  --shadow:0 8px 30px rgba(0,0,0,.4);
+  --ease:cubic-bezier(.4,0,.2,1);
+  --mono:'SF Mono','JetBrains Mono','Fira Code',Consolas,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,'PingFang SC','Microsoft YaHei',Arial,sans-serif;
+  --chevron:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238b949e' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);background:var(--bg);color:var(--text);
+  line-height:1.6;min-height:100vh;position:relative;overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;top:-22%;left:50%;transform:translateX(-50%);
+  width:920px;height:620px;z-index:0;pointer-events:none;
+  background:radial-gradient(circle at 35% 40%,rgba(88,166,255,.12),transparent 60%),
+            radial-gradient(circle at 70% 45%,rgba(163,113,247,.12),transparent 60%);
+  filter:blur(40px);
+}
+.container{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:48px 20px 80px}
+
+/* 入场动画 */
+.container > *{animation:rise .6s var(--ease) both}
+.container > *:nth-child(1){animation-delay:.02s}
+.container > *:nth-child(2){animation-delay:.08s}
+.container > *:nth-child(3){animation-delay:.14s}
+.container > *:nth-child(4){animation-delay:.20s}
+.container > *:nth-child(5){animation-delay:.26s}
+@keyframes rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+input[type=checkbox]{accent-color:var(--blue);width:16px;height:16px;cursor:pointer}
+
+/* Header */
+header{text-align:center;margin-bottom:36px}
+.badge{
+  width:66px;height:66px;margin:0 auto 18px;border-radius:20px;
+  display:flex;align-items:center;justify-content:center;font-size:32px;
+  background:linear-gradient(135deg,#1f6feb,#a371f7);
+  box-shadow:0 8px 26px rgba(31,111,235,.45),inset 0 1px 0 rgba(255,255,255,.25);
+  animation:float 4s ease-in-out infinite;
+}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+header h1{font-size:32px;font-weight:800;letter-spacing:-.5px;margin-bottom:10px}
+header h1 span{
+  background:linear-gradient(120deg,#58a6ff,#a371f7 60%,#bc8cff);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+header p{color:var(--muted);font-size:15px;max-width:560px;margin:0 auto}
+.last-updated{
+  display:inline-flex;align-items:center;gap:7px;margin-top:16px;
+  font-size:12.5px;color:var(--muted);
+  background:var(--surface);border:1px solid var(--border);
+  padding:5px 15px;border-radius:999px;backdrop-filter:blur(10px);
+}
+.last-updated .live{
+  width:7px;height:7px;border-radius:50%;background:var(--green);
+  animation:ring 2s infinite;
+}
+@keyframes ring{0%{box-shadow:0 0 0 0 rgba(63,185,80,.5)}70%{box-shadow:0 0 0 7px rgba(63,185,80,0)}100%{box-shadow:0 0 0 0 rgba(63,185,80,0)}}
+.last-updated span{color:var(--green);font-weight:600}
+
+/* Controls */
+.controls{
+  display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:18px 20px;margin-bottom:24px;
+  backdrop-filter:blur(12px);box-shadow:var(--shadow);
+}
+select,button{font-family:var(--sans);font-size:14px;cursor:pointer;border-radius:var(--radius-sm);transition:.2s var(--ease)}
+select{
+  appearance:none;-webkit-appearance:none;
+  background:var(--surface-2) var(--chevron) no-repeat right 12px center;
+  color:var(--text);padding:10px 38px 10px 14px;border:1px solid var(--border-strong);
+}
+select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(88,166,255,.18)}
+.controls button{
+  background:var(--surface-2);color:var(--text);border:1px solid var(--border-strong);
+  padding:10px 18px;font-weight:500;display:flex;align-items:center;gap:7px;
+}
+.controls button:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-1px)}
+.controls button:active{transform:translateY(0)}
+.controls button.primary{
+  background:linear-gradient(135deg,#1f6feb,#388bfd);color:#fff;border-color:transparent;
+  box-shadow:0 4px 14px rgba(31,111,235,.35);
+}
+.controls button.primary:hover{color:#fff;box-shadow:0 6px 20px rgba(31,111,235,.5);transform:translateY(-1px)}
+.controls button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.progress-bar{flex:1;min-width:120px;height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden;display:none;box-shadow:inset 0 1px 2px rgba(0,0,0,.3)}
+.progress-bar.active{display:block}
+.progress-bar .fill{
+  height:100%;background:linear-gradient(90deg,#1f6feb,#a371f7);width:0%;
+  border-radius:99px;transition:width .3s var(--ease);position:relative;overflow:hidden;
+}
+.progress-bar .fill::after{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.35),transparent);
+  animation:shimmer 1.2s infinite;
+}
+@keyframes shimmer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
+
+/* Results table */
+.results{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;margin-bottom:24px;backdrop-filter:blur(12px);box-shadow:var(--shadow);
+}
+table{width:100%;border-collapse:collapse}
+thead{background:rgba(240,246,252,.03)}
+th{
+  text-align:left;padding:14px 16px;font-size:11px;font-weight:600;
+  color:var(--muted);text-transform:uppercase;letter-spacing:.8px;
+  border-bottom:1px solid var(--border);
+}
+td{padding:13px 16px;border-bottom:1px solid var(--border);font-size:14px;transition:background .2s}
+tbody tr{transition:.2s var(--ease)}
+tbody tr:hover{background:rgba(88,166,255,.06)}
+tbody tr:last-child td{border-bottom:none}
+.domain-name{font-family:var(--mono);color:var(--blue);font-size:13.5px}
+.status-dot{display:inline-block;width:9px;height:9px;border-radius:50%;position:relative}
+.status-dot.loading{background:var(--orange)}
+.status-dot.loading::after{
+  content:'';position:absolute;inset:-4px;border-radius:50%;
+  border:2px solid var(--orange);border-top-color:transparent;animation:spin .7s linear infinite;
+}
+.status-dot.success{background:var(--green);box-shadow:0 0 8px rgba(63,185,80,.6)}
+.status-dot.fail{background:var(--red);box-shadow:0 0 8px rgba(248,81,73,.5)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ip-cell{font-family:var(--mono)}
+.ip-select,.ip-input{
+  background:var(--surface-2);color:var(--text);border:1px solid var(--border-strong);
+  border-radius:7px;padding:6px 10px;font-size:13px;font-family:var(--mono);transition:.2s var(--ease);
+}
+.ip-select{
+  max-width:190px;appearance:none;-webkit-appearance:none;
+  background-image:var(--chevron);background-repeat:no-repeat;background-position:right 10px center;padding-right:30px;
+}
+.ip-select:focus,.ip-input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(88,166,255,.18)}
+.ip-input{width:170px}
+.latency{font-family:var(--mono);font-size:13px;font-weight:600;padding:3px 10px;border-radius:99px;display:inline-block}
+.latency.good{color:var(--green);background:rgba(63,185,80,.12)}
+.latency.ok{color:var(--orange);background:rgba(210,153,34,.14)}
+.latency.slow{color:var(--red);background:rgba(248,81,73,.14)}
+.latency.fail{color:var(--muted);background:rgba(240,246,252,.06)}
+th label{display:flex;align-items:center;gap:7px;cursor:pointer}
+
+/* Section cards */
+.hosts-section,.instructions{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:22px;margin-bottom:24px;backdrop-filter:blur(12px);box-shadow:var(--shadow);
+}
+.section-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.section-title .count{font-size:12px;color:var(--muted);font-weight:500;background:var(--surface-2);padding:3px 11px;border-radius:99px}
+
+/* Code window */
+.code-window{border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:#0d1117;box-shadow:inset 0 0 0 1px rgba(255,255,255,.02)}
+.code-window-header{
+  display:flex;align-items:center;gap:7px;padding:10px 14px;
+  background:linear-gradient(180deg,#1b2029,#161b22);border-bottom:1px solid var(--border);
+}
+.code-window-header .dot{width:11px;height:11px;border-radius:50%}
+.dot.red{background:#ff5f56}.dot.yellow{background:#ffbd2e}.dot.green{background:#27c93f}
+.code-title{margin-left:8px;font-family:var(--mono);font-size:12px;color:var(--muted)}
+.code-window textarea{
+  width:100%;min-height:210px;max-height:420px;display:block;
+  background:#0d1117;color:#c9d1d9;border:none;padding:16px;
+  font-family:var(--mono);font-size:13px;line-height:1.75;resize:vertical;white-space:pre;overflow:auto;
+}
+.code-window textarea:focus{outline:none}
+
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.actions button{
+  font-family:var(--sans);font-size:13px;font-weight:500;padding:10px 16px;border-radius:var(--radius-sm);
+  cursor:pointer;transition:.2s var(--ease);border:1px solid var(--border-strong);
+  background:var(--surface-2);color:var(--text);display:flex;align-items:center;gap:7px;
+}
+.actions button:hover{border-color:var(--blue);color:var(--blue);transform:translateY(-1px)}
+.actions button:active{transform:translateY(0)}
+.actions button.primary{background:linear-gradient(135deg,#238636,#2ea043);color:#fff;border-color:transparent;box-shadow:0 4px 14px rgba(35,134,54,.3)}
+.actions button.primary:hover{color:#fff;box-shadow:0 6px 20px rgba(35,134,54,.45);transform:translateY(-1px)}
+.actions button.danger{color:var(--red)}
+.actions button.danger:hover{border-color:var(--red);color:var(--red);box-shadow:0 4px 14px rgba(248,81,73,.25)}
+
+/* Modal */
+.modal{display:none;position:fixed;inset:0;background:rgba(1,4,9,.7);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(6px);padding:20px}
+.modal.active{display:flex;animation:fade .25s var(--ease)}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal-content{
+  background:var(--surface-solid);border:1px solid var(--border-strong);border-radius:var(--radius);
+  padding:24px;width:92%;max-width:720px;max-height:86vh;overflow:auto;
+  box-shadow:0 24px 60px rgba(0,0,0,.6);animation:pop .3s var(--ease);
+}
+@keyframes pop{from{opacity:0;transform:scale(.95) translateY(10px)}to{opacity:1;transform:none}}
+.modal-content h2{margin-bottom:18px;font-size:18px;font-weight:700;display:flex;align-items:center;gap:8px}
+.modal-content .code-window{margin-bottom:16px}
+
+/* Instructions */
+.tabs{display:inline-flex;gap:4px;margin-bottom:18px;background:var(--surface-2);padding:4px;border-radius:99px;border:1px solid var(--border)}
+.tab{font-family:var(--sans);font-size:13.5px;font-weight:500;padding:7px 18px;background:none;border:none;color:var(--muted);cursor:pointer;border-radius:99px;transition:.2s var(--ease)}
+.tab:hover{color:var(--text)}
+.tab.active{color:#fff;background:linear-gradient(135deg,#1f6feb,#388bfd);box-shadow:0 2px 8px rgba(31,111,235,.35)}
+.tab-content{display:none;animation:fade .3s var(--ease)}
+.tab-content.active{display:block}
+.tab-content ol{padding-left:22px}
+.tab-content li{margin-bottom:12px;font-size:14px;line-height:1.85;color:var(--text)}
+.tab-content li::marker{color:var(--blue);font-weight:700}
+.tab-content code{background:rgba(110,118,129,.18);padding:2px 8px;border-radius:6px;font-family:var(--mono);font-size:12.5px;color:#c9d1d9}
+.tab-content .tip{background:linear-gradient(135deg,rgba(35,134,54,.12),rgba(35,134,54,.05));border:1px solid rgba(63,185,80,.3);border-left:3px solid var(--green);border-radius:10px;padding:14px 18px;margin-top:14px;font-size:13px;color:#7ee787;line-height:1.7}
+
+/* About / Disclaimer */
+.about{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  padding:0;margin-bottom:24px;backdrop-filter:blur(12px);box-shadow:var(--shadow);overflow:hidden;
+}
+.about > summary{
+  list-style:none;cursor:pointer;padding:16px 22px;font-size:14px;font-weight:600;
+  color:var(--text);display:flex;align-items:center;gap:8px;user-select:none;transition:.2s var(--ease);
+}
+.about > summary::-webkit-details-marker{display:none}
+.about > summary:hover{color:var(--blue)}
+.about > summary::after{content:'▾';margin-left:auto;color:var(--muted);font-size:12px;transition:transform .25s var(--ease)}
+.about[open] > summary::after{transform:rotate(180deg)}
+.about-body{padding:0 22px 20px;border-top:1px solid var(--border)}
+.about-line{font-size:13px;line-height:1.8;color:var(--muted);margin-top:14px}
+.about-line strong{color:var(--text);font-weight:600}
+.about-foot{margin-top:16px;font-size:12px;color:var(--muted);padding-top:14px;border-top:1px dashed var(--border)}
+.about-foot code{background:rgba(110,118,129,.18);padding:2px 7px;border-radius:5px;font-family:var(--mono);font-size:11.5px;color:#c9d1d9}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(120px);
+  background:var(--surface-solid);color:var(--text);padding:13px 24px;border-radius:12px;
+  border:1px solid var(--border-strong);font-size:14px;font-weight:500;z-index:2000;
+  transition:.35s var(--ease);box-shadow:0 12px 40px rgba(0,0,0,.5);display:flex;align-items:center;gap:8px;
+}
+.toast.show{transform:translateX(-50%) translateY(0)}
+.toast.success{border-color:rgba(63,185,80,.5);box-shadow:0 12px 40px rgba(35,134,54,.3)}
+.toast.error{border-color:rgba(248,81,73,.5)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#30363d;border-radius:6px;border:2px solid var(--bg)}
+::-webkit-scrollbar-thumb:hover{background:#484f58}
+
+/* Responsive */
+@media(max-width:640px){
+  .container{padding:32px 14px 60px}
+  .controls{flex-direction:column;align-items:stretch}
+  .controls button{justify-content:center}
+  header h1{font-size:26px}
+  table{font-size:12px}
+  th,td{padding:9px 10px}
+  .ip-select,.ip-input{max-width:130px;width:130px}
+  .badge{width:56px;height:56px;font-size:26px}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <div class="badge">🚀</div>
+    <h1><span>GitHub Hosts 加速工具</span></h1>
+    <p>自动查询最优 GitHub IP · 一键生成 hosts 配置 · 自动生成 PowerShell 脚本</p>
+    <div class="last-updated"><span class="live"></span>最后更新：<span id="update-time">尚未获取</span></div>
+  </header>
+
+  <div class="controls">
+    <select id="doh-provider">
+      <option value="auto">自动选择 DoH</option>
+      <option value="dnspod">DNSPod (腾讯)</option>
+      <option value="alidns">AliDNS (阿里)</option>
+      <option value="cloudflare">Cloudflare</option>
+      <option value="google">Google</option>
+    </select>
+    <button class="primary" id="fetch-btn">🔍 获取最新 IP</button>
+    <button id="test-btn">⚡ 测试延迟</button>
+    <div class="progress-bar" id="progress">
+      <div class="fill" id="progress-fill"></div>
+    </div>
+  </div>
+
+  <div class="results">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:36px"><label><input type="checkbox" id="select-all" checked> 包含</label></th>
+          <th>域名</th>
+          <th style="width:50px">状态</th>
+          <th>IP 地址</th>
+          <th style="width:88px">延迟</th>
+        </tr>
+      </thead>
+      <tbody id="results-body"></tbody>
+    </table>
+  </div>
+
+  <div class="hosts-section">
+    <div class="section-title">
+      📝 生成的 Hosts 内容
+      <span class="count" id="hosts-count">0 条记录</span>
+    </div>
+    <div class="code-window">
+      <div class="code-window-header">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="code-title">hosts · read only</span>
+      </div>
+      <textarea id="hosts-content" readonly></textarea>
+    </div>
+    <div class="actions">
+      <button class="primary" id="copy-hosts">📋 复制 Hosts 内容</button>
+      <button id="download-hosts">💾 下载 hosts.txt</button>
+      <button id="gen-ps1">🔧 生成 PowerShell 脚本</button>
+      <button id="gen-restore" class="danger">🔄 生成恢复脚本</button>
+    </div>
+  </div>
+
+  <div class="instructions">
+    <div class="section-title">📖 使用说明</div>
+    <div class="tabs">
+      <button class="tab active" data-tab="windows">Windows</button>
+      <button class="tab" data-tab="mac">macOS</button>
+      <button class="tab" data-tab="linux">Linux</button>
+    </div>
+    <div class="tab-content active" id="tab-windows">
+      <ol>
+        <li>点击上方 <code>获取最新 IP</code> 按钮，等待所有域名解析完成</li>
+        <li>点击 <code>生成 PowerShell 脚本</code>，复制或下载生成的脚本</li>
+        <li><strong>右键</strong> 以 <code>管理员身份</code> 运行下载的 <code>.ps1</code> 脚本</li>
+        <li>脚本会自动备份原 hosts 文件、写入新条目并刷新 DNS 缓存</li>
+        <li>重新打开浏览器访问 GitHub，速度应有明显提升</li>
+      </ol>
+      <div class="tip">💡 也可以手动操作：复制 hosts 内容 → 以管理员身份打开记事本 → 打开 <code>C:\Windows\System32\drivers\etc\hosts</code> → 粘贴保存 → CMD 运行 <code>ipconfig /flushdns</code></div>
+    </div>
+    <div class="tab-content" id="tab-mac">
+      <ol>
+        <li>点击上方 <code>获取最新 IP</code> 按钮，等待所有域名解析完成</li>
+        <li>复制生成的 hosts 内容</li>
+        <li>打开终端，运行 <code>sudo nano /etc/hosts</code></li>
+        <li>在文件末尾粘贴内容，按 <code>Ctrl+O</code> 保存，<code>Ctrl+X</code> 退出</li>
+        <li>运行 <code>sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder</code> 刷新 DNS</li>
+      </ol>
+    </div>
+    <div class="tab-content" id="tab-linux">
+      <ol>
+        <li>点击上方 <code>获取最新 IP</code> 按钮，等待所有域名解析完成</li>
+        <li>复制生成的 hosts 内容</li>
+        <li>打开终端，运行 <code>sudo nano /etc/hosts</code></li>
+        <li>在文件末尾粘贴内容并保存</li>
+        <li>运行 <code>sudo systemctl restart NetworkManager</code> 或 <code>sudo resolvectl flush-caches</code> 刷新 DNS</li>
+      </ol>
+    </div>
+  </div>
+
+  <details class="about">
+    <summary>ℹ️ 关于 / 免责声明</summary>
+    <div class="about-body">
+      <p class="about-line"><strong>非官方工具：</strong>本工具与 GitHub, Inc. / Microsoft 及其关联公司<strong>无任何隶属、合作或官方关系</strong>，未获其授权、赞助或背书。「GitHub」为其各自所有者的商标。</p>
+      <p class="about-line"><strong>风险自担：</strong>本工具仅供个人学习与技术交流使用。使用者应自行评估所在地区相关法律法规，因使用本工具产生的任何后果由使用者自行承担。</p>
+      <p class="about-line"><strong>IP 来源：</strong>工具中的 IP 均在<strong>运行时通过公共 DoH 服务实时查询</strong>获得，并非硬编码或人为伪造；IP 可能随网络环境变化而失效，失效请重新获取或清除 hosts 条目。</p>
+      <p class="about-line"><strong>本地操作：</strong>本工具仅修改使用者<strong>自己设备</strong>上的 hosts 文件，不收集、不上传任何用户数据，不含任何远程控制或恶意行为。</p>
+      <p class="about-line"><strong>合规使用：</strong>请勿将本工具用于任何违反法律法规或服务提供商条款的用途。</p>
+      <p class="about-foot">基于 MIT 协议开源 · 纯前端单文件 · 源代码与文档见仓库 <code>LICENSE</code> / <code>README.md</code></p>
+    </div>
+  </details>
+</div>
+
+<div class="modal" id="ps1-modal">
+  <div class="modal-content">
+    <h2 id="modal-title">PowerShell 脚本</h2>
+    <div class="code-window">
+      <div class="code-window-header">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+        <span class="code-title">powershell · admin</span>
+      </div>
+      <textarea id="ps1-content" readonly></textarea>
+    </div>
+    <div class="actions">
+      <button class="primary" id="copy-ps1">📋 复制脚本</button>
+      <button id="download-ps1">💾 下载 .ps1</button>
+      <button id="close-modal">关闭</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============ 配置 ============
+const DOMAINS = [
+  'github.com',
+  'api.github.com',
+  'raw.githubusercontent.com',
+  'objects.githubusercontent.com',
+  'codeload.github.com',
+  'github.global.ssl.fastly.net',
+  'assets-cdn.github.com',
+  'github.githubassets.com',
+  'gist.github.com',
+  'live.github.com',
+  'favicons.githubusercontent.com',
+  'collector.github.com'
+];
+
+const DOH_PROVIDERS = {
+  dnspod: {
+    name: 'DNSPod',
+    url: d => `https://doh.pub/dns-query?name=${d}&type=A`,
+    headers: { 'Accept': 'application/dns-json' }
+  },
+  alidns: {
+    name: 'AliDNS',
+    url: d => `https://dns.alidns.com/dns-query?name=${d}&type=A`,
+    headers: { 'Accept': 'application/dns-json' }
+  },
+  cloudflare: {
+    name: 'Cloudflare',
+    url: d => `https://cloudflare-dns.com/dns-query?name=${d}&type=A`,
+    headers: { 'Accept': 'application/dns-json' }
+  },
+  google: {
+    name: 'Google',
+    url: d => `https://dns.google/resolve?name=${d}&type=A`,
+    headers: {}
+  }
+};
+
+// 自动模式的尝试顺序（国内优先）
+const AUTO_ORDER = ['dnspod', 'alidns', 'cloudflare', 'google'];
+
+// ============ 状态 ============
+const state = {};
+DOMAINS.forEach(d => {
+  state[d] = { domain: d, ips: [], selectedIp: '', provider: '', status: 'pending', latency: null, included: true };
+});
+
+// ============ DOM ============
+const $ = id => document.getElementById(id);
+const resultsBody = $('results-body');
+const hostsContent = $('hosts-content');
+const toast = $('toast');
+
+// ============ Toast ============
+function showToast(msg, type = '') {
+  toast.textContent = msg;
+  toast.className = 'toast show ' + type;
+  setTimeout(() => toast.className = 'toast ' + type, 2500);
+}
+
+// ============ DoH 查询 ============
+async function resolveWithProvider(domain, providerKey, timeout = 6000) {
+  const provider = DOH_PROVIDERS[providerKey];
+  const controller = new AbortController();
+  const tid = setTimeout(() => controller.abort(), timeout);
+  try {
+    const resp = await fetch(provider.url(domain), {
+      headers: provider.headers,
+      signal: controller.signal
+    });
+    clearTimeout(tid);
+    const data = await resp.json();
+    if (data.Answer) {
+      const ips = data.Answer.filter(a => a.type === 1).map(a => a.data);
+      return ips;
+    }
+    return [];
+  } catch (e) {
+    clearTimeout(tid);
+    throw e;
+  }
+}
+
+async function resolveDomain(domain, preferred) {
+  const providers = preferred === 'auto' ? AUTO_ORDER : [preferred, ...AUTO_ORDER.filter(p => p !== preferred)];
+  for (const p of providers) {
+    try {
+      const ips = await resolveWithProvider(domain, p);
+      if (ips.length > 0) {
+        return { ips, provider: DOH_PROVIDERS[p].name };
+      }
+    } catch (e) { /* try next */ }
+  }
+  return { ips: [], provider: '' };
+}
+
+// ============ 延迟测试 ============
+function testLatency(domain, timeout = 5000) {
+  return new Promise(resolve => {
+    const img = new Image();
+    const start = performance.now();
+    let done = false;
+    const tid = setTimeout(() => {
+      if (!done) { done = true; resolve(null); }
+    }, timeout);
+    img.onload = img.onerror = () => {
+      if (!done) {
+        done = true;
+        clearTimeout(tid);
+        resolve(Math.round(performance.now() - start));
+      }
+    };
+    img.src = `https://${domain}/favicon.ico?_t=${Date.now()}`;
+  });
+}
+
+// ============ 渲染表格 ============
+function renderTable() {
+  resultsBody.innerHTML = '';
+  DOMAINS.forEach(d => {
+    const s = state[d];
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="checkbox" class="inc-cb" data-domain="${d}" ${s.included ? 'checked' : ''}></td>
+      <td class="domain-name">${d}</td>
+      <td><span class="status-dot ${s.status}"></span></td>
+      <td class="ip-cell" id="ip-cell-${d}">${renderIpCell(d)}</td>
+      <td><span class="latency ${latencyClass(s.latency)}" id="lat-${d}">${latencyText(s.latency)}</span></td>
+    `;
+    resultsBody.appendChild(tr);
+  });
+  // 绑定 checkbox
+  document.querySelectorAll('.inc-cb').forEach(cb => {
+    cb.addEventListener('change', e => {
+      state[e.target.dataset.domain].included = e.target.checked;
+      updateHosts();
+    });
+  });
+  // 绑定 IP 选择
+  document.querySelectorAll('.ip-select').forEach(sel => {
+    sel.addEventListener('change', e => {
+      state[e.target.dataset.domain].selectedIp = e.target.value;
+      updateHosts();
+    });
+  });
+  document.querySelectorAll('.ip-input').forEach(inp => {
+    inp.addEventListener('input', e => {
+      state[e.target.dataset.domain].selectedIp = e.target.value.trim();
+      updateHosts();
+    });
+  });
+}
+
+function renderIpCell(d) {
+  const s = state[d];
+  if (s.status === 'loading') return '<span style="color:var(--muted)">查询中...</span>';
+  if (s.status === 'success' && s.ips.length > 0) {
+    if (s.ips.length === 1) {
+      return `<input type="text" class="ip-input" data-domain="${d}" value="${s.selectedIp}">`;
+    }
+    return `<select class="ip-select" data-domain="${d}">
+      ${s.ips.map(ip => `<option value="${ip}" ${ip === s.selectedIp ? 'selected' : ''}>${ip}</option>`).join('')}
+    </select>`;
+  }
+  if (s.status === 'fail') {
+    return `<input type="text" class="ip-input" data-domain="${d}" placeholder="手动输入IP" value="${s.selectedIp}">`;
+  }
+  return '<span style="color:var(--muted)">—</span>';
+}
+
+function latencyClass(lat) {
+  if (lat === null) return 'fail';
+  if (lat < 200) return 'good';
+  if (lat < 800) return 'ok';
+  return 'slow';
+}
+function latencyText(lat) {
+  if (lat === null) return '—';
+  return lat + 'ms';
+}
+
+// ============ 更新单个域名行 ============
+function updateRow(d) {
+  const s = state[d];
+  const dotCell = resultsBody.querySelector(`tr:nth-child(${DOMAINS.indexOf(d) + 1}) td:nth-child(3) .status-dot`);
+  const ipCell = $(`ip-cell-${d}`);
+  if (dotCell) dotCell.className = 'status-dot ' + s.status;
+  if (ipCell) ipCell.innerHTML = renderIpCell(d);
+  // 重新绑定
+  const sel = ipCell?.querySelector('.ip-select');
+  const inp = ipCell?.querySelector('.ip-input');
+  if (sel) sel.addEventListener('change', e => { state[d].selectedIp = e.target.value; updateHosts(); });
+  if (inp) inp.addEventListener('input', e => { state[d].selectedIp = e.target.value.trim(); updateHosts(); });
+}
+
+// ============ 生成 Hosts 内容 ============
+function updateHosts() {
+  const entries = [];
+  const now = new Date();
+  const ts = now.toLocaleString('zh-CN');
+  DOMAINS.forEach(d => {
+    const s = state[d];
+    if (s.included && s.selectedIp && /^(\d{1,3}\.){3}\d{1,3}$/.test(s.selectedIp)) {
+      entries.push(`${s.selectedIp.padEnd(22)} ${d}`);
+    }
+  });
+  const content = `# GitHub Hosts Start (更新于 ${ts})
+${entries.join('\n')}
+# GitHub Hosts End`;
+  hostsContent.value = content;
+  $('hosts-count').textContent = `${entries.length} 条记录`;
+}
+
+// ============ 批量获取 IP ============
+async function fetchAll() {
+  const provider = $('doh-provider').value;
+  const btn = $('fetch-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ 查询中...';
+  $('progress').classList.add('active');
+
+  // 设置所有为 loading
+  DOMAINS.forEach(d => { state[d].status = 'loading'; updateRow(d); });
+
+  let done = 0;
+  const total = DOMAINS.length;
+
+  // 并行查询
+  const promises = DOMAINS.map(async d => {
+    const result = await resolveDomain(d, provider);
+    state[d].ips = result.ips;
+    state[d].selectedIp = result.ips[0] || '';
+    state[d].provider = result.provider;
+    state[d].status = result.ips.length > 0 ? 'success' : 'fail';
+    done++;
+    $('progress-fill').style.width = (done / total * 100) + '%';
+    updateRow(d);
+    return d;
+  });
+
+  await Promise.all(promises);
+  updateHosts();
+
+  const success = DOMAINS.filter(d => state[d].status === 'success').length;
+  const fail = total - success;
+  $('update-time').textContent = new Date().toLocaleTimeString('zh-CN') + ` (${success}/${total} 成功${fail ? `, ${fail} 失败` : ''})`;
+
+  btn.disabled = false;
+  btn.textContent = '🔍 获取最新 IP';
+  $('progress').classList.remove('active');
+  $('progress-fill').style.width = '0%';
+
+  if (success === total) {
+    showToast(`✅ 全部 ${total} 个域名解析成功！`, 'success');
+  } else if (success > 0) {
+    showToast(`⚠️ ${success}/${total} 成功，${fail} 个失败（可手动输入 IP）`, '');
+  } else {
+    showToast('❌ 所有 DoH 服务均不可用，请手动输入 IP', 'error');
+  }
+}
+
+// ============ 批量测试延迟 ============
+async function testAll() {
+  const btn = $('test-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ 测试中...';
+  DOMAINS.forEach(d => {
+    state[d].latency = null;
+    const el = $(`lat-${d}`);
+    if (el) { el.className = 'latency fail'; el.textContent = '...'; }
+  });
+
+  const promises = DOMAINS.map(async d => {
+    const lat = await testLatency(d);
+    state[d].latency = lat;
+    const el = $(`lat-${d}`);
+    if (el) { el.className = 'latency ' + latencyClass(lat); el.textContent = latencyText(lat); }
+  });
+  await Promise.all(promises);
+
+  btn.disabled = false;
+  btn.textContent = '⚡ 测试延迟';
+  const avg = DOMAINS.filter(d => state[d].latency !== null).map(d => state[d].latency);
+  if (avg.length > 0) {
+    const sum = avg.reduce((a, b) => a + b, 0);
+    showToast(`⚡ 平均延迟: ${Math.round(sum / avg.length)}ms (${avg.length}/${DOMAINS.length} 可达)`, 'success');
+  } else {
+    showToast('❌ 所有域名均无法连接', 'error');
+  }
+}
+
+// ============ PowerShell 脚本 ============
+// 注意：用字符串数组拼接（单引号），避免 PowerShell 中的反引号 "`n" 破坏 JS 模板字符串
+function generatePS1(restore = false) {
+  const ts = new Date().toLocaleString('zh-CN');
+  if (restore) {
+    return [
+'# GitHub Hosts 恢复脚本',
+'# 生成于 ' + ts,
+'# 请以管理员身份运行',
+'',
+'$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)',
+'if (-not $isAdmin) {',
+'    Write-Host "请以管理员身份运行此脚本！" -ForegroundColor Red',
+'    Read-Host "按回车键退出"',
+'    exit 1',
+'}',
+'',
+'$hostsPath = "$env:WINDIR\\System32\\drivers\\etc\\hosts"',
+'$content = Get-Content $hostsPath -Raw',
+'# 移除 GitHub Hosts 标记之间的内容',
+'$content = $content -replace ' + "'" + '(?s)\\r?\\n?# GitHub Hosts Start.*?# GitHub Hosts End\\r?\\n?' + "'" + ', "`n"',
+'Set-Content -Path $hostsPath -Value $content.TrimEnd() + "`n" -Encoding UTF8 -NoNewline',
+'',
+'ipconfig /flushdns | Out-Null',
+'Write-Host "已移除 GitHub hosts 条目并刷新 DNS！" -ForegroundColor Green',
+'Write-Host "GitHub 已恢复到默认连接方式。" -ForegroundColor Cyan',
+'Read-Host "按回车键退出"'
+    ].join('\n');
+  }
+
+  const entries = [];
+  DOMAINS.forEach(d => {
+    const s = state[d];
+    if (s.included && s.selectedIp && /^(\d{1,3}\.){3}\d{1,3}$/.test(s.selectedIp)) {
+      entries.push(s.selectedIp + ' ' + d);
+    }
+  });
+
+  return [
+'# GitHub Hosts 加速脚本',
+'# 生成于 ' + ts,
+'# 请以管理员身份运行',
+'',
+'# 检查管理员权限',
+'$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)',
+'if (-not $isAdmin) {',
+'    Write-Host "请以管理员身份运行此脚本！" -ForegroundColor Red',
+'    Read-Host "按回车键退出"',
+'    exit 1',
+'}',
+'',
+'$hostsPath = "$env:WINDIR\\System32\\drivers\\etc\\hosts"',
+'$backupPath = "$env:WINDIR\\System32\\drivers\\etc\\hosts.backup.' + Date.now() + '"',
+'',
+'# 备份原文件',
+'Copy-Item $hostsPath $backupPath -Force',
+'Write-Host "已备份原 hosts 文件到: $backupPath" -ForegroundColor Green',
+'',
+'# 读取并清理旧条目',
+'$content = Get-Content $hostsPath -Raw -ErrorAction SilentlyContinue',
+'if ($content) {',
+'    $content = $content -replace ' + "'" + '(?s)\\r?\\n?# GitHub Hosts Start.*?# GitHub Hosts End\\r?\\n?' + "'" + ', "`n"',
+'} else {',
+'    $content = ""',
+'}',
+'',
+'# 新条目',
+'$newEntries = @"',
+'',
+'# GitHub Hosts Start (更新于 ' + ts + ')',
+entries.join('\n'),
+'# GitHub Hosts End',
+'"@',
+'',
+'# 写入',
+'$content = $content.TrimEnd() + "`n" + $newEntries + "`n"',
+'Set-Content -Path $hostsPath -Value $content -Encoding UTF8 -NoNewline',
+'Write-Host "已更新 hosts 文件！共写入 ' + entries.length + ' 条记录" -ForegroundColor Green',
+'',
+'# 刷新 DNS 缓存',
+'ipconfig /flushdns | Out-Null',
+'Write-Host "已刷新 DNS 缓存！" -ForegroundColor Green',
+'Write-Host ""',
+'Write-Host "完成！现在访问 GitHub 应该更快了。" -ForegroundColor Cyan',
+'Write-Host "如需恢复，运行恢复脚本即可。" -ForegroundColor Yellow',
+'Read-Host "按回车键退出"'
+  ].join('\n');
+}
+
+// ============ 复制到剪贴板 ============
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (e) {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    try {
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      return true;
+    } catch (e2) {
+      document.body.removeChild(ta);
+      return false;
+    }
+  }
+}
+
+// ============ 下载文件 ============
+function downloadFile(filename, content) {
+  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+// ============ 事件绑定 ============
+$('fetch-btn').addEventListener('click', fetchAll);
+$('test-btn').addEventListener('click', testAll);
+
+$('select-all').addEventListener('change', e => {
+  DOMAINS.forEach(d => { state[d].included = e.target.checked; });
+  document.querySelectorAll('.inc-cb').forEach(cb => { cb.checked = e.target.checked; });
+  updateHosts();
+});
+
+$('copy-hosts').addEventListener('click', async () => {
+  if (await copyText(hostsContent.value)) {
+    showToast('✅ Hosts 内容已复制到剪贴板', 'success');
+  } else {
+    showToast('❌ 复制失败，请手动选择文本复制', 'error');
+  }
+});
+
+$('download-hosts').addEventListener('click', () => {
+  downloadFile('hosts.txt', hostsContent.value);
+  showToast('✅ hosts.txt 已下载', 'success');
+});
+
+$('gen-ps1').addEventListener('click', () => {
+  $('modal-title').textContent = '🔧 PowerShell 加速脚本';
+  $('ps1-content').value = generatePS1(false);
+  $('ps1-modal').classList.add('active');
+  $('download-ps1').dataset.mode = 'apply';
+});
+
+$('gen-restore').addEventListener('click', () => {
+  $('modal-title').textContent = '🔄 PowerShell 恢复脚本';
+  $('ps1-content').value = generatePS1(true);
+  $('ps1-modal').classList.add('active');
+  $('download-ps1').dataset.mode = 'restore';
+});
+
+$('copy-ps1').addEventListener('click', async () => {
+  if (await copyText($('ps1-content').value)) {
+    showToast('✅ 脚本已复制到剪贴板', 'success');
+  } else {
+    showToast('❌ 复制失败', 'error');
+  }
+});
+
+$('download-ps1').addEventListener('click', () => {
+  const mode = $('download-ps1').dataset.mode;
+  const name = mode === 'restore' ? 'github-hosts-restore.ps1' : 'github-hosts-apply.ps1';
+  downloadFile(name, $('ps1-content').value);
+  showToast(`✅ ${name} 已下载`, 'success');
+});
+
+$('close-modal').addEventListener('click', () => {
+  $('ps1-modal').classList.remove('active');
+});
+
+$('ps1-modal').addEventListener('click', e => {
+  if (e.target === $('ps1-modal')) $('ps1-modal').classList.remove('active');
+});
+
+// Tab 切换
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    tab.classList.add('active');
+    $('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ============ 初始化 ============
+renderTable();
+// 页面加载后自动获取
+setTimeout(fetchAll, 300);
+</script>
+</body>
+</html>
