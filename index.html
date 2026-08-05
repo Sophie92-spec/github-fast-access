@@ -420,11 +420,10 @@ th label{display:flex;align-items:center;gap:7px;cursor:pointer}
       <textarea id="ps1-content" readonly></textarea>
     </div>
     <div class="ps1-tip">
-      💡 <strong>避免 Windows 下载警告：</strong>脚本已打包为 <code>.zip</code> 下载，下载后解压得到 <code>.ps1</code>，右键「使用 PowerShell 运行」即可。若运行时仍提示，可在文件属性中勾选「解除锁定」。
+      💡 <strong>避免下载警告：</strong>为彻底规避 Windows / 浏览器对 <code>.ps1</code> / <code>.txt</code> / <code>.zip</code> 的任何下载提示，本工具不提供文件下载。请点「复制脚本」把内容复制到剪贴板，粘贴保存为 <code>.ps1</code> 后，右键「使用 PowerShell 运行」（管理员）。
     </div>
     <div class="actions">
       <button class="primary" id="copy-ps1">📋 复制脚本</button>
-      <button id="download-ps1">💾 下载 .zip</button>
       <button id="close-modal">关闭</button>
     </div>
   </div>
@@ -959,14 +958,12 @@ $('gen-ps1').addEventListener('click', () => {
   $('modal-title').textContent = '🔧 PowerShell 加速脚本';
   $('ps1-content').value = generatePS1(false);
   $('ps1-modal').classList.add('active');
-  $('download-ps1').dataset.mode = 'apply';
 });
 
 $('gen-restore').addEventListener('click', () => {
   $('modal-title').textContent = '🔄 PowerShell 恢复脚本';
   $('ps1-content').value = generatePS1(true);
   $('ps1-modal').classList.add('active');
-  $('download-ps1').dataset.mode = 'restore';
 });
 
 $('copy-ps1').addEventListener('click', async () => {
@@ -975,14 +972,6 @@ $('copy-ps1').addEventListener('click', async () => {
   } else {
     showToast('❌ 复制失败', 'error');
   }
-});
-
-$('download-ps1').addEventListener('click', () => {
-  const mode = $('download-ps1').dataset.mode;
-  const ps1Name = mode === 'restore' ? 'github-hosts-restore.ps1' : 'github-hosts-apply.ps1';
-  const blob = makeZipFile(ps1Name, $('ps1-content').value);
-  downloadBlob(ps1Name.replace('.ps1', '') + '.zip', blob);
-  showToast(`✅ ${ps1Name}.zip 已下载`, 'success');
 });
 
 $('close-modal').addEventListener('click', () => {
