@@ -420,10 +420,11 @@ th label{display:flex;align-items:center;gap:7px;cursor:pointer}
       <textarea id="ps1-content" readonly></textarea>
     </div>
     <div class="ps1-tip">
-      💡 <strong>避免下载警告：</strong>为彻底规避 Windows / 浏览器对 <code>.ps1</code> / <code>.txt</code> / <code>.zip</code> 的任何下载提示，本工具不提供文件下载。请点「复制脚本」把内容复制到剪贴板，粘贴保存为 <code>.ps1</code> 后，右键「使用 PowerShell 运行」（管理员）。
+      💡 <strong>关于系统提示：</strong>下载 <code>.ps1</code> 后，Windows / Edge 可能提示“可能会损害你的设备”，这是系统对脚本文件的正常保护。点「保留」即可，脚本开源透明、无恶意；随后右键文件「使用 PowerShell 运行」并以管理员身份运行。
     </div>
     <div class="actions">
       <button class="primary" id="copy-ps1">📋 复制脚本</button>
+      <button id="download-ps1">💾 下载 .ps1</button>
       <button id="close-modal">关闭</button>
     </div>
   </div>
@@ -958,12 +959,14 @@ $('gen-ps1').addEventListener('click', () => {
   $('modal-title').textContent = '🔧 PowerShell 加速脚本';
   $('ps1-content').value = generatePS1(false);
   $('ps1-modal').classList.add('active');
+  $('download-ps1').dataset.mode = 'apply';
 });
 
 $('gen-restore').addEventListener('click', () => {
   $('modal-title').textContent = '🔄 PowerShell 恢复脚本';
   $('ps1-content').value = generatePS1(true);
   $('ps1-modal').classList.add('active');
+  $('download-ps1').dataset.mode = 'restore';
 });
 
 $('copy-ps1').addEventListener('click', async () => {
@@ -972,6 +975,13 @@ $('copy-ps1').addEventListener('click', async () => {
   } else {
     showToast('❌ 复制失败', 'error');
   }
+});
+
+$('download-ps1').addEventListener('click', () => {
+  const mode = $('download-ps1').dataset.mode;
+  const name = mode === 'restore' ? 'github-hosts-restore.ps1' : 'github-hosts-apply.ps1';
+  downloadFile(name, $('ps1-content').value);
+  showToast(`✅ ${name} 已下载`, 'success');
 });
 
 $('close-modal').addEventListener('click', () => {
