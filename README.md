@@ -36,13 +36,13 @@ python -m http.server 8765
 ### 方式二：应用配置
 
 1. 点击「获取最新 IP」，等待所有域名解析完成；
-2. 点击「生成 PowerShell 脚本」→ 「下载 .ps1.txt」；
-3. 将下载的 `.ps1.txt` 重命名为 `.ps1`；
+2. 点击「生成 PowerShell 脚本」→ 「下载 .zip」；
+3. 解压得到 `.ps1` 脚本；
 4. **右键**该脚本 → 「使用 PowerShell 运行」（需管理员权限）；
 5. 脚本自动完成备份、写入、刷新 DNS；
 6. 重新打开浏览器访问 GitHub 即可。
 
-> 为什么下载 `.ps1.txt`：Windows / Edge 对 `.ps1` 脚本文件会弹“可能会损害你的设备”安全警告，所以提供 `.ps1.txt` 下载，请手动改后缀后再运行。
+> 为什么下载 `.zip`：Windows / Edge 对 `.ps1` 脚本文件会弹“可能会损害你的设备”安全警告，所以打包成 `.zip` 下载，解压后即可使用，下载阶段不会触发该警告。
 
 > 也可手动操作：复制 hosts 内容 → 以管理员身份用记事本打开 `C:\Windows\System32\drivers\etc\hosts` → 粘贴保存 → 运行 `ipconfig /flushdns`。
 
