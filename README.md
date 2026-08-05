@@ -20,7 +20,7 @@
 
 ### 方式一：打开网页（推荐）
 
-🌐 **在线演示（无需部署，直接打开）**：https://7060b26a4dea41ec81408bebfa63e1fc.sh4.agentos-app.net
+🌐 **在线演示（无需部署，直接打开）**：https://sophie92-spec.github.io/github-fast-access/
 
 点击上面的链接即可直接使用，无需下载或安装。页面打开后会自动发起 DoH 查询。
 
