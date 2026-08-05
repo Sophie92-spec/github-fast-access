@@ -20,31 +20,19 @@
 
 ### 方式一：打开网页（推荐）
 
-🌐 **在线演示（无需部署，直接打开）**：https://sophie92-spec.github.io/github-fast-access/
+🌐 在线直接用：https://sophie92-spec.github.io/github-fast-access/
 
-点击上面的链接即可直接使用，无需下载或安装。页面打开后会自动发起 DoH 查询。
-
-如需本地运行：直接用浏览器打开本仓库的 `index.html` 即可（无需任何服务器）。
-
-如需本地起服务：
-
-```bash
-python -m http.server 8765
-# 然后访问 http://localhost:8765
-```
+打开链接就能用，不用装任何东西，页面会自动帮你查 IP。想本地跑也行——直接用浏览器打开 `index.html`，或执行 `python -m http.server 8765` 后访问 http://localhost:8765。
 
 ### 方式二：应用配置
 
-1. 点击「获取最新 IP」，等待所有域名解析完成；
-2. 点击「生成 PowerShell 脚本」→「下载 .ps1」；
-3. 若浏览器 / 系统提示“可能会损害你的设备”，点击「保留」即可（脚本开源透明、无恶意）；
-4. **右键**下载的 `.ps1` 文件 →「使用 PowerShell 运行」（需管理员权限）；
-5. 脚本自动完成备份、写入、刷新 DNS；
-6. 重新打开浏览器访问 GitHub 即可。
+1. 点「获取最新 IP」，等解析完成；
+2. 点「生成 PowerShell 脚本」→「下载 .ps1」；
+3. 系统若弹「可能会损害你的设备」，放心点「保留」——脚本开源透明，没毛病；
+4. **右键** `.ps1` →「使用 PowerShell 运行」（需管理员）；
+5. 脚本自动备份、写入、刷新 DNS，重开浏览器即可。
 
-> 说明：`.ps1` 是 PowerShell 脚本，Windows / Edge 会对下载的脚本文件弹出 SmartScreen 安全提示，这是系统正常保护机制，并非脚本本身有问题。点「保留」后右键以管理员身份运行即可。
-
-> 也可手动操作：复制 hosts 内容 → 以管理员身份用记事本打开 `C:\Windows\System32\drivers\etc\hosts` → 粘贴保存 → 运行 `ipconfig /flushdns`。
+> PowerShell 脚本被 Windows 拦截是正常保护机制，不是脚本有问题，点「保留」再用管理员身份运行就好。嫌麻烦也可以手动复制 hosts 内容，以管理员打开 `C:\Windows\System32\drivers\etc\hosts` 粘贴保存，再跑 `ipconfig /flushdns`。
 
 ---
 
