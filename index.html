@@ -3,305 +3,373 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GitHub Hosts 加速工具</title>
+<title>GitHub Hosts - Microsoft Edge Style</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#202020;
-  --surface:#2c2c2c;
-  --surface-2:#363636;
-  --surface-hover:#3e3e3e;
-  --border:#3d3d3d;
-  --border-strong:#4d4d4d;
+  --bg:#1f1f1f;
+  --toolbar:#2b2b2b;
+  --surface:#2b2b2b;
+  --surface-2:#333333;
+  --surface-hover:#383838;
+  --border:#383838;
+  --border-strong:#4a4a4a;
   --text:#ffffff;
-  --muted:#999999;
-  --blue:#60cdff;
-  --blue-hover:#8ad7ff;
+  --text-secondary:#a0a0a0;
+  --accent:#4da3ff;
+  --accent-hover:#6db6ff;
+  --accent-bg:rgba(77,163,255,.12);
+  --green:#4ecb71;
+  --red:#ff6b6b;
+  --orange:#f0a030;
   --purple:#c084fc;
-  --green:#6ccb5f;
-  --red:#ff99a4;
-  --orange:#f0a840;
   --radius:8px;
-  --radius-sm:6px;
-  --shadow:0 2px 8px rgba(0,0,0,.25);
+  --radius-lg:12px;
+  --shadow:0 2px 8px rgba(0,0,0,.18);
+  --shadow-lg:0 8px 24px rgba(0,0,0,.28);
   --ease:cubic-bezier(.33,.44,.33,.9);
-  --mono:"Cascadia Code","Consolas","Fira Code","SF Mono",monospace;
-  --sans:"Segoe UI Variable","Segoe UI",-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",Arial,sans-serif;
-  --chevron:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  --mono:"Cascadia Code","Consolas","Fira Code",monospace;
+  --sans:"Segoe UI Variable","Segoe UI",-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  --chevron:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 }
 html{scroll-behavior:smooth}
 body{
   font-family:var(--sans);background:var(--bg);color:var(--text);
-  line-height:1.6;min-height:100vh;position:relative;overflow-x:hidden;
+  line-height:1.55;min-height:100vh;position:relative;overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
+  display:flex;flex-direction:column;
 }
-body::before{
-  content:'';position:fixed;top:-12%;left:50%;transform:translateX(-50%);
-  width:800px;height:500px;z-index:0;pointer-events:none;
-  background:radial-gradient(circle at 35% 40%,rgba(96,205,255,.07),transparent 60%),
-            radial-gradient(circle at 70% 45%,rgba(192,132,252,.05),transparent 55%);
-  filter:blur(60px);
-}
-.container{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:40px 20px 80px}
 
-/* Entrance animation */
-.container>*{animation:rise .5s var(--ease) both}
-.container>*:nth-child(1){animation-delay:.02s}
-.container>*:nth-child(2){animation-delay:.06s}
-.container>*:nth-child(3){animation-delay:.10s}
-.container>*:nth-child(4){animation-delay:.14s}
-.container>*:nth-child(5){animation-delay:.18s}
-@keyframes rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+/* ===== Edge Toolbar ===== */
+.toolbar{
+  display:flex;align-items:center;gap:12px;padding:10px 16px;
+  background:var(--toolbar);border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);
+  -webkit-app-region:drag;
+}
+.toolbar-title{
+  font-size:13px;font-weight:600;color:var(--text);letter-spacing:-.2px;
+  display:flex;align-items:center;gap:8px;-webkit-app-region:no-drag;
+}
+.toolbar-title svg{opacity:.7}
+.toolbar-spacer{flex:1}
+.toolbar-actions{
+  display:flex;gap:6px;-webkit-app-region:no-drag;
+}
+.toolbar-btn{
+  width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;
+  background:none;border:none;color:var(--text-secondary);cursor:pointer;transition:.15s var(--ease);
+}
+.toolbar-btn:hover{background:var(--surface-hover);color:var(--text)}
+.toolbar-btn svg{width:16px;height:16px;pointer-events:none}
 
-input[type=checkbox]{accent-color:var(--blue);width:16px;height:16px;cursor:pointer}
+/* ===== Container ===== */
+.container{
+  flex:1;max-width:900px;width:100%;margin:0 auto;padding:28px 20px 60px;
+}
 
-/* Header */
-header{text-align:center;margin-bottom:32px}
-.badge{
-  width:60px;height:60px;margin:0 auto 16px;border-radius:14px;
-  display:flex;align-items:center;justify-content:center;font-size:28px;
-  background:linear-gradient(146deg,#0078d4,#60cdff);
-  box-shadow:0 4px 16px rgba(0,120,212,.35);
-  animation:float 4s ease-in-out infinite;
+/* Edge address-bar style controls */
+.address-bar{
+  display:flex;align-items:center;gap:8px;padding:8px 12px;
+  background:var(--toolbar);border:1px solid var(--border);border-radius:var(--radius-lg);
+  margin-bottom:20px;transition:border-color .15s var(--ease);
 }
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-header h1{font-size:28px;font-weight:600;letter-spacing:-.3px;margin-bottom:8px;color:var(--text)}
-header h1 span{
-  background:linear-gradient(90deg,#60cdff,#c084fc);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+.address-bar:focus-within{border-color:var(--accent);box-shadow:0 0 0 2px rgba(77,163,255,.2)}
+.address-bar select{
+  background:var(--surface-2);border:1px solid var(--border);border-radius:6px;
+  color:var(--text);padding:7px 30px 7px 10px;font-size:12.5px;font-family:var(--sans);
+  appearance:none;-webkit-appearance:none;cursor:pointer;
+  background-image:var(--chevron);background-repeat:no-repeat;background-position:right 8px center;
+  transition:.15s var(--ease);
 }
-header p{color:var(--muted);font-size:14px;max-width:520px;margin:0 auto}
-.last-updated{
-  display:inline-flex;align-items:center;gap:7px;margin-top:14px;
-  font-size:12px;color:var(--muted);
-  background:var(--surface);border:1px solid var(--border);
-  padding:4px 14px;border-radius:999px;
-}
-.last-updated .live{
-  width:6px;height:6px;border-radius:50%;background:var(--green);
-  animation:ring 2s infinite;
-}
-@keyframes ring{0%{box-shadow:0 0 0 0 rgba(108,203,95,.5)}70%{box-shadow:0 0 0 6px rgba(108,203,95,0)}100%{box-shadow:0 0 0 0 rgba(108,203,95,0)}}
-.last-updated span{color:var(--green);font-weight:600}
+.address-bar select:hover{border-color:var(--border-strong)}
+.address-bar select:focus{outline:none;border-color:var(--accent)}
+.address-bar .spacer{flex:1;min-width:0}
 
-/* Controls */
-.controls{
-  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:12px;padding:16px;margin-bottom:20px;
+button{
+  font-family:var(--sans);font-size:12.5px;font-weight:500;cursor:pointer;
+  border-radius:6px;transition:.15s var(--ease);border:none;
+  padding:7px 14px;display:inline-flex;align-items:center;gap:6px;
+  white-space:nowrap;
 }
-select{font-family:var(--sans);font-size:13px;cursor:pointer;border-radius:var(--radius);transition:.15s var(--ease)}
-select{
-  appearance:none;-webkit-appearance:none;
-  background:var(--surface-2) var(--chevron) no-repeat right 12px center;
-  color:var(--text);padding:8px 36px 8px 13px;border:1px solid var(--border);
+.address-bar button{
+  background:var(--surface-2);color:var(--text);
 }
-select:hover{border-color:var(--border-strong);background-color:var(--surface-hover)}
-select:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
-button{font-family:var(--sans);font-size:13px;cursor:pointer;border-radius:var(--radius);transition:.15s var(--ease)}
-.controls button{
-  background:var(--surface-2);color:var(--text);border:1px solid var(--border);
-  padding:8px 16px;font-weight:500;display:flex;align-items:center;gap:6px;
+.address-bar button:hover{background:var(--surface-hover)}
+.address-bar button:active{transform:scale(.97)}
+.address-bar button.primary{
+  background:var(--accent);color:#fff;
 }
-.controls button:hover{background:var(--surface-hover);border-color:var(--border-strong)}
-.controls button:active{transform:scale(.98)}
-.controls button.primary{
-  background:#0078d4;color:#fff;border-color:#0078d4;
+.address-bar button.primary:hover{background:var(--accent-hover)}
+button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* Edge style progress bar (thin, inside address bar) */
+.progress-bar{
+  flex:1;min-width:60px;height:3px;background:var(--surface-2);border-radius:99px;
+  overflow:hidden;display:none;
 }
-.controls button.primary:hover{background:#1a8ce8;border-color:#1a8ce8}
-.controls button:disabled{opacity:.45;cursor:not-allowed;transform:none}
-.progress-bar{flex:1;min-width:100px;height:4px;background:var(--surface-2);border-radius:99px;overflow:hidden;display:none}
 .progress-bar.active{display:block}
 .progress-bar .fill{
-  height:100%;background:linear-gradient(90deg,#0078d4,#60cdff);width:0%;
-  border-radius:99px;transition:width .25s var(--ease);position:relative;overflow:hidden;
+  height:100%;background:var(--accent);width:0%;border-radius:99px;
+  transition:width .25s var(--ease);
 }
-.progress-bar .fill::after{
-  content:'';position:absolute;inset:0;
-  background:linear-gradient(90deg,transparent,rgba(255,255,255,.25),transparent);
-  animation:shimmer 1.2s infinite;
-}
-@keyframes shimmer{from{transform:translateX(-100%)}to{transform:translateX(100%)}}
 
-/* Results table */
+/* ===== Results (Edge Downloads style) ===== */
 .results{
-  background:var(--surface);border:1px solid var(--border);border-radius:12px;
-  overflow:hidden;margin-bottom:20px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  overflow:hidden;margin-bottom:16px;
 }
 table{width:100%;border-collapse:collapse}
-thead{background:rgba(255,255,255,.02)}
+thead{background:rgba(255,255,255,.015)}
 th{
-  text-align:left;padding:12px 14px;font-size:11px;font-weight:600;
-  color:var(--muted);text-transform:none;letter-spacing:.3px;
+  text-align:left;padding:10px 14px;font-size:11px;font-weight:600;
+  color:var(--text-secondary);text-transform:none;letter-spacing:.2px;
   border-bottom:1px solid var(--border);
 }
-td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:13px;transition:background .15s}
-tbody tr{transition:.15s var(--ease)}
-tbody tr:hover{background:rgba(96,205,255,.04)}
+td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;transition:background .1s}
+tbody tr:hover{background:var(--accent-bg)}
 tbody tr:last-child td{border-bottom:none}
-.domain-name{font-family:var(--mono);color:var(--blue);font-size:13px}
-.status-dot{display:inline-block;width:8px;height:8px;border-radius:50%;position:relative}
+.domain-name{font-family:var(--mono);color:var(--accent);font-size:12.5px}
+.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;position:relative}
 .status-dot.loading{background:var(--orange)}
 .status-dot.loading::after{
   content:'';position:absolute;inset:-4px;border-radius:50%;
   border:2px solid var(--orange);border-top-color:transparent;animation:spin .7s linear infinite;
 }
-.status-dot.success{background:var(--green);box-shadow:0 0 6px rgba(108,203,95,.5)}
-.status-dot.fail{background:var(--red);box-shadow:0 0 6px rgba(255,153,164,.45)}
+.status-dot.success{background:var(--green);box-shadow:0 0 4px rgba(78,203,113,.5)}
+.status-dot.fail{background:var(--red);box-shadow:0 0 4px rgba(255,107,107,.5)}
 @keyframes spin{to{transform:rotate(360deg)}}
-.ip-cell{font-family:var(--mono)}
+.ip-cell{font-family:var(--mono);font-size:12.5px}
 .ip-select,.ip-input{
   background:var(--surface-2);color:var(--text);border:1px solid var(--border);
-  border-radius:var(--radius-sm);padding:5px 9px;font-size:12.5px;font-family:var(--mono);transition:.15s var(--ease);
+  border-radius:6px;padding:5px 8px;font-size:12px;font-family:var(--mono);transition:.15s var(--ease);
 }
 .ip-select{
   max-width:180px;appearance:none;-webkit-appearance:none;
-  background-image:var(--chevron);background-repeat:no-repeat;background-position:right 9px center;padding-right:28px;
+  background-image:var(--chevron);background-repeat:no-repeat;background-position:right 8px center;padding-right:26px;
 }
-.ip-select:focus,.ip-input:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 1px var(--blue)}
+.ip-select:focus,.ip-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
 .ip-input{width:160px}
-.latency{font-family:var(--mono);font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px;display:inline-block}
-.latency.good{color:var(--green);background:rgba(108,203,95,.12)}
-.latency.ok{color:var(--orange);background:rgba(240,168,64,.12)}
-.latency.slow{color:var(--red);background:rgba(255,153,164,.12)}
-.latency.fail{color:var(--muted);background:rgba(255,255,255,.05)}
-th label{display:flex;align-items:center;gap:7px;cursor:pointer;font-weight:600}
+.latency{font-family:var(--mono);font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;display:inline-block}
+.latency.good{color:var(--green);background:rgba(78,203,113,.1)}
+.latency.ok{color:var(--orange);background:rgba(240,160,48,.1)}
+.latency.slow{color:var(--red);background:rgba(255,107,107,.1)}
+.latency.fail{color:var(--text-secondary);background:rgba(255,255,255,.04)}
+th label{display:flex;align-items:center;gap:7px;cursor:pointer;font-weight:600;font-size:11px;color:var(--text-secondary)}
+input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
 
-/* Section cards */
-.hosts-section,.instructions{
-  background:var(--surface);border:1px solid var(--border);border-radius:12px;
-  padding:20px;margin-bottom:20px;
+/* ===== Section cards (Edge settings style) ===== */
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:18px;margin-bottom:16px;
 }
-.section-title{font-size:15px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.section-title .count{font-size:11px;color:var(--muted);font-weight:500;background:var(--surface-2);padding:2px 10px;border-radius:999px}
+.card-header{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-bottom:14px;font-size:14px;font-weight:600;
+}
+.card-header .badge-count{
+  font-size:11px;color:var(--text-secondary);font-weight:500;
+  background:var(--surface-2);padding:2px 9px;border-radius:999px;
+}
 
-/* Code window - Win11 Terminal style */
-.code-window{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:#1a1a1a;box-shadow:inset 0 0 0 1px rgba(255,255,255,.02)}
+/* Code window - Edge DevTools style */
+.code-window{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:#1e1e1e}
 .code-window-header{
-  display:flex;align-items:center;gap:7px;padding:9px 13px;
-  background:#262626;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:7px;padding:8px 12px;
+  background:#252525;border-bottom:1px solid var(--border);
 }
-.code-window-header .dot{width:10px;height:10px;border-radius:50%}
+.code-window-header .dot{width:9px;height:9px;border-radius:50%}
 .dot.red{background:#ff5f56}.dot.yellow{background:#ffbd2e}.dot.green{background:#27c93f}
-.code-title{margin-left:8px;font-family:var(--mono);font-size:11px;color:var(--muted)}
+.code-title{margin-left:6px;font-family:var(--mono);font-size:11px;color:var(--text-secondary)}
 .code-window textarea{
-  width:100%;min-height:200px;max-height:400px;display:block;
-  background:#1a1a1a;color:#cccccc;border:none;padding:14px;
-  font-family:var(--mono);font-size:12.5px;line-height:1.7;resize:vertical;white-space:pre;overflow:auto;
+  width:100%;min-height:180px;max-height:360px;display:block;
+  background:#1e1e1e;color:#d4d4d4;border:none;padding:12px;
+  font-family:var(--mono);font-size:12px;line-height:1.65;resize:vertical;white-space:pre;overflow:auto;
 }
 .code-window textarea:focus{outline:none}
 
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+/* Action buttons (Edge style, right-aligned) */
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;justify-content:flex-end}
 .actions button{
-  font-family:var(--sans);font-size:13px;font-weight:500;padding:8px 15px;border-radius:var(--radius);
-  cursor:pointer;transition:.15s var(--ease);border:1px solid var(--border);
-  background:var(--surface-2);color:var(--text);display:flex;align-items:center;gap:6px;
+  background:var(--surface-2);color:var(--text);font-size:12.5px;padding:7px 14px;
+  border:1px solid var(--border);border-radius:6px;
 }
 .actions button:hover{background:var(--surface-hover);border-color:var(--border-strong)}
-.actions button:active{transform:scale(.98)}
-.actions button.primary{background:#0078d4;color:#fff;border-color:#0078d4}
-.actions button.primary:hover{background:#1a8ce8;border-color:#1a8ce8}
+.actions button:active{transform:scale(.97)}
+.actions button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.actions button.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
 .actions button.danger{color:var(--red)}
 .actions button.danger:hover{border-color:var(--red);color:var(--red)}
 
-/* Modal - Win11 dialog */
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center;padding:20px}
-.modal.active{display:flex;animation:fade .2s var(--ease)}
-@keyframes fade{from{opacity:0}to{opacity:1}}
-.modal-content{
-  background:#2c2c2c;border:1px solid var(--border-strong);border-radius:12px;
-  padding:24px;width:92%;max-width:720px;max-height:86vh;overflow:auto;
-  box-shadow:0 8px 32px rgba(0,0,0,.45);animation:pop .25s var(--ease);
+/* ===== Instructions - Edge settings tabs ===== */
+.tabs{
+  display:flex;gap:0;margin-bottom:16px;
+  border-bottom:2px solid var(--border);
 }
-@keyframes pop{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:none}}
-.modal-content h2{margin-bottom:16px;font-size:16px;font-weight:600;display:flex;align-items:center;gap:8px}
-.modal-content .code-window{margin-bottom:14px}
-.ps1-tip{
-  margin-bottom:10px;padding:10px 14px;border-radius:var(--radius);
-  background:rgba(240,168,64,.1);border:1px solid rgba(240,168,64,.2);
-  color:#e8c170;font-size:12.5px;line-height:1.5
+.tab{
+  font-family:var(--sans);font-size:13px;font-weight:500;padding:8px 18px;
+  background:none;border:none;color:var(--text-secondary);cursor:pointer;
+  border-radius:0;position:relative;transition:.15s var(--ease);
 }
-.ps1-tip strong{color:#f0d080}
-
-/* Instructions / Tabs - Win11 segmented control */
-.tabs{display:inline-flex;gap:0;margin-bottom:16px;background:#2a2a2a;padding:3px;border-radius:var(--radius);border:1px solid var(--border)}
-.tab{font-family:var(--sans);font-size:13px;font-weight:500;padding:6px 18px;background:none;border:none;color:var(--muted);cursor:pointer;border-radius:6px;transition:.15s var(--ease)}
 .tab:hover{color:var(--text)}
-.tab.active{color:#fff;background:#404040;box-shadow:none}
-.tab-content{display:none;animation:fade .25s var(--ease)}
+.tab.active{
+  color:var(--accent);
+}
+.tab.active::after{
+  content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;
+  background:var(--accent);border-radius:1px 1px 0 0;
+}
+.tab-content{display:none;animation:fade-in .2s var(--ease)}
 .tab-content.active{display:block}
-.tab-content ol{padding-left:22px}
-.tab-content li{margin-bottom:10px;font-size:13.5px;line-height:1.75;color:var(--text)}
-.tab-content li::marker{color:var(--blue);font-weight:600}
-.tab-content code{background:var(--surface-2);padding:2px 7px;border-radius:5px;font-family:var(--mono);font-size:12px;color:#cccccc}
-.tab-content .tip{background:rgba(108,203,95,.08);border:1px solid rgba(108,203,95,.2);border-left:2px solid var(--green);border-radius:8px;padding:12px 16px;margin-top:12px;font-size:13px;color:#a8e0a0;line-height:1.65}
+@keyframes fade-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.tab-content ol{padding-left:20px}
+.tab-content li{margin-bottom:10px;font-size:13px;line-height:1.7;color:var(--text)}
+.tab-content li::marker{color:var(--accent);font-weight:600}
+.tab-content code{background:var(--surface-2);padding:2px 7px;border-radius:4px;font-family:var(--mono);font-size:11.5px;color:#d4d4d4}
+.tab-content .tip{
+  background:rgba(78,203,113,.08);border:1px solid rgba(78,203,113,.15);
+  border-radius:var(--radius);padding:12px 14px;margin-top:12px;
+  font-size:12.5px;color:#90d8a0;line-height:1.6;
+}
 
-/* About / Disclaimer */
+/* ===== About (Edge collapsible) ===== */
 .about{
-  background:var(--surface);border:1px solid var(--border);border-radius:12px;
-  padding:0;margin-bottom:20px;overflow:hidden;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:0;margin-bottom:16px;overflow:hidden;
 }
 .about>summary{
-  list-style:none;cursor:pointer;padding:14px 18px;font-size:13px;font-weight:600;
+  list-style:none;cursor:pointer;padding:13px 16px;font-size:13px;font-weight:600;
   color:var(--text);display:flex;align-items:center;gap:7px;user-select:none;transition:.15s var(--ease);
 }
 .about>summary::-webkit-details-marker{display:none}
-.about>summary:hover{color:var(--blue)}
-.about>summary::after{content:'▾';margin-left:auto;color:var(--muted);font-size:11px;transition:transform .2s var(--ease)}
+.about>summary:hover{color:var(--accent)}
+.about>summary::after{
+  content:'\25BC';margin-left:auto;color:var(--text-secondary);font-size:10px;
+  transition:transform .2s var(--ease);
+}
 .about[open]>summary::after{transform:rotate(180deg)}
-.about-body{padding:0 18px 18px;border-top:1px solid var(--border)}
-.about-line{font-size:12.5px;line-height:1.75;color:var(--muted);margin-top:12px}
+.about-body{padding:0 16px 16px;border-top:1px solid var(--border)}
+.about-line{font-size:12.5px;line-height:1.7;color:var(--text-secondary);margin-top:12px}
 .about-line strong{color:var(--text);font-weight:600}
-.about-foot{margin-top:14px;font-size:11.5px;color:var(--muted);padding-top:12px;border-top:1px dashed var(--border)}
-.about-foot code{background:var(--surface-2);padding:2px 7px;border-radius:5px;font-family:var(--mono);font-size:11px;color:#cccccc}
+.about-foot{margin-top:12px;font-size:11.5px;color:var(--text-secondary);padding-top:10px;border-top:1px dashed var(--border)}
+.about-foot code{background:var(--surface-2);padding:2px 6px;border-radius:4px;font-family:var(--mono);font-size:11px;color:#d4d4d4}
 
-/* Toast - Win11 notification */
+/* ===== Modal - Edge dialog ===== */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal.active{display:flex;animation:fade .2s var(--ease)}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal-content{
+  background:var(--toolbar);border:1px solid var(--border-strong);border-radius:var(--radius-lg);
+  padding:22px;width:92%;max-width:700px;max-height:86vh;overflow:auto;
+  box-shadow:var(--shadow-lg);animation:pop .22s var(--ease);
+}
+@keyframes pop{from{opacity:0;transform:scale(.96) translateY(6px)}to{opacity:1;transform:none}}
+.modal-content h2{margin-bottom:14px;font-size:15px;font-weight:600}
+.modal-content .code-window{margin-bottom:12px}
+.ps1-tip{
+  margin-bottom:10px;padding:10px 13px;border-radius:var(--radius);
+  background:rgba(240,160,48,.08);border:1px solid rgba(240,160,48,.18);
+  color:#e0b860;font-size:12px;line-height:1.5;
+}
+.ps1-tip strong{color:#f0d080}
+.ps1-tip code{background:rgba(255,255,255,.08);padding:1px 6px;border-radius:4px;font-family:var(--mono);font-size:11px;color:#d4d4d4}
+
+/* ===== Toast - Edge notification ===== */
 .toast{
   position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);
-  background:#3a3a3a;color:var(--text);padding:12px 22px;border-radius:var(--radius);
+  background:var(--toolbar);color:var(--text);padding:11px 20px;border-radius:var(--radius);
   border:1px solid var(--border-strong);font-size:13px;font-weight:500;z-index:2000;
-  transition:.3s var(--ease);box-shadow:0 8px 24px rgba(0,0,0,.4);display:flex;align-items:center;gap:8px;
+  transition:.3s var(--ease);box-shadow:var(--shadow-lg);display:flex;align-items:center;gap:8px;
 }
 .toast.show{transform:translateX(-50%) translateY(0)}
-.toast.success{border-color:rgba(108,203,95,.45);box-shadow:0 8px 24px rgba(108,203,95,.15)}
-.toast.error{border-color:rgba(255,153,164,.45)}
+.toast.success{border-color:rgba(78,203,113,.4)}
+.toast.error{border-color:rgba(255,107,107,.4)}
 
-/* Scrollbar - Win11 style */
+/* ===== Edge-style logo / header ===== */
+.edge-logo{
+  text-align:left;margin-bottom:8px;
+}
+.edge-logo-row{
+  display:flex;align-items:center;gap:12px;
+}
+.edge-icon{
+  width:44px;height:44px;border-radius:12px;
+  background:linear-gradient(135deg,#0078d4,#4da3ff);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  box-shadow:0 4px 12px rgba(0,120,212,.3);
+}
+.edge-title h2{font-size:22px;font-weight:600;letter-spacing:-.3px;margin-bottom:2px}
+.edge-title p{font-size:13px;color:var(--text-secondary)}
+.edge-meta{
+  display:flex;align-items:center;gap:16px;margin-top:10px;font-size:11px;color:var(--text-secondary);
+}
+.edge-meta .live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* Scrollbar - Edge style */
 ::-webkit-scrollbar{width:8px;height:8px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:#4a4a4a;border-radius:4px;}
+::-webkit-scrollbar-thumb{background:#4a4a4a;border-radius:4px}
 ::-webkit-scrollbar-thumb:hover{background:#5a5a5a}
 
 /* Responsive */
 @media(max-width:640px){
-  .container{padding:28px 12px 50px}
-  .controls{flex-direction:column;align-items:stretch}
-  .controls button{justify-content:center}
-  header h1{font-size:24px}
+  .container{padding:20px 10px 50px}
+  .address-bar{flex-direction:column;align-items:stretch}
+  .address-bar button{justify-content:center}
+  .edge-logo-row{flex-direction:column;align-items:flex-start}
   table{font-size:12px}
-  th,td{padding:9px 10px}
-  .ip-select,.ip-input{max-width:130px;width:130px}
-  .badge{width:50px;height:50px;font-size:24px}
+  th,td{padding:8px 10px}
+  .ip-select,.ip-input{max-width:120px;width:120px}
+  .actions{justify-content:stretch}
+  .actions button{flex:1;justify-content:center}
 }
 
 /* Social footer */
-.social{display:flex;justify-content:center;gap:12px;margin-top:32px;padding-top:20px;border-top:1px solid var(--border)}
-.social-link{display:inline-flex;align-items:center;gap:7px;padding:9px 15px;border-radius:var(--radius);background:var(--surface);border:1px solid var(--border);color:var(--muted);text-decoration:none;font-size:13px;font-weight:600;transition:all .2s var(--ease)}
-.social-link:hover{color:var(--text);border-color:var(--blue);box-shadow:0 2px 10px rgba(96,205,255,.1)}
-.social-link svg{flex-shrink:0;transition:transform .2s var(--ease)}
-.social-link:hover svg{transform:scale(1.05)}
+.social{display:flex;justify-content:center;gap:8px;margin-top:28px;padding-top:16px;border-top:1px solid var(--border)}
+.social-link{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--text-secondary);text-decoration:none;font-size:12.5px;font-weight:500;transition:.15s var(--ease)}
+.social-link:hover{color:var(--text);border-color:var(--border-strong);background:var(--surface-hover)}
+.social-link svg{flex-shrink:0}
 </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <div class="badge">🚀</div>
-    <h1><span>GitHub Hosts 加速工具</span></h1>
-    <p>自动查询最优 GitHub IP · 一键生成 hosts 配置 · 自动生成 PowerShell 脚本</p>
-    <div class="last-updated"><span class="live"></span>最后更新：<span id="update-time">尚未获取</span></div>
-  </header>
 
-  <div class="controls">
+<!-- Edge Toolbar -->
+<div class="toolbar">
+  <div class="toolbar-title">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M21.86 17.74c-.55 2.5-2.35 4.55-4.82 5.43-2.17.77-4.62.4-6.41-1.02-1.93-1.53-2.82-4.05-2.26-6.6.55-1.99 1.96-3.58 3.8-4.54.13-.07.28-.13.43-.2.38-.15.77-.27 1.17-.36 1.93-.46 4.01-.28 5.69.72.12.07.24.14.35.22.1.07.19.15.28.22.42.36.76.79 1.04 1.26.03.05.06.11.09.17l.08.02c.13.55.16 1.13.07 1.72-.34 1.87-1.4 3.45-2.71 4.56-.02.01-.04.03-.06.04-.1.07-.2.14-.3.2.07-.22.08-.47.03-.74-.04-.19-.13-.38-.25-.55-.12-.17-.28-.31-.48-.41-.63-.3-1.56-.1-2.1.43-.41.41-.67 1-.6 1.56.06.48.33.89.67 1.14.66.5 1.68.44 2.27-.17.13-.13.23-.28.3-.43.07-.16.11-.31.12-.46.01-.1.01-.21-.01-.32 2.08-2.03 2.58-5.1 1.18-7.68l-.03-.06zM7.92 2.08c.58-.16 1.18-.2 1.82-.1 1.51.22 2.84 1.12 3.73 2.45.97 1.45 1.15 3.38.48 5.33-.63 1.82-1.86 3.12-3.49 3.88-.09.05-.19.1-.29.13-.19.09-.39.14-.59.17-1.2.17-2.31-.1-3.27-.85-.09-.07-.18-.14-.27-.21-.09-.08-.17-.16-.24-.24-.33-.38-.58-.81-.74-1.28-.02-.06-.04-.12-.05-.18-.06-.25-.07-.47-.06-.66C5.14 9.3 6.2 7.5 7.92 2.08z"/></svg>
+    <span>GitHub Hosts 加速工具</span>
+  </div>
+  <div class="toolbar-spacer"></div>
+  <div class="toolbar-actions">
+    <button class="toolbar-btn" title="GitHub 仓库" onclick="window.open('https://github.com/Sophie92-spec/github-fast-access','_blank')">
+      <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+    </button>
+    <button class="toolbar-btn" title="在 Edge 中打开" onclick="window.open('https://sophie92-spec.github.io/github-fast-access/','_blank')">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.86 17.74c-.55 2.5-2.35 4.55-4.82 5.43-2.17.77-4.62.4-6.41-1.02-1.93-1.53-2.82-4.05-2.26-6.6l.08-.02c.65-2.36 2.35-4.24 4.46-5.27 2.13-1.04 4.75-1.09 6.98-.13l.06.03c1.82.78 3.17 2.2 3.73 3.97.5 2.56-.4 5.33-2.26 7.13-.02.01-.04.03-.06.04-.1.07-.2.14-.3.2.07-.22.08-.47.03-.74-.04-.19-.13-.38-.25-.55-.12-.17-.28-.31-.48-.41-.63-.3-1.56-.1-2.1.43-.41.41-.67 1-.6 1.56.06.48.33.89.67 1.14.66.5 1.68.44 2.27-.17.13-.13.23-.28.3-.43.07-.16.11-.31.12-.46.01-.1.01-.21-.01-.32 2.08-2.03 2.58-5.1 1.18-7.68l-.03-.06zM7.92 2.08c.58-.16 1.18-.2 1.82-.1 1.51.22 2.84 1.12 3.73 2.45.97 1.45 1.15 3.38.48 5.33-.63 1.82-1.86 3.12-3.49 3.88-.09.05-.19.1-.29.13-.19.09-.39.14-.59.17-1.2.17-2.31-.1-3.27-.85-.09-.07-.18-.14-.27-.21-.09-.08-.17-.16-.24-.24-.33-.38-.58-.81-.74-1.28-.02-.06-.04-.12-.05-.18-.06-.25-.07-.47-.06-.66C5.14 9.3 6.2 7.5 7.92 2.08z"/></svg>
+    </button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Edge-style header -->
+  <div class="edge-logo">
+    <div class="edge-logo-row">
+      <div class="edge-icon">🚀</div>
+      <div class="edge-title">
+        <h2>GitHub Hosts 加速工具</h2>
+        <p>自动查询最优 GitHub IP · 一键生成 hosts 配置</p>
+      </div>
+    </div>
+    <div class="edge-meta">
+      <span class="live-dot"></span>
+      <span>最后更新：<span id="update-time">尚未获取</span></span>
+    </div>
+  </div>
+
+  <!-- Edge address-bar style controls -->
+  <div class="address-bar">
     <select id="doh-provider">
       <option value="auto">自动选择 DoH</option>
       <option value="dnspod">DNSPod (腾讯)</option>
@@ -331,10 +399,10 @@ th label{display:flex;align-items:center;gap:7px;cursor:pointer;font-weight:600}
     </table>
   </div>
 
-  <div class="hosts-section">
-    <div class="section-title">
+  <div class="card">
+    <div class="card-header">
       📝 生成的 Hosts 内容
-      <span class="count" id="hosts-count">0 条记录</span>
+      <span class="badge-count" id="hosts-count">0 条记录</span>
     </div>
     <div class="code-window">
       <div class="code-window-header">
@@ -351,8 +419,8 @@ th label{display:flex;align-items:center;gap:7px;cursor:pointer;font-weight:600}
     </div>
   </div>
 
-  <div class="instructions">
-    <div class="section-title">📖 使用说明</div>
+  <div class="card">
+    <div class="card-header">📖 使用说明</div>
     <div class="tabs">
       <button class="tab active" data-tab="windows">Windows</button>
       <button class="tab" data-tab="mac">macOS</button>
@@ -401,12 +469,12 @@ th label{display:flex;align-items:center;gap:7px;cursor:pointer;font-weight:600}
   </details>
 
   <footer class="social">
-    <a class="social-link" href="https://github.com/Sophie92-spec/github-fast-access" target="_blank" rel="noopener" aria-label="GitHub 仓库">
-      <svg viewBox="0 0 16 16" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+    <a class="social-link" href="https://github.com/Sophie92-spec/github-fast-access" target="_blank" rel="noopener">
+      <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
       <span>GitHub</span>
     </a>
-    <a class="social-link" href="https://space.bilibili.com/447878463" target="_blank" rel="noopener" aria-label="哔哩哔哩">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true"><path d="M18.223 3.086a1.25 1.25 0 0 1 0 1.768L17.08 5.996h1.17A3.75 3.75 0 0 1 22 9.747v7.5a3.75 3.75 0 0 1-3.75 3.75H5.75A3.75 3.75 0 0 1 2 17.247v-7.5a3.75 3.75 0 0 1 3.75-3.751h1.166L5.775 4.854a1.25 1.25 0 1 1 1.767-1.768l2.652 2.652c.079.079.145.165.198.257h3.213c.053-.092.12-.18.199-.258l2.651-2.652a1.25 1.25 0 0 1 1.768 0zM18.25 8.496H5.75a1.25 1.25 0 0 0-1.247 1.157l-.003.094v7.5c0 .659.51 1.198 1.157 1.246l.093.004h12.5a1.25 1.25 0 0 0 1.247-1.157l.003-.093v-7.5c0-.69-.56-1.25-1.25-1.25zm-9.5 3.064c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25zm5.5 0c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25z"/></svg>
+    <a class="social-link" href="https://space.bilibili.com/447878463" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.223 3.086a1.25 1.25 0 0 1 0 1.768L17.08 5.996h1.17A3.75 3.75 0 0 1 22 9.747v7.5a3.75 3.75 0 0 1-3.75 3.75H5.75A3.75 3.75 0 0 1 2 17.247v-7.5a3.75 3.75 0 0 1 3.75-3.751h1.166L5.775 4.854a1.25 1.25 0 1 1 1.767-1.768l2.652 2.652c.079.079.145.165.198.257h3.213c.053-.092.12-.18.199-.258l2.651-2.652a1.25 1.25 0 0 1 1.768 0zM18.25 8.496H5.75a1.25 1.25 0 0 0-1.247 1.157l-.003.094v7.5c0 .659.51 1.198 1.157 1.246l.093.004h12.5a1.25 1.25 0 0 0 1.247-1.157l.003-.093v-7.5c0-.69-.56-1.25-1.25-1.25zm-9.5 3.064c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25zm5.5 0c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25z"/></svg>
       <span>哔哩哔哩</span>
     </a>
   </footer>
@@ -592,7 +660,7 @@ function renderTable() {
 
 function renderIpCell(d) {
   const s = state[d];
-  if (s.status === 'loading') return '<span style="color:var(--muted)">查询中...</span>';
+  if (s.status === 'loading') return '<span style="color:var(--text-secondary)">查询中...</span>';
   if (s.status === 'success' && s.ips.length > 0) {
     if (s.ips.length === 1) {
       return `<input type="text" class="ip-input" data-domain="${d}" value="${s.selectedIp}">`;
@@ -604,7 +672,7 @@ function renderIpCell(d) {
   if (s.status === 'fail') {
     return `<input type="text" class="ip-input" data-domain="${d}" placeholder="手动输入IP" value="${s.selectedIp}">`;
   }
-  return '<span style="color:var(--muted)">—</span>';
+  return '<span style="color:var(--text-secondary)">—</span>';
 }
 
 function latencyClass(lat) {
