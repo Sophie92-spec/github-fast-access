@@ -1,0 +1,10 @@
+# 临时测试文件
+_*.js
+
+# 系统文件
+Thumbs.db
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
