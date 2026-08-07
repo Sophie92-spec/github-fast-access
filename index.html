@@ -7,25 +7,30 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#1f1f1f;
-  --nav-bg:#242424;
-  --surface:#2b2b2b;
-  --surface-2:#333333;
-  --surface-hover:#383838;
-  --border:#383838;
-  --border-strong:#4a4a4a;
-  --text:#ffffff;
-  --text-secondary:#a0a0a0;
-  --accent:#60cdff;
-  --accent-strong:#0078d4;
+  --bg:#f3f3f3;
+  --sidebar-bg:#fafafa;
+  --surface:#ffffff;
+  --surface-2:#f5f5f5;
+  --surface-hover:#ebebeb;
+  --border:#e0e0e0;
+  --border-strong:#cfcfcf;
+  --text:#1a1a1a;
+  --text-secondary:#666666;
+  --text-tertiary:#999999;
+  --accent:#0078d4;
   --accent-hover:#1a8ce8;
-  --accent-bg:rgba(96,205,255,.08);
-  --green:#4ecb71;
-  --red:#ff6b6b;
-  --orange:#f0a030;
+  --accent-bg:rgba(0,120,212,.06);
+  --green:#107c10;
+  --green-bg:#e8f5e9;
+  --red:#c62828;
+  --red-bg:#ffebee;
+  --orange:#d84315;
+  --orange-bg:#fff3e0;
   --radius:8px;
+  --radius-sm:6px;
   --radius-lg:10px;
-  --shadow:0 2px 8px rgba(0,0,0,.18);
+  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,.08);
   --ease:cubic-bezier(.33,.44,.33,.9);
   --mono:"Cascadia Code","Consolas","Fira Code",monospace;
   --sans:"Segoe UI Variable","Segoe UI",-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
@@ -33,138 +38,143 @@
 html{scroll-behavior:smooth}
 body{
   font-family:var(--sans);background:var(--bg);color:var(--text);
-  line-height:1.5;min-height:100vh;overflow:hidden;
-  -webkit-font-smoothing:antialiased;display:flex;flex-direction:column;
+  line-height:1.5;display:flex;min-height:100vh;overflow:hidden;
+  -webkit-font-smoothing:antialiased;
 }
 
-/* ===== Windows 标题栏 ===== */
-.titlebar{
-  display:flex;align-items:center;gap:10px;padding:8px 14px;
-  background:#2a2a2a;border-bottom:1px solid var(--border);
-  height:40px;flex-shrink:0;-webkit-app-region:drag;user-select:none;
-}
-.titlebar-icon{width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px}
-.titlebar-title{font-size:12.5px;font-weight:500;color:var(--text);letter-spacing:-.1px}
-.titlebar-spacer{flex:1}
-.titlebar-btn{
-  width:36px;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;
-  background:none;border:none;color:var(--text-secondary);cursor:pointer;font-size:12px;
-  -webkit-app-region:no-drag;transition:.1s;
-}
-.titlebar-btn:hover{background:var(--surface-hover);color:var(--text)}
-.titlebar-btn.close:hover{background:#c42b1c;color:#fff}
-
-/* ===== 主布局 ===== */
-.layout{
-  display:flex;flex:1;overflow:hidden;
-}
-
-/* ===== 左侧导航 ===== */
-.nav{
-  width:240px;flex-shrink:0;background:var(--nav-bg);
+/* ===== 侧边栏 ===== */
+.sidebar{
+  width:240px;flex-shrink:0;background:var(--sidebar-bg);
   border-right:1px solid var(--border);display:flex;flex-direction:column;
-  overflow-y:auto;padding:12px 0;
+  padding:20px 14px;gap:12px;overflow-y:auto;user-select:none;
 }
-.nav-section{padding:0 12px;margin-bottom:8px}
-.nav-label{
-  font-size:11px;font-weight:600;color:var(--text-secondary);text-transform:none;
-  letter-spacing:.3px;padding:8px 8px 6px;
+.sidebar-header{
+  display:flex;align-items:center;gap:10px;padding:4px 6px 14px;
+  border-bottom:1px solid var(--border);margin-bottom:4px;
 }
-.nav-item{
-  display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:6px;
-  color:var(--text);text-decoration:none;font-size:13px;font-weight:500;
-  transition:.1s var(--ease);cursor:pointer;margin-bottom:1px;
+.sidebar-icon{
+  width:36px;height:36px;border-radius:8px;
+  background:var(--accent);color:#fff;display:flex;
+  align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
 }
-.nav-item:hover{background:var(--surface-hover)}
-.nav-item.active{background:var(--accent-bg);color:var(--accent)}
+.sidebar-title{font-size:14px;font-weight:600;letter-spacing:-.2px;line-height:1.3}
+.sidebar-subtitle{font-size:11px;color:var(--text-secondary);font-weight:400}
 
-/* nav 控件 */
-.nav select{
-  width:100%;margin:6px 0;background:var(--surface);border:1px solid var(--border);
-  color:var(--text);padding:8px 10px;border-radius:6px;font-size:12.5px;font-family:var(--sans);
-  appearance:none;-webkit-appearance:none;cursor:pointer;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+.sidebar-label{
+  font-size:10.5px;font-weight:600;color:var(--text-tertiary);
+  text-transform:uppercase;letter-spacing:.6px;padding:6px 6px 2px;
+}
+.sidebar select{
+  width:100%;padding:9px 10px;border-radius:6px;border:1px solid var(--border);
+  background:#fff;color:var(--text);font-size:12.5px;font-family:var(--sans);cursor:pointer;
+  appearance:none;-webkit-appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 10px center;
 }
-.nav select:hover{border-color:var(--border-strong)}
-.nav select:focus{outline:none;border-color:var(--accent)}
+.sidebar select:hover{border-color:var(--border-strong)}
+.sidebar select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,120,212,.14)}
 
-.nav button{
-  width:100%;margin:4px 0;padding:8px 12px;border-radius:6px;border:none;
+.sidebar button{
+  width:100%;padding:9px 12px;border-radius:6px;border:none;
   font-family:var(--sans);font-size:12.5px;font-weight:500;cursor:pointer;
-  display:flex;align-items:center;gap:8px;transition:.15s var(--ease);
-  background:var(--surface);color:var(--text);
+  display:flex;align-items:center;gap:8px;transition:.12s var(--ease);
+  background:#fff;color:var(--text);border:1px solid var(--border);
 }
-.nav button:hover{background:var(--surface-hover)}
-.nav button:active{transform:scale(.98)}
-.nav button.primary{background:var(--accent-strong);color:#fff}
-.nav button.primary:hover{background:var(--accent-hover)}
-.nav button:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.sidebar button:hover{background:var(--surface-hover)}
+.sidebar button:active{transform:scale(.98)}
+.sidebar button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.sidebar button.primary:hover{background:var(--accent-hover)}
+.sidebar button:disabled{opacity:.35;cursor:not-allowed;transform:none}
 
-.nav-progress{height:3px;background:var(--surface);border-radius:99px;overflow:hidden;margin:6px 0;display:none}
-.nav-progress.active{display:block}
-.nav-progress .fill{height:100%;background:var(--accent);width:0%;border-radius:99px;transition:width .25s var(--ease)}
+.sidebar-progress{height:3px;background:#e8e8e8;border-radius:99px;overflow:hidden;margin:4px 0;display:none}
+.sidebar-progress.active{display:block}
+.sidebar-progress .fill{height:100%;background:var(--accent);width:0%;border-radius:99px;transition:width .25s var(--ease)}
 
-.nav-footer{
-  margin-top:auto;padding:12px 16px;border-top:1px solid var(--border);
-  font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:8px;
+.sidebar-footer{
+  margin-top:auto;padding:12px 6px 0;border-top:1px solid var(--border);
+  font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:6px;
 }
-.nav-footer .live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+.sidebar-footer .dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-/* ===== 右侧内容 ===== */
-.content{
-  flex:1;overflow-y:auto;padding:24px 28px 40px;background:var(--bg);
-  scroll-behavior:smooth;
+/* ===== 主内容区 ===== */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#fff}
+
+/* 标签栏 */
+.main-tabs{
+  display:flex;gap:0;padding:0 24px;background:#fff;
+  border-bottom:1px solid var(--border);flex-shrink:0;
 }
-.content section{margin-bottom:24px}
-.content section:last-child{margin-bottom:0}
+.main-tab{
+  font-family:var(--sans);font-size:13.5px;font-weight:500;padding:12px 22px;
+  background:none;border:none;color:var(--text-secondary);cursor:pointer;
+  position:relative;transition:.12s;white-space:nowrap;
+}
+.main-tab:hover{color:var(--text);background:var(--surface-2)}
+.main-tab.active{color:var(--accent);font-weight:600}
+.main-tab.active::after{
+  content:'';position:absolute;bottom:-1px;left:6px;right:6px;height:3px;
+  background:var(--accent);border-radius:2px 2px 0 0;
+}
+.main-tab-spacer{flex:1}
+
+/* 状态条 */
+.main-status{
+  display:flex;align-items:center;gap:8px;padding:6px 24px 0;font-size:11px;color:var(--text-secondary);
+  flex-shrink:0;
+}
+.main-status .dot{width:5px;height:5px;border-radius:50%;background:var(--green)}
+
+/* 内容面板 */
+.main-panels{flex:1;overflow-y:auto;padding:20px 24px 32px}
+.main-panel{display:none;animation:slide-in .2s var(--ease)}
+.main-panel.active{display:block}
+@keyframes slide-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
 /* 表格 */
 .results-tbl{
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
-  overflow:hidden;
+  background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);
+  overflow:hidden;box-shadow:var(--shadow);
 }
 table{width:100%;border-collapse:collapse}
-thead{background:rgba(255,255,255,.015)}
-th{
-  text-align:left;padding:10px 14px;font-size:11px;font-weight:600;
-  color:var(--text-secondary);letter-spacing:.2px;border-bottom:1px solid var(--border);
+thead th{
+  text-align:left;padding:11px 14px;font-size:11px;font-weight:600;
+  color:var(--text-secondary);background:var(--surface-2);letter-spacing:.2px;border-bottom:1px solid var(--border);
 }
-td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;transition:background .1s}
+td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;transition:background .08s}
 tbody tr:hover{background:var(--accent-bg)}
 tbody tr:last-child td{border-bottom:none}
-.domain-name{font-family:var(--mono);color:var(--accent);font-size:12.5px}
+.domain-name{font-family:var(--mono);color:var(--accent);font-size:12.5px;font-weight:500}
 .status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;position:relative}
 .status-dot.loading{background:var(--orange)}
 .status-dot.loading::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--orange);border-top-color:transparent;animation:spin .7s linear infinite}
-.status-dot.success{background:var(--green);box-shadow:0 0 4px rgba(78,203,113,.5)}
-.status-dot.fail{background:var(--red);box-shadow:0 0 4px rgba(255,107,107,.5)}
+.status-dot.success{background:var(--green);box-shadow:0 0 4px rgba(16,124,16,.4)}
+.status-dot.fail{background:var(--red);box-shadow:0 0 4px rgba(198,40,40,.35)}
 @keyframes spin{to{transform:rotate(360deg)}}
 .ip-cell{font-family:var(--mono);font-size:12.5px}
 .ip-select,.ip-input{
   background:var(--surface-2);color:var(--text);border:1px solid var(--border);
-  border-radius:6px;padding:5px 8px;font-size:12px;font-family:var(--mono);transition:.15s var(--ease);
+  border-radius:var(--radius-sm);padding:5px 8px;font-size:12px;font-family:var(--mono);transition:.12s;
 }
 .ip-select{
   max-width:180px;appearance:none;-webkit-appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a0a0a0' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 8px center;padding-right:26px;
 }
 .ip-select:focus,.ip-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
 .ip-input{width:160px}
 .latency{font-family:var(--mono);font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;display:inline-block}
-.latency.good{color:var(--green);background:rgba(78,203,113,.1)}
-.latency.ok{color:var(--orange);background:rgba(240,160,48,.1)}
-.latency.slow{color:var(--red);background:rgba(255,107,107,.1)}
-.latency.fail{color:var(--text-secondary);background:rgba(255,255,255,.04)}
-th label{display:flex;align-items:center;gap:7px;cursor:pointer;font-weight:600;font-size:11px;color:var(--text-secondary)}
+.latency.good{color:var(--green);background:var(--green-bg)}
+.latency.ok{color:var(--orange);background:var(--orange-bg)}
+.latency.slow{color:var(--red);background:var(--red-bg)}
+.latency.fail{color:var(--text-tertiary)}
+th label{display:flex;align-items:center;gap:7px;cursor:pointer;font-weight:600;font-size:11px}
 input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
 
 /* 卡片 */
 .card{
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
-  padding:18px;
+  background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:18px;box-shadow:var(--shadow);
 }
 .card-header{
   display:flex;align-items:center;justify-content:space-between;gap:10px;
@@ -172,18 +182,18 @@ input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:po
 }
 .card-header .badge-count{
   font-size:11px;color:var(--text-secondary);font-weight:500;
-  background:var(--surface-2);padding:2px 9px;border-radius:999px;
+  background:var(--surface-2);padding:2px 10px;border-radius:999px;
 }
 
 /* 代码窗口 */
 .code-window{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:#1e1e1e}
 .code-window-header{
   display:flex;align-items:center;gap:7px;padding:8px 12px;
-  background:#252525;border-bottom:1px solid var(--border);
+  background:#2a2a2a;border-bottom:1px solid #3a3a3a;
 }
 .code-window-header .dot{width:9px;height:9px;border-radius:50%}
 .dot.red{background:#ff5f56}.dot.yellow{background:#ffbd2e}.dot.green{background:#27c93f}
-.code-title{margin-left:6px;font-family:var(--mono);font-size:11px;color:var(--text-secondary)}
+.code-title{margin-left:6px;font-family:var(--mono);font-size:11px;color:#9a9a9a}
 .code-window textarea{
   width:100%;min-height:160px;max-height:320px;display:block;
   background:#1e1e1e;color:#d4d4d4;border:none;padding:12px;
@@ -194,87 +204,87 @@ input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:po
 /* 操作按钮 */
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;justify-content:flex-end}
 .actions button{
-  font-family:var(--sans);font-size:12.5px;font-weight:500;padding:7px 14px;border-radius:6px;
-  cursor:pointer;transition:.15s var(--ease);border:1px solid var(--border);
-  background:var(--surface-2);color:var(--text);display:flex;align-items:center;gap:6px;
+  font-family:var(--sans);font-size:12.5px;font-weight:500;padding:7px 15px;border-radius:6px;
+  cursor:pointer;transition:.12s;border:1px solid var(--border);
+  background:#fff;color:var(--text);display:flex;align-items:center;gap:6px;
 }
-.actions button:hover{background:var(--surface-hover);border-color:var(--border-strong)}
+.actions button:hover{background:var(--surface-hover)}
 .actions button:active{transform:scale(.98)}
-.actions button.primary{background:var(--accent-strong);color:#fff;border-color:var(--accent-strong)}
-.actions button.primary:hover{background:var(--accent-hover);border-color:var(--accent-hover)}
+.actions button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.actions button.primary:hover{background:var(--accent-hover)}
 .actions button.danger{color:var(--red)}
-.actions button.danger:hover{border-color:var(--red);color:var(--red)}
+.actions button.danger:hover{border-color:var(--red);background:var(--red-bg)}
 
-/* 标签页 */
-.tabs{display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--border)}
-.tab{
+/* 使用说明内部标签 */
+.howto-tabs{display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--border)}
+.howto-tab{
   font-family:var(--sans);font-size:13px;font-weight:500;padding:8px 18px;
   background:none;border:none;color:var(--text-secondary);cursor:pointer;
-  position:relative;transition:.15s var(--ease);
+  position:relative;transition:.12s;
 }
-.tab:hover{color:var(--text)}
-.tab.active{color:var(--accent)}
-.tab.active::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:var(--accent);border-radius:1px 1px 0 0}
-.tab-content{display:none;animation:fade-in .2s var(--ease)}
-.tab-content.active{display:block}
+.howto-tab:hover{color:var(--text)}
+.howto-tab.active{color:var(--accent);font-weight:600}
+.howto-tab.active::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:var(--accent);border-radius:1px 1px 0 0}
+.howto-panel{display:none;animation:fade-in .2s var(--ease)}
+.howto-panel.active{display:block}
 @keyframes fade-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-.tab-content ol{padding-left:20px}
-.tab-content li{margin-bottom:10px;font-size:13px;line-height:1.7}
-.tab-content li::marker{color:var(--accent);font-weight:600}
-.tab-content code{background:var(--surface-2);padding:2px 7px;border-radius:4px;font-family:var(--mono);font-size:11.5px;color:#d4d4d4}
-.tab-content .tip{
-  background:rgba(78,203,113,.08);border:1px solid rgba(78,203,113,.15);
-  border-radius:var(--radius);padding:12px 14px;margin-top:12px;
-  font-size:12.5px;color:#90d8a0;line-height:1.6;
+.howto-panel ol{padding-left:20px}
+.howto-panel li{margin-bottom:10px;font-size:13.5px;line-height:1.7}
+.howto-panel li::marker{color:var(--accent);font-weight:600}
+.howto-panel code{background:var(--surface-2);padding:2px 7px;border-radius:4px;font-family:var(--mono);font-size:12px;color:var(--accent)}
+.howto-panel .tip{
+  background:var(--green-bg);border:1px solid rgba(16,124,16,.15);border-left:3px solid var(--green);
+  border-radius:var(--radius);padding:12px 14px;margin-top:12px;font-size:13px;color:#2e7d32;line-height:1.6;
 }
 
-/* Modal */
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;align-items:center;justify-content:center;padding:20px}
-.modal.active{display:flex;animation:fade .2s var(--ease)}
-@keyframes fade{from{opacity:0}to{opacity:1}}
+/* Modal - 深色（代码窗口需要深底） */
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1000;align-items:center;justify-content:center;padding:20px}
+.modal.active{display:flex}
 .modal-content{
-  background:var(--surface);border:1px solid var(--border-strong);border-radius:var(--radius-lg);
+  background:#fff;border:1px solid var(--border-strong);border-radius:var(--radius-lg);
   padding:22px;width:92%;max-width:700px;max-height:86vh;overflow:auto;
-  box-shadow:0 8px 32px rgba(0,0,0,.45);animation:pop .22s var(--ease);
+  box-shadow:0 8px 32px rgba(0,0,0,.12);animation:pop .2s var(--ease);
 }
-@keyframes pop{from{opacity:0;transform:scale(.96) translateY(6px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.97) translateY(6px)}to{opacity:1;transform:none}}
 .modal-content h2{margin-bottom:14px;font-size:15px;font-weight:600}
 .modal-content .code-window{margin-bottom:12px}
 .ps1-tip{
   margin-bottom:10px;padding:10px 13px;border-radius:var(--radius);
-  background:rgba(240,160,48,.08);border:1px solid rgba(240,160,48,.18);
-  color:#e0b860;font-size:12px;line-height:1.5;
+  background:var(--orange-bg);border:1px solid rgba(216,67,21,.15);color:#bf360c;font-size:12px;line-height:1.5;
 }
-.ps1-tip strong{color:#f0d080}
-.ps1-tip code{background:rgba(255,255,255,.08);padding:1px 6px;border-radius:4px;font-family:var(--mono);font-size:11px;color:#d4d4d4}
+.ps1-tip strong{color:#bf360c}
 
 /* Toast */
 .toast{
   position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);
-  background:var(--surface);color:var(--text);padding:11px 20px;border-radius:var(--radius);
-  border:1px solid var(--border-strong);font-size:13px;font-weight:500;z-index:2000;
-  transition:.3s var(--ease);box-shadow:0 8px 24px rgba(0,0,0,.4);display:flex;align-items:center;gap:8px;
+  background:#323232;color:#fff;padding:11px 20px;border-radius:var(--radius);
+  border:none;font-size:13px;font-weight:500;z-index:2000;
+  transition:.3s var(--ease);box-shadow:0 8px 24px rgba(0,0,0,.2);display:flex;align-items:center;gap:8px;
 }
 .toast.show{transform:translateX(-50%) translateY(0)}
-.toast.success{border-color:rgba(78,203,113,.4)}
-.toast.error{border-color:rgba(255,107,107,.4)}
+.toast.success{background:#2e7d32}
+.toast.error{background:#c62828}
 
 /* 页脚 */
-.social{display:flex;justify-content:center;gap:8px;margin-top:24px;padding-top:16px;border-top:1px solid var(--border)}
-.social-link{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:6px;background:var(--surface);border:1px solid var(--border);color:var(--text-secondary);text-decoration:none;font-size:12.5px;font-weight:500;transition:.15s var(--ease)}
-.social-link:hover{color:var(--text);border-color:var(--border-strong);background:var(--surface-hover)}
-.social-link svg{flex-shrink:0}
+.social{display:flex;gap:6px;margin-top:24px;padding-top:14px;border-top:1px solid var(--border)}
+.social-link{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;color:var(--text-secondary);text-decoration:none;font-size:12px;font-weight:500;transition:.12s}
+.social-link:hover{color:var(--text);background:var(--surface-2)}
+.social-link svg{flex-shrink:0;opacity:.6}
 
 /* 滚动条 */
-::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar{width:7px;height:7px}
 ::-webkit-scrollbar-track{background:transparent}
-::-webkit-scrollbar-thumb{background:#4a4a4a;border-radius:4px}
-::-webkit-scrollbar-thumb:hover{background:#5a5a5a}
+::-webkit-scrollbar-thumb{background:#c0c0c0;border-radius:4px}
+::-webkit-scrollbar-thumb:hover{background:#a0a0a0}
 
 @media(max-width:700px){
-  .layout{flex-direction:column}
-  .nav{width:100%;flex-shrink:1;max-height:200px}
-  .content{padding:16px 12px 30px}
+  body{flex-direction:column}
+  .sidebar{width:100%;flex-shrink:0;max-height:auto;padding:14px;flex-direction:row;flex-wrap:wrap;gap:8px}
+  .sidebar-header{width:100%;border-bottom:none;padding-bottom:4px}
+  .sidebar-footer{display:none}
+  .main-tabs{padding:0 10px}
+  .main-tab{padding:10px 12px;font-size:12px}
+  .main-panels{padding:14px 10px 24px}
   .actions{justify-content:stretch}
   .actions button{flex:1;justify-content:center}
 }
@@ -282,51 +292,50 @@ input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:po
 </head>
 <body>
 
-<!-- Windows 标题栏 -->
-<div class="titlebar">
-  <div class="titlebar-icon">🚀</div>
-  <span class="titlebar-title">GitHub Hosts 加速工具</span>
-  <div class="titlebar-spacer"></div>
-  <a class="titlebar-btn" href="https://github.com/Sophie92-spec/github-fast-access" target="_blank" title="GitHub 仓库">
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-  </a>
-</div>
-
-<!-- 主布局 -->
-<div class="layout">
-
-  <!-- 左侧导航 -->
-  <nav class="nav" id="nav-panel">
-    <div class="nav-section">
-      <div class="nav-label">导航</div>
-      <a class="nav-item active" onclick="document.getElementById('sec-domains').scrollIntoView({behavior:'smooth'})">📊 域名查询</a>
-      <a class="nav-item" onclick="document.getElementById('sec-hosts').scrollIntoView({behavior:'smooth'})">📝 Hosts 内容</a>
-      <a class="nav-item" onclick="document.getElementById('sec-howto').scrollIntoView({behavior:'smooth'})">📖 使用说明</a>
+<!-- 侧边栏 -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-icon">🚀</div>
+    <div>
+      <div class="sidebar-title">GitHub Hosts</div>
+      <div class="sidebar-subtitle">加速工具</div>
     </div>
-    <div class="nav-section">
-      <div class="nav-label">操作</div>
-      <select id="doh-provider">
-        <option value="auto">自动选择 DoH</option>
-        <option value="dnspod">DNSPod (腾讯)</option>
-        <option value="alidns">AliDNS (阿里)</option>
-        <option value="cloudflare">Cloudflare</option>
-        <option value="google">Google</option>
-      </select>
-      <button class="primary" id="fetch-btn">🔍 获取最新 IP</button>
-      <button id="test-btn">⚡ 测试延迟</button>
-      <div class="nav-progress" id="progress">
-        <div class="fill" id="progress-fill"></div>
-      </div>
-    </div>
-    <div class="nav-footer">
-      <span class="live-dot"></span>
-      <span id="update-time">就绪</span>
-    </div>
-  </nav>
+  </div>
 
-  <!-- 右侧内容 -->
-  <main class="content" id="content-area">
-    <section id="sec-domains">
+  <div class="sidebar-label">DoH 来源</div>
+  <select id="doh-provider">
+    <option value="auto">自动选择</option>
+    <option value="dnspod">DNSPod (腾讯)</option>
+    <option value="alidns">AliDNS (阿里)</option>
+    <option value="cloudflare">Cloudflare</option>
+    <option value="google">Google</option>
+  </select>
+
+  <button class="primary" id="fetch-btn">🔍 获取最新 IP</button>
+  <button id="test-btn">⚡ 测试延迟</button>
+
+  <div class="sidebar-progress" id="progress">
+    <div class="fill" id="progress-fill"></div>
+  </div>
+
+  <div class="sidebar-footer">
+    <span class="dot"></span>
+    <span id="update-time">就绪</span>
+  </div>
+</aside>
+
+<!-- 主内容 -->
+<div class="main">
+  <div class="main-tabs">
+    <button class="main-tab active" data-panel="domains">📊 域名查询</button>
+    <button class="main-tab" data-panel="hosts">📝 Hosts 内容</button>
+    <button class="main-tab" data-panel="howto">📖 使用说明</button>
+    <div class="main-tab-spacer"></div>
+  </div>
+
+  <div class="main-panels">
+    <!-- 面板 1: 域名查询 -->
+    <div class="main-panel active" id="panel-domains">
       <div class="results-tbl">
         <table>
           <thead>
@@ -341,9 +350,10 @@ input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:po
           <tbody id="results-body"></tbody>
         </table>
       </div>
-    </section>
+    </div>
 
-    <section id="sec-hosts">
+    <!-- 面板 2: Hosts -->
+    <div class="main-panel" id="panel-hosts">
       <div class="card">
         <div class="card-header">
           📝 生成的 Hosts 内容
@@ -363,58 +373,56 @@ input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:po
           <button id="gen-restore" class="danger">🔄 生成恢复脚本</button>
         </div>
       </div>
-    </section>
+    </div>
 
-    <section id="sec-howto">
+    <!-- 面板 3: 使用说明 -->
+    <div class="main-panel" id="panel-howto">
       <div class="card">
         <div class="card-header">📖 使用说明</div>
-        <div class="tabs">
-          <button class="tab active" data-tab="windows">Windows</button>
-          <button class="tab" data-tab="mac">macOS</button>
-          <button class="tab" data-tab="linux">Linux</button>
+        <div class="howto-tabs">
+          <button class="howto-tab active" data-tab="windows">Windows</button>
+          <button class="howto-tab" data-tab="mac">macOS</button>
+          <button class="howto-tab" data-tab="linux">Linux</button>
         </div>
-        <div class="tab-content active" id="tab-windows">
+        <div class="howto-panel active" id="tab-windows">
           <ol>
             <li>点击左侧 <code>获取最新 IP</code> 按钮，等待所有域名解析完成</li>
-            <li>点击 <code>生成 PowerShell 脚本</code>，复制或下载生成的脚本</li>
+            <li>切换到 <code>Hosts 内容</code> 标签，点击 <code>生成 PowerShell 脚本</code></li>
             <li><strong>右键</strong> 以 <code>管理员身份</code> 运行下载的 <code>.ps1</code> 脚本</li>
-            <li>脚本会自动备份原 hosts 文件、写入新条目并刷新 DNS 缓存</li>
+            <li>脚本自动备份原 hosts、写入新条目并刷新 DNS 缓存</li>
             <li>重新打开浏览器访问 GitHub，速度应有明显提升</li>
           </ol>
-          <div class="tip">💡 也可以手动操作：复制 hosts 内容 → 以管理员身份打开记事本 → 打开 <code>C:\Windows\System32\drivers\etc\hosts</code> → 粘贴保存 → CMD 运行 <code>ipconfig /flushdns</code></div>
+          <div class="tip">💡 也可手动：以管理员身份打开记事本 → <code>C:\Windows\System32\drivers\etc\hosts</code> → 复制 Hosts 内容粘贴保存 → CMD 运行 <code>ipconfig /flushdns</code></div>
         </div>
-        <div class="tab-content" id="tab-mac">
+        <div class="howto-panel" id="tab-mac">
           <ol>
-            <li>点击左侧 <code>获取最新 IP</code> 按钮，等待所有域名解析完成</li>
-            <li>复制生成的 hosts 内容</li>
-            <li>打开终端，运行 <code>sudo nano /etc/hosts</code></li>
-            <li>在文件末尾粘贴内容，按 <code>Ctrl+O</code> 保存，<code>Ctrl+X</code> 退出</li>
+            <li>点击左侧 <code>获取最新 IP</code>，等待解析完成</li>
+            <li>切换到 <code>Hosts 内容</code> 标签，复制生成的 hosts 内容</li>
+            <li>终端运行 <code>sudo nano /etc/hosts</code></li>
+            <li>粘贴内容，<code>Ctrl+O</code> 保存，<code>Ctrl+X</code> 退出</li>
             <li>运行 <code>sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder</code> 刷新 DNS</li>
           </ol>
         </div>
-        <div class="tab-content" id="tab-linux">
+        <div class="howto-panel" id="tab-linux">
           <ol>
-            <li>点击左侧 <code>获取最新 IP</code> 按钮，等待所有域名解析完成</li>
-            <li>复制生成的 hosts 内容</li>
-            <li>打开终端，运行 <code>sudo nano /etc/hosts</code></li>
-            <li>在文件末尾粘贴内容并保存</li>
-            <li>运行 <code>sudo systemctl restart NetworkManager</code> 或 <code>sudo resolvectl flush-caches</code> 刷新 DNS</li>
+            <li>点击左侧 <code>获取最新 IP</code>，等待解析完成</li>
+            <li>切换到 <code>Hosts 内容</code> 标签，复制生成的 hosts 内容</li>
+            <li>终端运行 <code>sudo nano /etc/hosts</code></li>
+            <li>粘贴保存</li>
+            <li>运行 <code>sudo systemctl restart NetworkManager</code> 或 <code>sudo resolvectl flush-caches</code></li>
           </ol>
         </div>
       </div>
-    </section>
-
-    <footer class="social">
-      <a class="social-link" href="https://github.com/Sophie92-spec/github-fast-access" target="_blank" rel="noopener">
-        <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-        <span>GitHub</span>
-      </a>
-      <a class="social-link" href="https://space.bilibili.com/447878463" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.223 3.086a1.25 1.25 0 0 1 0 1.768L17.08 5.996h1.17A3.75 3.75 0 0 1 22 9.747v7.5a3.75 3.75 0 0 1-3.75 3.75H5.75A3.75 3.75 0 0 1 2 17.247v-7.5a3.75 3.75 0 0 1 3.75-3.751h1.166L5.775 4.854a1.25 1.25 0 1 1 1.767-1.768l2.652 2.652c.079.079.145.165.198.257h3.213c.053-.092.12-.18.199-.258l2.651-2.652a1.25 1.25 0 0 1 1.768 0zM18.25 8.496H5.75a1.25 1.25 0 0 0-1.247 1.157l-.003.094v7.5c0 .659.51 1.198 1.157 1.246l.093.004h12.5a1.25 1.25 0 0 0 1.247-1.157l.003-.093v-7.5c0-.69-.56-1.25-1.25-1.25zm-9.5 3.064c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25zm5.5 0c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25z"/></svg>
-        <span>哔哩哔哩</span>
-      </a>
-    </footer>
-  </main>
+      <footer class="social">
+        <a class="social-link" href="https://github.com/Sophie92-spec/github-fast-access" target="_blank" rel="noopener">
+          <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> GitHub
+        </a>
+        <a class="social-link" href="https://space.bilibili.com/447878463" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M18.223 3.086a1.25 1.25 0 0 1 0 1.768L17.08 5.996h1.17A3.75 3.75 0 0 1 22 9.747v7.5a3.75 3.75 0 0 1-3.75 3.75H5.75A3.75 3.75 0 0 1 2 17.247v-7.5a3.75 3.75 0 0 1 3.75-3.751h1.166L5.775 4.854a1.25 1.25 0 1 1 1.767-1.768l2.652 2.652c.079.079.145.165.198.257h3.213c.053-.092.12-.18.199-.258l2.651-2.652a1.25 1.25 0 0 1 1.768 0zM18.25 8.496H5.75a1.25 1.25 0 0 0-1.247 1.157l-.003.094v7.5c0 .659.51 1.198 1.157 1.246l.093.004h12.5a1.25 1.25 0 0 0 1.247-1.157l.003-.093v-7.5c0-.69-.56-1.25-1.25-1.25zm-9.5 3.064c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25zm5.5 0c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25z"/></svg> 哔哩哔哩
+        </a>
+      </footer>
+    </div>
+  </div>
 </div>
 
 <div class="modal" id="ps1-modal">
@@ -428,7 +436,7 @@ input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:po
       <textarea id="ps1-content" readonly></textarea>
     </div>
     <div class="ps1-tip">
-      💡 <strong>关于系统提示：</strong>下载 <code>.ps1</code> 后，Windows / Edge 可能提示"可能会损害你的设备"，这是系统对脚本文件的正常保护。点「保留」即可，脚本开源透明、无恶意；随后右键文件「使用 PowerShell 运行」并以管理员身份运行。
+      💡 <strong>关于系统提示：</strong>下载 <code>.ps1</code> 后，Windows / Edge 可能提示"可能会损害你的设备"，这是系统对脚本文件的正常保护。点「保留」即可；随后右键文件「使用 PowerShell 运行」并以管理员身份运行。
     </div>
     <div class="actions">
       <button class="primary" id="copy-ps1">📋 复制脚本</button>
@@ -441,312 +449,55 @@ input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:po
 <div class="toast" id="toast"></div>
 
 <script>
-// ============ 配置 ============
-const DOMAINS = [
-  'github.com',
-  'api.github.com',
-  'raw.githubusercontent.com',
-  'objects.githubusercontent.com',
-  'codeload.github.com',
-  'github.global.ssl.fastly.net',
-  'assets-cdn.github.com',
-  'github.githubassets.com',
-  'gist.github.com',
-  'live.github.com',
-  'favicons.githubusercontent.com',
-  'collector.github.com'
-];
+const DOMAINS=['github.com','api.github.com','raw.githubusercontent.com','objects.githubusercontent.com','codeload.github.com','github.global.ssl.fastly.net','assets-cdn.github.com','github.githubassets.com','gist.github.com','live.github.com','favicons.githubusercontent.com','collector.github.com'];
+const DOH_PROVIDERS={dnspod:{name:'DNSPod',url:d=>`https://doh.pub/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},alidns:{name:'AliDNS',url:d=>`https://dns.alidns.com/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},cloudflare:{name:'Cloudflare',url:d=>`https://cloudflare-dns.com/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},google:{name:'Google',url:d=>`https://dns.google/resolve?name=${d}&type=A`,headers:{}}};
+const AUTO_ORDER=['dnspod','alidns','cloudflare','google'];
+const state={};DOMAINS.forEach(d=>{state[d]={domain:d,ips:[],selectedIp:'',provider:'',status:'pending',latency:null,included:true}});
+const $=id=>document.getElementById(id);
+const resultsBody=$('results-body'),hostsContent=$('hosts-content'),toast=$('toast');
 
-const DOH_PROVIDERS = {
-  dnspod: {
-    name: 'DNSPod',
-    url: d => `https://doh.pub/dns-query?name=${d}&type=A`,
-    headers: { 'Accept': 'application/dns-json' }
-  },
-  alidns: {
-    name: 'AliDNS',
-    url: d => `https://dns.alidns.com/dns-query?name=${d}&type=A`,
-    headers: { 'Accept': 'application/dns-json' }
-  },
-  cloudflare: {
-    name: 'Cloudflare',
-    url: d => `https://cloudflare-dns.com/dns-query?name=${d}&type=A`,
-    headers: { 'Accept': 'application/dns-json' }
-  },
-  google: {
-    name: 'Google',
-    url: d => `https://dns.google/resolve?name=${d}&type=A`,
-    headers: {}
-  }
-};
+function showToast(msg,type=''){toast.textContent=msg;toast.className='toast show '+type;setTimeout(()=>toast.className='toast '+type,2500)}
+async function resolveWithProvider(domain,key,t=6000){const p=DOH_PROVIDERS[key],c=new AbortController();const tid=setTimeout(()=>c.abort(),t);try{const r=await fetch(p.url(domain),{headers:p.headers,signal:c.signal});clearTimeout(tid);const d=await r.json();return d.Answer?d.Answer.filter(a=>a.type===1).map(a=>a.data):[]}catch(e){clearTimeout(tid);throw e}}
+async function resolveDomain(domain,pref){const ps=pref==='auto'?AUTO_ORDER:[pref,...AUTO_ORDER.filter(p=>p!==pref)];for(const p of ps){try{const ips=await resolveWithProvider(domain,p);if(ips.length>0)return{ips,provider:DOH_PROVIDERS[p].name}}catch(e){}}return{ips:[],provider:''}}
+function testLatency(domain,t=5000){return new Promise(r=>{const img=new Image(),s=performance.now();let d=false;const tid=setTimeout(()=>{if(!d){d=true;r(null)}},t);img.onload=img.onerror=()=>{if(!d){d=true;clearTimeout(tid);r(Math.round(performance.now()-s))}};img.src=`https://${domain}/favicon.ico?_t=${Date.now()}`})}
 
-const AUTO_ORDER = ['dnspod', 'alidns', 'cloudflare', 'google'];
+function renderTable(){resultsBody.innerHTML='';DOMAINS.forEach(d=>{const s=state[d];const tr=document.createElement('tr');tr.innerHTML=`<td><input type="checkbox" class="inc-cb" data-domain="${d}" ${s.included?'checked':''}></td><td class="domain-name">${d}</td><td><span class="status-dot ${s.status}"></span></td><td class="ip-cell" id="ip-cell-${d}">${renderIpCell(d)}</td><td><span class="latency ${latencyClass(s.latency)}" id="lat-${d}">${latencyText(s.latency)}</span></td>`;resultsBody.appendChild(tr)});document.querySelectorAll('.inc-cb').forEach(cb=>{cb.addEventListener('change',e=>{state[e.target.dataset.domain].included=e.target.checked;updateHosts()})});document.querySelectorAll('.ip-select').forEach(sel=>{sel.addEventListener('change',e=>{state[e.target.dataset.domain].selectedIp=e.target.value;updateHosts()})});document.querySelectorAll('.ip-input').forEach(inp=>{inp.addEventListener('input',e=>{state[e.target.dataset.domain].selectedIp=e.target.value.trim();updateHosts()})})}
+function renderIpCell(d){const s=state[d];if(s.status==='loading')return'<span style="color:var(--text-secondary)">查询中...</span>';if(s.status==='success'&&s.ips.length>0){if(s.ips.length===1)return`<input type="text" class="ip-input" data-domain="${d}" value="${s.selectedIp}">`;return`<select class="ip-select" data-domain="${d}">${s.ips.map(ip=>`<option value="${ip}" ${ip===s.selectedIp?'selected':''}>${ip}</option>`).join('')}</select>`}if(s.status==='fail')return`<input type="text" class="ip-input" data-domain="${d}" placeholder="手动输入IP" value="${s.selectedIp}">`;return'<span style="color:var(--text-tertiary)">—</span>'}
+function latencyClass(l){if(l===null)return'fail';if(l<200)return'good';if(l<800)return'ok';return'slow'}
+function latencyText(l){return l===null?'—':l+'ms'}
 
-const state = {};
-DOMAINS.forEach(d => {
-  state[d] = { domain: d, ips: [], selectedIp: '', provider: '', status: 'pending', latency: null, included: true };
-});
+function updateRow(d){const s=state[d];const dot=resultsBody.querySelector(`tr:nth-child(${DOMAINS.indexOf(d)+1}) td:nth-child(3) .status-dot`);const ip=$(`ip-cell-${d}`);if(dot)dot.className='status-dot '+s.status;if(ip)ip.innerHTML=renderIpCell(d);const sel=ip?.querySelector('.ip-select'),inp=ip?.querySelector('.ip-input');if(sel)sel.addEventListener('change',e=>{state[d].selectedIp=e.target.value;updateHosts()});if(inp)inp.addEventListener('input',e=>{state[d].selectedIp=e.target.value.trim();updateHosts()})}
+function updateHosts(){const e=[];DOMAINS.forEach(d=>{const s=state[d];if(s.included&&s.selectedIp&&/^(\d{1,3}\.){3}\d{1,3}$/.test(s.selectedIp))e.push(`${s.selectedIp.padEnd(22)} ${d}`)});hostsContent.value=`# GitHub Hosts Start (更新于 ${new Date().toLocaleString('zh-CN')})\n${e.join('\n')}\n# GitHub Hosts End`;$('hosts-count').textContent=`${e.length} 条记录`}
 
-const $ = id => document.getElementById(id);
-const resultsBody = $('results-body');
-const hostsContent = $('hosts-content');
-const toast = $('toast');
+async function fetchAll(){const provider=$('doh-provider').value,btn=$('fetch-btn');btn.disabled=true;btn.textContent='⏳ 查询中...';$('progress').classList.add('active');DOMAINS.forEach(d=>{state[d].status='loading';updateRow(d)});let done=0;const total=DOMAINS.length;const ps=DOMAINS.map(async d=>{const r=await resolveDomain(d,provider);state[d].ips=r.ips;state[d].selectedIp=r.ips[0]||'';state[d].provider=r.provider;state[d].status=r.ips.length>0?'success':'fail';done++;$('progress-fill').style.width=(done/total*100)+'%';updateRow(d);return d});await Promise.all(ps);updateHosts();const ok=DOMAINS.filter(d=>state[d].status==='success').length,fail=total-ok;$('update-time').textContent=new Date().toLocaleTimeString('zh-CN')+` (${ok}/${total} 成功${fail?`, ${fail} 失败`:''})`;btn.disabled=false;btn.textContent='🔍 获取最新 IP';$('progress').classList.remove('active');$('progress-fill').style.width='0%';if(ok===total)showToast(`✅ 全部 ${total} 个域名解析成功！`,'success');else if(ok>0)showToast(`⚠️ ${ok}/${total} 成功，${fail} 个失败`,'');else showToast('❌ 所有 DoH 服务均不可用','error')}
 
-function showToast(msg, type = '') {
-  toast.textContent = msg;
-  toast.className = 'toast show ' + type;
-  setTimeout(() => toast.className = 'toast ' + type, 2500);
-}
+async function testAll(){const btn=$('test-btn');btn.disabled=true;btn.textContent='⏳ 测试中...';DOMAINS.forEach(d=>{state[d].latency=null;const el=$(`lat-${d}`);if(el){el.className='latency fail';el.textContent='...'}});const ps=DOMAINS.map(async d=>{const l=await testLatency(d);state[d].latency=l;const el=$(`lat-${d}`);if(el){el.className='latency '+latencyClass(l);el.textContent=latencyText(l)}});await Promise.all(ps);btn.disabled=false;btn.textContent='⚡ 测试延迟';const avg=DOMAINS.filter(d=>state[d].latency!==null).map(d=>state[d].latency);if(avg.length>0)showToast(`⚡ 平均延迟: ${Math.round(avg.reduce((a,b)=>a+b,0)/avg.length)}ms`,'success');else showToast('❌ 所有域名均无法连接','error')}
 
-async function resolveWithProvider(domain, providerKey, timeout = 6000) {
-  const provider = DOH_PROVIDERS[providerKey];
-  const controller = new AbortController();
-  const tid = setTimeout(() => controller.abort(), timeout);
-  try {
-    const resp = await fetch(provider.url(domain), {
-      headers: provider.headers,
-      signal: controller.signal
-    });
-    clearTimeout(tid);
-    const data = await resp.json();
-    if (data.Answer) {
-      return data.Answer.filter(a => a.type === 1).map(a => a.data);
-    }
-    return [];
-  } catch (e) {
-    clearTimeout(tid);
-    throw e;
-  }
-}
+function generatePS1(restore=false){const ts=new Date().toLocaleString('zh-CN');if(restore){return['# GitHub Hosts 恢复脚本','# 生成于 '+ts,'# 请以管理员身份运行','','$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)','if (-not $isAdmin) {','    Write-Host "请以管理员身份运行此脚本！" -ForegroundColor Red','    Read-Host "按回车键退出"','    exit 1','}','','$hostsPath = "$env:WINDIR\\System32\\drivers\\etc\\hosts"','$content = Get-Content $hostsPath -Raw',"$content = $content -replace " + "'" + '(?s)\\r?\\n?# GitHub Hosts Start.*?# GitHub Hosts End\\r?\\n?' + "'" + ', "`n"','Set-Content -Path $hostsPath -Value $content.TrimEnd() + "`n" -Encoding UTF8 -NoNewline','','ipconfig /flushdns | Out-Null','Write-Host "已移除 GitHub hosts 条目并刷新 DNS！" -ForegroundColor Green','Write-Host "GitHub 已恢复到默认连接方式。" -ForegroundColor Cyan','Read-Host "按回车键退出"'].join('\n')}const entries=[];DOMAINS.forEach(d=>{const s=state[d];if(s.included&&s.selectedIp&&/^(\d{1,3}\.){3}\d{1,3}$/.test(s.selectedIp))entries.push(s.selectedIp+' '+d)});return['# GitHub Hosts 加速脚本','# 生成于 '+ts,'# 请以管理员身份运行','','$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)','if (-not $isAdmin) {','    Write-Host "请以管理员身份运行此脚本！" -ForegroundColor Red','    Read-Host "按回车键退出"','    exit 1','}','','$hostsPath = "$env:WINDIR\\System32\\drivers\\etc\\hosts"','$backupPath = "$env:WINDIR\\System32\\drivers\\etc\\hosts.backup.'+Date.now()+'"','','Copy-Item $hostsPath $backupPath -Force','Write-Host "已备份原 hosts 文件到: $backupPath" -ForegroundColor Green','','$content = Get-Content $hostsPath -Raw -ErrorAction SilentlyContinue',"if ($content) { $content = $content -replace " + "'" + '(?s)\\r?\\n?# GitHub Hosts Start.*?# GitHub Hosts End\\r?\\n?' + "'" + ', "`n" } else { $content = \"\" }','','$newEntries = @"','','# GitHub Hosts Start (更新于 '+ts+')',entries.join('\n'),'# GitHub Hosts End','"@','','$content = $content.TrimEnd() + "`n" + $newEntries + "`n"','Set-Content -Path $hostsPath -Value $content -Encoding UTF8 -NoNewline','Write-Host "已更新 hosts 文件！共写入 '+entries.length+' 条记录" -ForegroundColor Green','','ipconfig /flushdns | Out-Null','Write-Host "已刷新 DNS 缓存！" -ForegroundColor Green','','Write-Host "完成！现在访问 GitHub 应该更快了。" -ForegroundColor Cyan','Write-Host "如需恢复，运行恢复脚本即可。" -ForegroundColor Yellow','Read-Host "按回车键退出"'].join('\n')}
 
-async function resolveDomain(domain, preferred) {
-  const providers = preferred === 'auto' ? AUTO_ORDER : [preferred, ...AUTO_ORDER.filter(p => p !== preferred)];
-  for (const p of providers) {
-    try {
-      const ips = await resolveWithProvider(domain, p);
-      if (ips.length > 0) {
-        return { ips, provider: DOH_PROVIDERS[p].name };
-      }
-    } catch (e) {}
-  }
-  return { ips: [], provider: '' };
-}
+async function copyText(text){try{await navigator.clipboard.writeText(text);return true}catch(e){const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');document.body.removeChild(ta);return true}catch(e2){document.body.removeChild(ta);return false}}}
+function downloadFile(filename,content){const blob=new Blob([content],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=filename;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url)}
 
-function testLatency(domain, timeout = 5000) {
-  return new Promise(resolve => {
-    const img = new Image();
-    const start = performance.now();
-    let done = false;
-    const tid = setTimeout(() => { if (!done) { done = true; resolve(null); } }, timeout);
-    img.onload = img.onerror = () => {
-      if (!done) { done = true; clearTimeout(tid); resolve(Math.round(performance.now() - start)); }
-    };
-    img.src = `https://${domain}/favicon.ico?_t=${Date.now()}`;
-  });
-}
+$('fetch-btn').addEventListener('click',fetchAll);
+$('test-btn').addEventListener('click',testAll);
+$('select-all').addEventListener('change',e=>{DOMAINS.forEach(d=>{state[d].included=e.target.checked});document.querySelectorAll('.inc-cb').forEach(cb=>{cb.checked=e.target.checked});updateHosts()});
+$('copy-hosts').addEventListener('click',async()=>{showToast(await copyText(hostsContent.value)?'✅ Hosts 内容已复制到剪贴板':'❌ 复制失败',await copyText(hostsContent.value)?'success':'error')});
+$('download-hosts').addEventListener('click',()=>{downloadFile('hosts.txt',hostsContent.value);showToast('✅ hosts.txt 已下载','success')});
+$('gen-ps1').addEventListener('click',()=>{$('modal-title').textContent='🔧 PowerShell 加速脚本';$('ps1-content').value=generatePS1(false);$('ps1-modal').classList.add('active');$('download-ps1').dataset.mode='apply'});
+$('gen-restore').addEventListener('click',()=>{$('modal-title').textContent='🔄 PowerShell 恢复脚本';$('ps1-content').value=generatePS1(true);$('ps1-modal').classList.add('active');$('download-ps1').dataset.mode='restore'});
+$('copy-ps1').addEventListener('click',async()=>{const ok=await copyText($('ps1-content').value);showToast(ok?'✅ 脚本已复制到剪贴板':'❌ 复制失败',ok?'success':'error')});
+$('download-ps1').addEventListener('click',()=>{const m=$('download-ps1').dataset.mode;const n=m==='restore'?'github-hosts-restore.ps1':'github-hosts-apply.ps1';downloadFile(n,$('ps1-content').value);showToast(`✅ ${n} 已下载`,'success')});
+$('close-modal').addEventListener('click',()=>{$('ps1-modal').classList.remove('active')});
+$('ps1-modal').addEventListener('click',e=>{if(e.target===$('ps1-modal'))$('ps1-modal').classList.remove('active')});
 
-function renderTable() {
-  resultsBody.innerHTML = '';
-  DOMAINS.forEach(d => {
-    const s = state[d];
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><input type="checkbox" class="inc-cb" data-domain="${d}" ${s.included ? 'checked' : ''}></td>
-      <td class="domain-name">${d}</td>
-      <td><span class="status-dot ${s.status}"></span></td>
-      <td class="ip-cell" id="ip-cell-${d}">${renderIpCell(d)}</td>
-      <td><span class="latency ${latencyClass(s.latency)}" id="lat-${d}">${latencyText(s.latency)}</span></td>
-    `;
-    resultsBody.appendChild(tr);
-  });
-  document.querySelectorAll('.inc-cb').forEach(cb => {
-    cb.addEventListener('change', e => { state[e.target.dataset.domain].included = e.target.checked; updateHosts(); });
-  });
-  document.querySelectorAll('.ip-select').forEach(sel => {
-    sel.addEventListener('change', e => { state[e.target.dataset.domain].selectedIp = e.target.value; updateHosts(); });
-  });
-  document.querySelectorAll('.ip-input').forEach(inp => {
-    inp.addEventListener('input', e => { state[e.target.dataset.domain].selectedIp = e.target.value.trim(); updateHosts(); });
-  });
-}
+// 主标签切换
+document.querySelectorAll('.main-tab').forEach(t=>{t.addEventListener('click',()=>{document.querySelectorAll('.main-tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.main-panel').forEach(x=>x.classList.remove('active'));t.classList.add('active');const id='panel-'+t.dataset.panel;$(id).classList.add('active')})});
 
-function renderIpCell(d) {
-  const s = state[d];
-  if (s.status === 'loading') return '<span style="color:var(--text-secondary)">查询中...</span>';
-  if (s.status === 'success' && s.ips.length > 0) {
-    if (s.ips.length === 1) return `<input type="text" class="ip-input" data-domain="${d}" value="${s.selectedIp}">`;
-    return `<select class="ip-select" data-domain="${d}">${s.ips.map(ip => `<option value="${ip}" ${ip === s.selectedIp ? 'selected' : ''}>${ip}</option>`).join('')}</select>`;
-  }
-  if (s.status === 'fail') return `<input type="text" class="ip-input" data-domain="${d}" placeholder="手动输入IP" value="${s.selectedIp}">`;
-  return '<span style="color:var(--text-secondary)">—</span>';
-}
-
-function latencyClass(lat) {
-  if (lat === null) return 'fail';
-  if (lat < 200) return 'good';
-  if (lat < 800) return 'ok';
-  return 'slow';
-}
-function latencyText(lat) { return lat === null ? '—' : lat + 'ms'; }
-
-function updateRow(d) {
-  const s = state[d];
-  const dotCell = resultsBody.querySelector(`tr:nth-child(${DOMAINS.indexOf(d) + 1}) td:nth-child(3) .status-dot`);
-  const ipCell = $(`ip-cell-${d}`);
-  if (dotCell) dotCell.className = 'status-dot ' + s.status;
-  if (ipCell) ipCell.innerHTML = renderIpCell(d);
-  const sel = ipCell?.querySelector('.ip-select');
-  const inp = ipCell?.querySelector('.ip-input');
-  if (sel) sel.addEventListener('change', e => { state[d].selectedIp = e.target.value; updateHosts(); });
-  if (inp) inp.addEventListener('input', e => { state[d].selectedIp = e.target.value.trim(); updateHosts(); });
-}
-
-function updateHosts() {
-  const entries = [];
-  const ts = new Date().toLocaleString('zh-CN');
-  DOMAINS.forEach(d => {
-    const s = state[d];
-    if (s.included && s.selectedIp && /^(\d{1,3}\.){3}\d{1,3}$/.test(s.selectedIp)) {
-      entries.push(`${s.selectedIp.padEnd(22)} ${d}`);
-    }
-  });
-  hostsContent.value = `# GitHub Hosts Start (更新于 ${ts})\n${entries.join('\n')}\n# GitHub Hosts End`;
-  $('hosts-count').textContent = `${entries.length} 条记录`;
-}
-
-async function fetchAll() {
-  const provider = $('doh-provider').value;
-  const btn = $('fetch-btn');
-  btn.disabled = true; btn.textContent = '⏳ 查询中...';
-  $('progress').classList.add('active');
-  DOMAINS.forEach(d => { state[d].status = 'loading'; updateRow(d); });
-
-  let done = 0; const total = DOMAINS.length;
-  const promises = DOMAINS.map(async d => {
-    const result = await resolveDomain(d, provider);
-    state[d].ips = result.ips; state[d].selectedIp = result.ips[0] || '';
-    state[d].provider = result.provider; state[d].status = result.ips.length > 0 ? 'success' : 'fail';
-    done++; $('progress-fill').style.width = (done / total * 100) + '%'; updateRow(d); return d;
-  });
-  await Promise.all(promises);
-  updateHosts();
-
-  const success = DOMAINS.filter(d => state[d].status === 'success').length;
-  const fail = total - success;
-  $('update-time').textContent = new Date().toLocaleTimeString('zh-CN') + ` (${success}/${total} 成功${fail ? `, ${fail} 失败` : ''})`;
-  btn.disabled = false; btn.textContent = '🔍 获取最新 IP';
-  $('progress').classList.remove('active'); $('progress-fill').style.width = '0%';
-
-  if (success === total) showToast(`✅ 全部 ${total} 个域名解析成功！`, 'success');
-  else if (success > 0) showToast(`⚠️ ${success}/${total} 成功，${fail} 个失败`, '');
-  else showToast('❌ 所有 DoH 服务均不可用，请手动输入 IP', 'error');
-}
-
-async function testAll() {
-  const btn = $('test-btn');
-  btn.disabled = true; btn.textContent = '⏳ 测试中...';
-  DOMAINS.forEach(d => { state[d].latency = null; const el = $(`lat-${d}`); if (el) { el.className = 'latency fail'; el.textContent = '...'; } });
-  const promises = DOMAINS.map(async d => {
-    const lat = await testLatency(d); state[d].latency = lat;
-    const el = $(`lat-${d}`); if (el) { el.className = 'latency ' + latencyClass(lat); el.textContent = latencyText(lat); }
-  });
-  await Promise.all(promises);
-  btn.disabled = false; btn.textContent = '⚡ 测试延迟';
-  const avg = DOMAINS.filter(d => state[d].latency !== null).map(d => state[d].latency);
-  if (avg.length > 0) showToast(`⚡ 平均延迟: ${Math.round(avg.reduce((a,b)=>a+b,0)/avg.length)}ms (${avg.length}/${DOMAINS.length} 可达)`, 'success');
-  else showToast('❌ 所有域名均无法连接', 'error');
-}
-
-function generatePS1(restore = false) {
-  const ts = new Date().toLocaleString('zh-CN');
-  if (restore) {
-    return [
-'# GitHub Hosts 恢复脚本','# 生成于 ' + ts,'# 请以管理员身份运行','',
-'$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)',
-'if (-not $isAdmin) {','    Write-Host "请以管理员身份运行此脚本！" -ForegroundColor Red','    Read-Host "按回车键退出"','    exit 1','}','',
-'$hostsPath = "$env:WINDIR\\System32\\drivers\\etc\\hosts"',
-'$content = Get-Content $hostsPath -Raw',
-'$content = $content -replace ' + "'" + '(?s)\\r?\\n?# GitHub Hosts Start.*?# GitHub Hosts End\\r?\\n?' + "'" + ', "`n"',
-'Set-Content -Path $hostsPath -Value $content.TrimEnd() + "`n" -Encoding UTF8 -NoNewline','',
-'ipconfig /flushdns | Out-Null',
-'Write-Host "已移除 GitHub hosts 条目并刷新 DNS！" -ForegroundColor Green',
-'Write-Host "GitHub 已恢复到默认连接方式。" -ForegroundColor Cyan','Read-Host "按回车键退出"'
-    ].join('\n');
-  }
-  const entries = [];
-  DOMAINS.forEach(d => { const s = state[d]; if (s.included && s.selectedIp && /^(\d{1,3}\.){3}\d{1,3}$/.test(s.selectedIp)) entries.push(s.selectedIp + ' ' + d); });
-  return [
-'# GitHub Hosts 加速脚本','# 生成于 ' + ts,'# 请以管理员身份运行','',
-'$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)',
-'if (-not $isAdmin) {','    Write-Host "请以管理员身份运行此脚本！" -ForegroundColor Red','    Read-Host "按回车键退出"','    exit 1','}','',
-'$hostsPath = "$env:WINDIR\\System32\\drivers\\etc\\hosts"',
-'$backupPath = "$env:WINDIR\\System32\\drivers\\etc\\hosts.backup.' + Date.now() + '"','',
-'Copy-Item $hostsPath $backupPath -Force',
-'Write-Host "已备份原 hosts 文件到: $backupPath" -ForegroundColor Green','',
-'$content = Get-Content $hostsPath -Raw -ErrorAction SilentlyContinue',
-'if ($content) { $content = $content -replace ' + "'" + '(?s)\\r?\\n?# GitHub Hosts Start.*?# GitHub Hosts End\\r?\\n?' + "'" + ', "`n" } else { $content = "" }','',
-'$newEntries = @"','','# GitHub Hosts Start (更新于 ' + ts + ')',entries.join('\n'),'# GitHub Hosts End','"@','',
-'$content = $content.TrimEnd() + "`n" + $newEntries + "`n"',
-'Set-Content -Path $hostsPath -Value $content -Encoding UTF8 -NoNewline',
-'Write-Host "已更新 hosts 文件！共写入 ' + entries.length + ' 条记录" -ForegroundColor Green','',
-'ipconfig /flushdns | Out-Null','Write-Host "已刷新 DNS 缓存！" -ForegroundColor Green','',
-'Write-Host "完成！现在访问 GitHub 应该更快了。" -ForegroundColor Cyan',
-'Write-Host "如需恢复，运行恢复脚本即可。" -ForegroundColor Yellow','Read-Host "按回车键退出"'
-  ].join('\n');
-}
-
-async function copyText(text) {
-  try { await navigator.clipboard.writeText(text); return true; } catch (e) {
-    const ta = document.createElement('textarea'); ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
-    document.body.appendChild(ta); ta.select();
-    try { document.execCommand('copy'); document.body.removeChild(ta); return true; }
-    catch (e2) { document.body.removeChild(ta); return false; }
-  }
-}
-
-function downloadFile(filename, content) {
-  const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a'); a.href = url; a.download = filename;
-  document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-}
-
-$('fetch-btn').addEventListener('click', fetchAll);
-$('test-btn').addEventListener('click', testAll);
-$('select-all').addEventListener('change', e => {
-  DOMAINS.forEach(d => { state[d].included = e.target.checked; });
-  document.querySelectorAll('.inc-cb').forEach(cb => { cb.checked = e.target.checked; });
-  updateHosts();
-});
-$('copy-hosts').addEventListener('click', async () => {
-  if (await copyText(hostsContent.value)) showToast('✅ Hosts 内容已复制到剪贴板', 'success');
-  else showToast('❌ 复制失败', 'error');
-});
-$('download-hosts').addEventListener('click', () => { downloadFile('hosts.txt', hostsContent.value); showToast('✅ hosts.txt 已下载', 'success'); });
-$('gen-ps1').addEventListener('click', () => { $('modal-title').textContent = '🔧 PowerShell 加速脚本'; $('ps1-content').value = generatePS1(false); $('ps1-modal').classList.add('active'); $('download-ps1').dataset.mode = 'apply'; });
-$('gen-restore').addEventListener('click', () => { $('modal-title').textContent = '🔄 PowerShell 恢复脚本'; $('ps1-content').value = generatePS1(true); $('ps1-modal').classList.add('active'); $('download-ps1').dataset.mode = 'restore'; });
-$('copy-ps1').addEventListener('click', async () => { showToast(await copyText($('ps1-content').value) ? '✅ 脚本已复制到剪贴板' : '❌ 复制失败', await copyText($('ps1-content').value) ? 'success' : 'error'); });
-$('download-ps1').addEventListener('click', () => { const m = $('download-ps1').dataset.mode; const n = m === 'restore' ? 'github-hosts-restore.ps1' : 'github-hosts-apply.ps1'; downloadFile(n, $('ps1-content').value); showToast(`✅ ${n} 已下载`, 'success'); });
-$('close-modal').addEventListener('click', () => { $('ps1-modal').classList.remove('active'); });
-$('ps1-modal').addEventListener('click', e => { if (e.target === $('ps1-modal')) $('ps1-modal').classList.remove('active'); });
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    tab.classList.add('active'); $('tab-' + tab.dataset.tab).classList.add('active');
-  });
-});
-
-// 导航高亮
-document.querySelectorAll('.nav-item').forEach(item => {
-  item.addEventListener('click', function() {
-    document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
-    this.classList.add('active');
-  });
-});
+// 使用说明内部标签切换
+document.querySelectorAll('.howto-tab').forEach(tab=>{tab.addEventListener('click',()=>{const scope=tab.closest('.main-panel');scope.querySelectorAll('.howto-tab').forEach(t=>t.classList.remove('active'));scope.querySelectorAll('.howto-panel').forEach(c=>c.classList.remove('active'));tab.classList.add('active');scope.querySelector('#tab-'+tab.dataset.tab).classList.add('active')})});
 
 renderTable();
-setTimeout(() => { fetchAll().then(() => testAll()); }, 300);
+setTimeout(()=>{fetchAll().then(()=>testAll())},300);
 </script>
 </body>
 </html>
