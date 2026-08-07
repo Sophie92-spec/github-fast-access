@@ -207,3 +207,20 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
 @media(max-width:480px){
   html{font-size:13px}
 }
+
+/* Stats counter */
+.stats-widget{
+  position:fixed;bottom:24px;right:clamp(12px,2vw,24px);z-index:90;
+  background:var(--glass);border:1px solid var(--border-strong);
+  border-radius:clamp(10px,1vw,14px);padding:clamp(10px,1vh,14px) clamp(14px,1.4vw,20px);
+  backdrop-filter:blur(16px);box-shadow:var(--shadow);
+  display:flex;gap:clamp(12px,1.5vw,18px);font-size:clamp(11px,.9vw,13px);
+  color:var(--muted);animation:fadeUp .6s var(--ease) .5s both;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.stats-item{display:flex;align-items:center;gap:6px}
+.stats-item .icon{font-size:clamp(14px,1.2vw,16px)}
+.stats-item strong{color:var(--text);font-weight:700;font-family:var(--mono)}
+@media(max-width:640px){
+  .stats-widget{bottom:12px;right:8px;padding:8px 12px;gap:10px;font-size:11px}
+}
