@@ -38,9 +38,16 @@ d[t]=(d[t]||0)+1;localStorage.setItem(K,JSON.stringify(d));
 var ds=[],vs=Object.values(d),mx=Math.max(1,Math.max.apply(null,vs));
 for(var i=6;i>=0;i--){var dd=new Date();dd.setDate(dd.getDate()-i);ds.push(dd.toISOString().slice(0,10))}
 var L=['日','一','二','三','四','五','六'],c=document.getElementById('stats-chart');
-c.innerHTML=ds.map(function(D){
+c.innerHTML=ds.map(function(D,i){
 var v=d[D]||0,h=Math.max((v/mx)*100,2);
-return '<div style="text-align:center"><div class="stats-bar'+(D===t?' today':'')+'" style="height:'+h+'%" title="'+D+': '+v+'"></div><div class="stats-bar-label">'+L[new Date(D).getDay()]+'</div></div>'
+return '<div style="text-align:center"><div class="stats-bar'+(D===t?' today':'')+'" data-h="'+h+'" style="height:0" title="'+D+': '+v+'"></div><div class="stats-bar-label">'+L[new Date(D).getDay()]+'</div></div>'
 }).join('');
-document.getElementById('stats-today').textContent=d[t]||0
+document.getElementById('stats-today').textContent=d[t]||0;
+// Animate bars
+setTimeout(function(){
+var bars=c.querySelectorAll('.stats-bar');
+bars.forEach(function(b,i){
+setTimeout(function(){b.style.height=b.dataset.h+'%'},i*80)
+})
+},200)
 }();
