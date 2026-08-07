@@ -3,14 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GitHub Hosts 加速工具</title>
+<title>GitHub Hosts - 配置向导</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#f3f3f3;
-  --sidebar-bg:#fafafa;
-  --topbar-bg:#fafafa;
-  --card:#ffffff;
   --surface:#ffffff;
   --surface-2:#f5f5f5;
   --surface-hover:#ededed;
@@ -28,233 +25,215 @@
   --red-bg:#ffebee;
   --orange:#d84315;
   --orange-bg:#fff3e0;
-  --radius:8px;
+  --radius:10px;
   --radius-sm:6px;
-  --radius-lg:10px;
-  --shadow:0 1px 2px rgba(0,0,0,.04),0 1px 3px rgba(0,0,0,.06);
-  --shadow-md:0 2px 8px rgba(0,0,0,.06);
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 2px 4px rgba(0,0,0,.06);
+  --shadow-md:0 4px 12px rgba(0,0,0,.08);
   --ease:cubic-bezier(.33,.44,.33,.9);
   --mono:"Cascadia Code","Consolas","Fira Code",monospace;
   --sans:"Segoe UI Variable","Segoe UI",-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
 }
-html{scroll-behavior:smooth}
 body{
   font-family:var(--sans);background:var(--bg);color:var(--text);
-  line-height:1.5;min-height:100vh;display:flex;flex-direction:column;
-  -webkit-font-smoothing:antialiased;
+  line-height:1.5;min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  -webkit-font-smoothing:antialiased;padding:32px 16px 40px;
 }
 
-/* ===== 顶部条 ===== */
-.topbar{
-  display:flex;align-items:center;gap:14px;height:48px;padding:0 16px;
-  background:var(--topbar-bg);border-bottom:1px solid var(--border);
-  flex-shrink:0;position:sticky;top:0;z-index:10;
-}
-.hamburger{
-  width:36px;height:36px;border-radius:6px;background:none;border:none;
-  display:flex;align-items:center;justify-content:center;cursor:pointer;
-  color:var(--text);transition:.12s;
-}
-.hamburger:hover{background:var(--surface-hover)}
-.hamburger span{font-size:18px;line-height:1}
-.topbar-brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500}
-.topbar-icon{
-  width:28px;height:28px;border-radius:6px;background:var(--accent);
-  color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;
+/* ===== Wizard 容器 ===== */
+.wizard{
+  width:100%;max-width:780px;display:flex;flex-direction:column;gap:0;
 }
 
-/* ===== 布局 ===== */
-.layout{display:flex;flex:1;min-height:0}
+/* Header */
+.wizard-header{
+  text-align:center;padding:0 0 24px;
+}
+.wizard-logo{
+  width:48px;height:48px;border-radius:12px;background:var(--accent);
+  color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:22px;
+  margin-bottom:12px;
+}
+.wizard-title{font-size:22px;font-weight:600;margin-bottom:6px}
+.wizard-sub{font-size:13.5px;color:var(--text-secondary)}
 
-/* ===== 侧边栏 ===== */
-.sidebar{
-  width:220px;flex-shrink:0;background:var(--sidebar-bg);
-  border-right:1px solid var(--border);display:flex;flex-direction:column;
-  overflow-y:auto;padding:8px;
+/* ===== 步骤条 ===== */
+.steps{
+  display:flex;align-items:center;justify-content:center;gap:0;
+  padding:0 0 28px;user-select:none;
 }
-.nav{display:flex;flex-direction:column;gap:2px;padding:4px 0}
-.nav-item{
-  display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:var(--radius-sm);
-  color:var(--text);text-decoration:none;font-size:13.5px;font-weight:500;
-  cursor:pointer;transition:background .1s;position:relative;
+.step{
+  display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;
+  transition:.2s var(--ease);
 }
-.nav-item:hover{background:var(--surface-hover)}
-.nav-item.active{background:var(--accent-bg);color:var(--accent)}
-.nav-item.active::before{
-  content:'';position:absolute;left:-8px;top:8px;bottom:8px;width:3px;
-  background:var(--accent);border-radius:0 2px 2px 0;
+.step-dot{
+  width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:600;transition:.2s var(--ease);
+  border:2px solid var(--border);color:var(--text-tertiary);background:#fff;
 }
-.nav-item .ico{font-size:16px;width:18px;text-align:center;opacity:.85}
+.step.active .step-dot{border-color:var(--accent);background:var(--accent);color:#fff}
+.step.done .step-dot{border-color:var(--accent);background:#fff;color:var(--accent)}
+.step-label{font-size:12px;font-weight:500;color:var(--text-tertiary);transition:.2s}
+.step.active .step-label{color:var(--accent);font-weight:600}
+.step.done .step-label{color:var(--accent)}
+.step-line{width:80px;height:2px;background:var(--border);margin:0 -2px;position:relative;top:-18px;transition:.2s}
+.step-line.done{background:var(--accent)}
 
-/* 侧边栏工具区（操作面板） */
-.sidebar-tools{
-  margin-top:16px;padding:12px;border-top:1px solid var(--border);
-  display:flex;flex-direction:column;gap:8px;
+/* ===== 步骤面板 ===== */
+.step-panels{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+  box-shadow:var(--shadow);overflow:hidden;
 }
-.sidebar-tools-label{
-  font-size:10.5px;font-weight:600;color:var(--text-tertiary);
-  text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px;
+.step-panel{display:none;animation:slide .25s var(--ease)}
+.step-panel.active{display:block}
+@keyframes slide{from{opacity:0;transform:translateX(10px)}to{opacity:1;transform:none}}
+
+.panel-inner{padding:24px 28px}
+
+/* 步骤 1 内部 */
+.step1-controls{
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:18px;
+  padding:12px 14px;background:var(--surface-2);border-radius:var(--radius-sm);
 }
-.sidebar-tools select{
-  width:100%;padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);
-  background:#fff;color:var(--text);font-size:12.5px;font-family:var(--sans);cursor:pointer;
+.step1-controls select{
+  padding:7px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);
+  background:#fff;color:var(--text);font-size:13px;font-family:var(--sans);cursor:pointer;
   appearance:none;-webkit-appearance:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 10px center;
+  background-repeat:no-repeat;background-position:right 10px center;padding-right:32px;
 }
-.sidebar-tools select:focus{outline:none;border-color:var(--accent)}
-.sidebar-tools button{
-  width:100%;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);
-  background:#fff;color:var(--text);font-family:var(--sans);font-size:12.5px;font-weight:500;
-  cursor:pointer;display:flex;align-items:center;gap:8px;transition:.12s;
+.step1-controls button{
+  padding:7px 16px;border-radius:var(--radius-sm);border:1px solid var(--border);
+  background:#fff;color:var(--text);font-family:var(--sans);font-size:13px;font-weight:500;
+  cursor:pointer;display:flex;align-items:center;gap:6px;transition:.12s;
 }
-.sidebar-tools button:hover{background:var(--surface-hover)}
-.sidebar-tools button:active{transform:scale(.98)}
-.sidebar-tools button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-.sidebar-tools button.primary:hover{background:var(--accent-hover)}
-.sidebar-tools button:disabled{opacity:.35;cursor:not-allowed;transform:none}
-
-.sidebar-progress{height:3px;background:#e0e0e0;border-radius:99px;overflow:hidden;margin-top:2px;display:none}
-.sidebar-progress.active{display:block}
-.sidebar-progress .fill{height:100%;background:var(--accent);width:0%;border-radius:99px;transition:width .25s var(--ease)}
-
-.sidebar-footer{
-  margin-top:auto;padding:10px 12px 4px;border-top:1px solid var(--border);
-  font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:6px;
-}
-.sidebar-footer .dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-
-/* ===== 内容区 ===== */
-.content{
-  flex:1;overflow-y:auto;padding:16px 24px 24px;background:var(--bg);
-}
-.card{
-  background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);
-  padding:14px 16px;margin-bottom:12px;box-shadow:var(--shadow);
-}
-.card:last-child{margin-bottom:0}
-.card-header{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border);
-}
-.card-title{font-size:14px;font-weight:600;color:var(--text)}
-.card-subtitle{font-size:11.5px;color:var(--text-secondary);margin-top:2px;font-weight:400}
-.card-header-right{display:flex;align-items:center;gap:8px}
-.badge-count{
-  font-size:11px;color:var(--text-secondary);font-weight:500;
-  background:var(--surface-2);padding:2px 10px;border-radius:999px;
-}
+.step1-controls button:hover{background:var(--surface-hover)}
+.step1-controls button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.step1-controls button.primary:hover{background:var(--accent-hover)}
+.step1-controls button:disabled{opacity:.35;cursor:not-allowed}
+.progress-bar{flex:1;min-width:80px;height:3px;background:#e0e0e0;border-radius:99px;overflow:hidden;display:none}
+.progress-bar.active{display:block}
+.progress-bar .fill{height:100%;background:var(--accent);width:0%;border-radius:99px;transition:width .25s var(--ease)}
 
 /* 表格 */
 .results-tbl{
-  background:#fff;border:1px solid var(--border);border-radius:var(--radius);
-  overflow:hidden;
+  border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;
 }
 table{width:100%;border-collapse:collapse}
 thead th{
-  text-align:left;padding:7px 12px;font-size:11px;font-weight:600;
+  text-align:left;padding:7px 10px;font-size:11px;font-weight:600;
   color:var(--text-secondary);background:var(--surface-2);letter-spacing:.2px;border-bottom:1px solid var(--border);
 }
-td{padding:6px 12px;border-bottom:1px solid var(--border);font-size:12.5px;transition:background .08s;line-height:1.4}
+td{padding:6px 10px;border-bottom:1px solid var(--border);font-size:12.5px;line-height:1.4}
 tbody tr:hover{background:var(--accent-bg)}
 tbody tr:last-child td{border-bottom:none}
-.domain-name{font-family:var(--mono);color:var(--accent);font-size:12.5px;font-weight:500}
-.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;position:relative}
+.domain-name{font-family:var(--mono);color:var(--accent);font-size:12px;font-weight:500}
+.status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;position:relative}
 .status-dot.loading{background:var(--orange)}
 .status-dot.loading::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--orange);border-top-color:transparent;animation:spin .7s linear infinite}
 .status-dot.success{background:var(--green);box-shadow:0 0 4px rgba(16,124,16,.4)}
 .status-dot.fail{background:var(--red);box-shadow:0 0 4px rgba(198,40,40,.35)}
 @keyframes spin{to{transform:rotate(360deg)}}
-.ip-cell{font-family:var(--mono);font-size:12.5px}
+.ip-cell{font-family:var(--mono);font-size:12px}
 .ip-select,.ip-input{
   background:var(--surface-2);color:var(--text);border:1px solid var(--border);
-  border-radius:var(--radius-sm);padding:5px 8px;font-size:12px;font-family:var(--mono);transition:.12s;
+  border-radius:var(--radius-sm);padding:4px 7px;font-size:11.5px;font-family:var(--mono);transition:.12s;
 }
-.ip-select{max-width:180px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:26px}
+.ip-select{max-width:170px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center;padding-right:24px}
 .ip-select:focus,.ip-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
-.ip-input{width:160px}
-.latency{font-family:var(--mono);font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;display:inline-block}
+.ip-input{width:150px}
+.latency{font-family:var(--mono);font-size:11px;font-weight:600;padding:1px 6px;border-radius:999px;display:inline-block}
 .latency.good{color:var(--green);background:var(--green-bg)}
 .latency.ok{color:var(--orange);background:var(--orange-bg)}
 .latency.slow{color:var(--red);background:var(--red-bg)}
 .latency.fail{color:var(--text-tertiary)}
-th label{display:flex;align-items:center;gap:7px;cursor:pointer;font-weight:600;font-size:11px}
-input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
+th label{display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:600;font-size:11px}
+input[type=checkbox]{accent-color:var(--accent);width:14px;height:14px;cursor:pointer}
+
+/* 步骤 2 内部 */
+.panel-section{margin-bottom:16px}
+.panel-section:last-child{margin-bottom:0}
+.panel-label{font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.panel-label .count{
+  font-size:11px;font-weight:500;color:var(--text-secondary);
+  background:var(--surface-2);padding:2px 9px;border-radius:999px;
+}
 
 /* 代码窗口 */
-.code-window{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:#1e1e1e}
+.code-window{border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:#1e1e1e}
 .code-window-header{
-  display:flex;align-items:center;gap:7px;padding:8px 12px;
-  background:#2a2a2a;border-bottom:1px solid #3a3a3a;
+  display:flex;align-items:center;gap:7px;padding:7px 10px;background:#2a2a2a;border-bottom:1px solid #3a3a3a;
 }
-.code-window-header .dot{width:9px;height:9px;border-radius:50%}
+.code-window-header .dot{width:8px;height:8px;border-radius:50%}
 .dot.red{background:#ff5f56}.dot.yellow{background:#ffbd2e}.dot.green{background:#27c93f}
-.code-title{margin-left:6px;font-family:var(--mono);font-size:11px;color:#9a9a9a}
+.code-title{margin-left:5px;font-family:var(--mono);font-size:10.5px;color:#9a9a9a}
 .code-window textarea{
-  width:100%;min-height:90px;max-height:220px;display:block;
+  width:100%;min-height:80px;max-height:200px;display:block;
   background:#1e1e1e;color:#d4d4d4;border:none;padding:10px;
   font-family:var(--mono);font-size:11.5px;line-height:1.55;resize:vertical;white-space:pre;overflow:auto;
 }
 .code-window textarea:focus{outline:none}
 
-/* 操作按钮 */
-.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;justify-content:flex-end}
+.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
 .actions button{
-  font-family:var(--sans);font-size:12.5px;font-weight:500;padding:7px 15px;border-radius:var(--radius-sm);
+  font-family:var(--sans);font-size:12.5px;font-weight:500;padding:6px 14px;border-radius:var(--radius-sm);
   cursor:pointer;transition:.12s;border:1px solid var(--border);
-  background:#fff;color:var(--text);display:flex;align-items:center;gap:6px;
+  background:#fff;color:var(--text);display:flex;align-items:center;gap:5px;
 }
 .actions button:hover{background:var(--surface-hover)}
-.actions button:active{transform:scale(.98)}
 .actions button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
 .actions button.primary:hover{background:var(--accent-hover)}
 .actions button.danger{color:var(--red)}
 .actions button.danger:hover{border-color:var(--red);background:var(--red-bg)}
 
-/* 使用说明内部标签 */
-.howto-tabs{display:flex;gap:0;margin-bottom:10px;border-bottom:1px solid var(--border)}
-.howto-tab{
-  font-family:var(--sans);font-size:13px;font-weight:500;padding:8px 18px;
-  background:none;border:none;color:var(--text-secondary);cursor:pointer;
-  position:relative;transition:.12s;
+/* 步骤 2 的说明（简化） */
+.howto{font-size:12.5px;color:var(--text-secondary);line-height:1.7}
+.howto ol{padding-left:18px}
+.howto li{margin-bottom:3px}
+.howto code{background:var(--surface-2);padding:1px 6px;border-radius:4px;font-family:var(--mono);font-size:11.5px;color:var(--accent)}
+
+/* 状态面板 */
+.status-bar{
+  display:flex;align-items:center;gap:8px;padding:8px 14px;
+  font-size:11.5px;color:var(--text-secondary);border-top:1px solid var(--border);
 }
-.howto-tab:hover{color:var(--text)}
-.howto-tab.active{color:var(--accent);font-weight:600}
-.howto-tab.active::after{content:'';position:absolute;bottom:-1px;left:6px;right:6px;height:2px;background:var(--accent);border-radius:1px 1px 0 0}
-.howto-panel{display:none;animation:fade-in .2s var(--ease)}
-.howto-panel.active{display:block}
-@keyframes fade-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
-.howto-panel ol{padding-left:18px}
-.howto-panel li{margin-bottom:5px;font-size:13px;line-height:1.55}
-.howto-panel li::marker{color:var(--accent);font-weight:600}
-.howto-panel code{background:var(--surface-2);padding:2px 7px;border-radius:4px;font-family:var(--mono);font-size:12px;color:var(--accent)}
-.howto-panel .tip{
-  background:var(--green-bg);border:1px solid rgba(16,124,16,.15);border-left:3px solid var(--green);
-  border-radius:var(--radius);padding:10px 12px;margin-top:10px;font-size:12.5px;color:#2e7d32;line-height:1.55;
+.status-bar .dot{width:5px;height:5px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ===== 步骤导航 ===== */
+.step-nav{
+  display:flex;justify-content:space-between;align-items:center;padding:18px 0 0;
 }
+.step-nav button{
+  padding:9px 24px;border-radius:var(--radius-sm);border:1px solid var(--border);
+  background:#fff;color:var(--text);font-family:var(--sans);font-size:13px;font-weight:500;
+  cursor:pointer;transition:.12s;
+}
+.step-nav button:hover{background:var(--surface-hover)}
+.step-nav button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.step-nav button.primary:hover{background:var(--accent-hover)}
+.step-nav button:disabled{opacity:.35;cursor:not-allowed}
+.step-nav-right{display:flex;gap:8px}
 
 /* Modal */
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1000;align-items:center;justify-content:center;padding:20px}
 .modal.active{display:flex}
 .modal-content{
-  background:#fff;border:1px solid var(--border-strong);border-radius:var(--radius-lg);
-  padding:22px;width:92%;max-width:700px;max-height:86vh;overflow:auto;
+  background:#fff;border:1px solid var(--border-strong);border-radius:var(--radius);
+  padding:22px;width:92%;max-width:680px;max-height:86vh;overflow:auto;
   box-shadow:0 8px 32px rgba(0,0,0,.12);animation:pop .2s var(--ease);
 }
 @keyframes pop{from{opacity:0;transform:scale(.97) translateY(6px)}to{opacity:1;transform:none}}
 .modal-content h2{margin-bottom:14px;font-size:15px;font-weight:600}
 .modal-content .code-window{margin-bottom:12px}
 .ps1-tip{
-  margin-bottom:10px;padding:10px 13px;border-radius:var(--radius);
+  margin-bottom:10px;padding:10px 13px;border-radius:var(--radius-sm);
   background:var(--orange-bg);border:1px solid rgba(216,67,21,.15);color:#bf360c;font-size:12px;line-height:1.5;
 }
-.ps1-tip strong{color:#bf360c}
 
 /* Toast */
 .toast{
   position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(120px);
-  background:#323232;color:#fff;padding:11px 20px;border-radius:var(--radius);
+  background:#323232;color:#fff;padding:11px 20px;border-radius:var(--radius-sm);
   border:none;font-size:13px;font-weight:500;z-index:2000;
   transition:.3s var(--ease);box-shadow:0 8px 24px rgba(0,0,0,.2);display:flex;align-items:center;gap:8px;
 }
@@ -263,175 +242,137 @@ input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:po
 .toast.error{background:#c62828}
 
 /* 页脚 */
-.social{display:flex;gap:4px;margin-top:8px}
-.social-link{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--radius-sm);color:var(--text-secondary);text-decoration:none;font-size:12px;font-weight:500;transition:.12s}
-.social-link:hover{color:var(--text);background:var(--surface-2)}
-.social-link svg{flex-shrink:0;opacity:.6}
+.wizard-footer{
+  text-align:center;padding:24px 0 0;font-size:12px;color:var(--text-tertiary);
+}
+.wizard-footer a{color:var(--text-secondary);text-decoration:none;margin:0 8px}
+.wizard-footer a:hover{color:var(--accent)}
 
-/* 滚动条 */
-::-webkit-scrollbar{width:8px;height:8px}
+::-webkit-scrollbar{width:8px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:#c0c0c0;border-radius:4px}
-::-webkit-scrollbar-thumb:hover{background:#a0a0a0}
 
-@media(max-width:760px){
-  body{flex-direction:column}
-  .layout{flex-direction:column}
-  .sidebar{width:100%;flex-direction:column;border-right:none;border-bottom:1px solid var(--border);padding:8px 12px}
-  .nav{flex-direction:row;flex-wrap:wrap}
-  .nav-item.active::before{display:none}
-  .sidebar-tools{margin-top:0;border-top:none;padding:0}
-  .sidebar-footer{display:none}
-  .content{padding:14px 12px 24px}
+@media(max-width:640px){
+  body{padding:16px 8px 24px}
+  .panel-inner{padding:16px}
+  .step1-controls{flex-direction:column;align-items:stretch}
+  .step1-controls button{justify-content:center}
+  .step-nav button{padding:8px 16px;font-size:12px}
 }
 </style>
 </head>
 <body>
 
-<!-- 顶部条 -->
-<header class="topbar">
-  <button class="hamburger"><span>☰</span></button>
-  <div class="topbar-brand">
-    <div class="topbar-icon">🚀</div>
-    <span>GitHub Hosts 加速工具</span>
+<div class="wizard">
+
+  <!-- Header -->
+  <div class="wizard-header">
+    <div class="wizard-logo">🚀</div>
+    <h1 class="wizard-title">GitHub Hosts 加速工具</h1>
+    <p class="wizard-sub">三步完成配置，加速 GitHub 访问</p>
   </div>
-</header>
 
-<div class="layout">
-  <!-- 侧边栏 -->
-  <aside class="sidebar">
-    <nav class="nav" id="main-nav">
-      <a class="nav-item active" data-target="card-domains"><span class="ico">📊</span>域名查询</a>
-      <a class="nav-item" data-target="card-hosts"><span class="ico">📝</span>Hosts 内容</a>
-      <a class="nav-item" data-target="card-howto"><span class="ico">📖</span>使用说明</a>
-    </nav>
-
-    <div class="sidebar-tools">
-      <div class="sidebar-tools-label">操作</div>
-      <select id="doh-provider">
-        <option value="auto">自动选择</option>
-        <option value="dnspod">DNSPod (腾讯)</option>
-        <option value="alidns">AliDNS (阿里)</option>
-        <option value="cloudflare">Cloudflare</option>
-        <option value="google">Google</option>
-      </select>
-      <button class="primary" id="fetch-btn">🔍 获取最新 IP</button>
-      <button id="test-btn">⚡ 测试延迟</button>
-      <div class="sidebar-progress" id="progress"><div class="fill" id="progress-fill"></div></div>
+  <!-- 步骤条 -->
+  <div class="steps">
+    <div class="step active" data-step="1">
+      <div class="step-dot">1</div>
+      <div class="step-label">域名查询</div>
     </div>
-
-    <div class="sidebar-footer">
-      <span class="dot"></span>
-      <span id="update-time">就绪</span>
+    <div class="step-line"></div>
+    <div class="step" data-step="2">
+      <div class="step-dot">2</div>
+      <div class="step-label">Hosts 配置</div>
     </div>
-  </aside>
+  </div>
 
-  <!-- 内容区 -->
-  <main class="content">
-
-    <!-- 域名查询卡片 -->
-    <div class="card" id="card-domains">
-      <div class="card-header">
-        <div>
-          <div class="card-title">📊 域名查询</div>
-          <div class="card-subtitle">自动获取最优 IP · 实时测试延迟</div>
+  <!-- 步骤面板 -->
+  <div class="step-panels">
+    <!-- 步骤 1 -->
+    <div class="step-panel active" id="panel-step1">
+      <div class="panel-inner">
+        <div class="step1-controls">
+          <select id="doh-provider">
+            <option value="auto">自动选择 DoH</option>
+            <option value="dnspod">DNSPod (腾讯)</option>
+            <option value="alidns">AliDNS (阿里)</option>
+            <option value="cloudflare">Cloudflare</option>
+            <option value="google">Google</option>
+          </select>
+          <button class="primary" id="fetch-btn">🔍 获取最新 IP</button>
+          <button id="test-btn">⚡ 测试延迟</button>
+          <div class="progress-bar" id="progress"><div class="fill" id="progress-fill"></div></div>
+        </div>
+        <div class="results-tbl">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:36px"><label><input type="checkbox" id="select-all" checked> 包含</label></th>
+                <th>域名</th>
+                <th style="width:44px">状态</th>
+                <th>IP 地址</th>
+                <th style="width:80px">延迟</th>
+              </tr>
+            </thead>
+            <tbody id="results-body"></tbody>
+          </table>
         </div>
       </div>
-      <div class="results-tbl">
-        <table>
-          <thead>
-            <tr>
-              <th style="width:36px"><label><input type="checkbox" id="select-all" checked> 包含</label></th>
-              <th>域名</th>
-              <th style="width:50px">状态</th>
-              <th>IP 地址</th>
-              <th style="width:88px">延迟</th>
-            </tr>
-          </thead>
-          <tbody id="results-body"></tbody>
-        </table>
+      <div class="status-bar">
+        <span class="dot"></span>
+        <span id="update-time">就绪</span>
       </div>
     </div>
 
-    <!-- Hosts 内容卡片 -->
-    <div class="card" id="card-hosts">
-      <div class="card-header">
-        <div>
-          <div class="card-title">📝 生成的 Hosts 内容</div>
-          <div class="card-subtitle">基于上方勾选项生成，可直接应用</div>
+    <!-- 步骤 2 -->
+    <div class="step-panel" id="panel-step2">
+      <div class="panel-inner">
+        <div class="panel-section">
+          <div class="panel-label">
+            📝 Hosts 内容
+            <span class="count" id="hosts-count">0 条记录</span>
+          </div>
+          <div class="code-window">
+            <div class="code-window-header">
+              <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+              <span class="code-title">hosts</span>
+            </div>
+            <textarea id="hosts-content" readonly></textarea>
+          </div>
+          <div class="actions">
+            <button class="primary" id="copy-hosts">📋 复制</button>
+            <button id="download-hosts">💾 hosts.txt</button>
+            <button id="gen-ps1">🔧 PS1 脚本</button>
+            <button id="gen-restore" class="danger">🔄 恢复脚本</button>
+          </div>
         </div>
-        <div class="card-header-right">
-          <span class="badge-count" id="hosts-count">0 条记录</span>
+        <div class="panel-section">
+          <div class="panel-label">📖 使用说明</div>
+          <div class="howto">
+            <ol>
+              <li>点击 <code>获取最新 IP</code> 查询最优 IP</li>
+              <li>在 <code>Hosts 内容</code> 生成脚本</li>
+              <li><strong>右键</strong> 以 <code>管理员身份</code> 运行 <code>.ps1</code></li>
+              <li>脚本自动备份、写入、刷新 DNS</li>
+            </ol>
+          </div>
         </div>
-      </div>
-      <div class="code-window">
-        <div class="code-window-header">
-          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-          <span class="code-title">hosts · read only</span>
-        </div>
-        <textarea id="hosts-content" readonly></textarea>
-      </div>
-      <div class="actions">
-        <button class="primary" id="copy-hosts">📋 复制 Hosts 内容</button>
-        <button id="download-hosts">💾 下载 hosts.txt</button>
-        <button id="gen-ps1">🔧 生成 PowerShell 脚本</button>
-        <button id="gen-restore" class="danger">🔄 生成恢复脚本</button>
       </div>
     </div>
+  </div>
 
-    <!-- 使用说明卡片 -->
-    <div class="card" id="card-howto">
-      <div class="card-header">
-        <div>
-          <div class="card-title">📖 使用说明</div>
-          <div class="card-subtitle">三步配置 hosts 加速 GitHub 访问</div>
-        </div>
-      </div>
-      <div class="howto-tabs">
-        <button class="howto-tab active" data-tab="windows">Windows</button>
-        <button class="howto-tab" data-tab="mac">macOS</button>
-        <button class="howto-tab" data-tab="linux">Linux</button>
-      </div>
-      <div class="howto-panel active" id="tab-windows">
-        <ol>
-          <li>点击左侧 <code>获取最新 IP</code>，等待所有域名解析完成</li>
-          <li>在 <code>Hosts 内容</code> 卡片点击 <code>生成 PowerShell 脚本</code></li>
-          <li><strong>右键</strong> 以 <code>管理员身份</code> 运行下载的 <code>.ps1</code> 脚本</li>
-          <li>脚本自动备份原 hosts、写入新条目并刷新 DNS 缓存</li>
-          <li>重新打开浏览器访问 GitHub，速度应有明显提升</li>
-        </ol>
-        <div class="tip">💡 也可手动：以管理员身份打开记事本 → 打开 <code>C:\Windows\System32\drivers\etc\hosts</code> → 复制 Hosts 内容粘贴保存 → CMD 运行 <code>ipconfig /flushdns</code></div>
-      </div>
-      <div class="howto-panel" id="tab-mac">
-        <ol>
-          <li>点击左侧 <code>获取最新 IP</code>，等待解析完成</li>
-          <li>在 <code>Hosts 内容</code> 卡片复制生成的 hosts 内容</li>
-          <li>终端运行 <code>sudo nano /etc/hosts</code></li>
-          <li>粘贴内容，<code>Ctrl+O</code> 保存，<code>Ctrl+X</code> 退出</li>
-          <li>运行 <code>sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder</code> 刷新 DNS</li>
-        </ol>
-      </div>
-      <div class="howto-panel" id="tab-linux">
-        <ol>
-          <li>点击左侧 <code>获取最新 IP</code>，等待解析完成</li>
-          <li>在 <code>Hosts 内容</code> 卡片复制生成的 hosts 内容</li>
-          <li>终端运行 <code>sudo nano /etc/hosts</code></li>
-          <li>粘贴保存</li>
-          <li>运行 <code>sudo systemctl restart NetworkManager</code> 或 <code>sudo resolvectl flush-caches</code></li>
-        </ol>
-      </div>
-      <footer class="social">
-        <a class="social-link" href="https://github.com/Sophie92-spec/github-fast-access" target="_blank" rel="noopener">
-          <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-          GitHub
-        </a>
-        <a class="social-link" href="https://space.bilibili.com/447878463" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M18.223 3.086a1.25 1.25 0 0 1 0 1.768L17.08 5.996h1.17A3.75 3.75 0 0 1 22 9.747v7.5a3.75 3.75 0 0 1-3.75 3.75H5.75A3.75 3.75 0 0 1 2 17.247v-7.5a3.75 3.75 0 0 1 3.75-3.751h1.166L5.775 4.854a1.25 1.25 0 1 1 1.767-1.768l2.652 2.652c.079.079.145.165.198.257h3.213c.053-.092.12-.18.199-.258l2.651-2.652a1.25 1.25 0 0 1 1.768 0zM18.25 8.496H5.75a1.25 1.25 0 0 0-1.247 1.157l-.003.094v7.5c0 .659.51 1.198 1.157 1.246l.093.004h12.5a1.25 1.25 0 0 0 1.247-1.157l.003-.093v-7.5c0-.69-.56-1.25-1.25-1.25zm-9.5 3.064c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25zm5.5 0c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25z"/></svg>
-          哔哩哔哩
-        </a>
-      </footer>
+  <!-- 导航 -->
+  <div class="step-nav">
+    <button id="btn-prev" disabled>← 上一步</button>
+    <div class="step-nav-right">
+      <button id="btn-next" class="primary">下一步 →</button>
     </div>
-  </main>
+  </div>
+
+  <!-- 页脚 -->
+  <div class="wizard-footer">
+    <a href="https://github.com/Sophie92-spec/github-fast-access" target="_blank" rel="noopener">GitHub</a>
+    <a href="https://space.bilibili.com/447878463" target="_blank" rel="noopener">哔哩哔哩</a>
+  </div>
 </div>
 
 <div class="modal" id="ps1-modal">
@@ -445,7 +386,7 @@ input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:po
       <textarea id="ps1-content" readonly></textarea>
     </div>
     <div class="ps1-tip">
-      💡 <strong>关于系统提示：</strong>下载 <code>.ps1</code> 后，Windows / Edge 可能提示"可能会损害你的设备"，这是系统对脚本文件的正常保护。点「保留」即可；随后右键文件「使用 PowerShell 运行」并以管理员身份运行。
+      💡 下载后 Windows 可能提示风险——点「保留」即可，脚本完全开源透明。右键「使用 PowerShell 运行」并以管理员身份运行。
     </div>
     <div class="actions">
       <button class="primary" id="copy-ps1">📋 复制脚本</button>
@@ -492,18 +433,45 @@ $('test-btn').addEventListener('click',testAll);
 $('select-all').addEventListener('change',e=>{DOMAINS.forEach(d=>{state[d].included=e.target.checked});document.querySelectorAll('.inc-cb').forEach(cb=>{cb.checked=e.target.checked});updateHosts()});
 $('copy-hosts').addEventListener('click',async()=>{const ok=await copyText(hostsContent.value);showToast(ok?'✅ Hosts 内容已复制到剪贴板':'❌ 复制失败',ok?'success':'error')});
 $('download-hosts').addEventListener('click',()=>{downloadFile('hosts.txt',hostsContent.value);showToast('✅ hosts.txt 已下载','success')});
-$('gen-ps1').addEventListener('click',()=>{$('modal-title').textContent='🔧 PowerShell 加速脚本';$('ps1-content').value=generatePS1(false);$('ps1-modal').classList.add('active');$('download-ps1').dataset.mode='apply'});
-$('gen-restore').addEventListener('click',()=>{$('modal-title').textContent='🔄 PowerShell 恢复脚本';$('ps1-content').value=generatePS1(true);$('ps1-modal').classList.add('active');$('download-ps1').dataset.mode='restore'});
+$('gen-ps1').addEventListener('click',()=>{$('modal-title').textContent='PowerShell 加速脚本';$('ps1-content').value=generatePS1(false);$('ps1-modal').classList.add('active');$('download-ps1').dataset.mode='apply'});
+$('gen-restore').addEventListener('click',()=>{$('modal-title').textContent='PowerShell 恢复脚本';$('ps1-content').value=generatePS1(true);$('ps1-modal').classList.add('active');$('download-ps1').dataset.mode='restore'});
 $('copy-ps1').addEventListener('click',async()=>{const ok=await copyText($('ps1-content').value);showToast(ok?'✅ 脚本已复制到剪贴板':'❌ 复制失败',ok?'success':'error')});
 $('download-ps1').addEventListener('click',()=>{const m=$('download-ps1').dataset.mode;const n=m==='restore'?'github-hosts-restore.ps1':'github-hosts-apply.ps1';downloadFile(n,$('ps1-content').value);showToast(`✅ ${n} 已下载`,'success')});
 $('close-modal').addEventListener('click',()=>{$('ps1-modal').classList.remove('active')});
 $('ps1-modal').addEventListener('click',e=>{if(e.target===$('ps1-modal'))$('ps1-modal').classList.remove('active')});
 
-// 左侧导航点击 → 滚动到对应卡片并激活
-document.querySelectorAll('.nav-item').forEach(item=>{item.addEventListener('click',e=>{e.preventDefault();document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));item.classList.add('active');const target=document.getElementById(item.dataset.target);if(target)target.scrollIntoView({behavior:'smooth',block:'start'})})});
+// Wizard 步骤切换
+let currentStep=1;
+const totalSteps=2;
 
-// 使用说明内部标签切换
-document.querySelectorAll('.howto-tab').forEach(tab=>{tab.addEventListener('click',()=>{const scope=tab.closest('.card');scope.querySelectorAll('.howto-tab').forEach(t=>t.classList.remove('active'));scope.querySelectorAll('.howto-panel').forEach(c=>c.classList.remove('active'));tab.classList.add('active');scope.querySelector('#tab-'+tab.dataset.tab).classList.add('active')})});
+function updateWizard(){
+  document.querySelectorAll('.step').forEach(el=>{
+    const s=parseInt(el.dataset.step);
+    el.classList.remove('active','done');
+    if(s<currentStep)el.classList.add('done');
+    if(s===currentStep)el.classList.add('active');
+  });
+  document.querySelectorAll('.step-line').forEach(el=>{
+    el.classList.toggle('done',currentStep>1);
+  });
+  document.querySelectorAll('.step-panel').forEach(el=>el.classList.remove('active'));
+  $(`panel-step${currentStep}`).classList.add('active');
+  $('btn-prev').disabled=currentStep===1;
+  const nextBtn=$('btn-next');
+  if(currentStep===totalSteps){nextBtn.textContent='✓ 完成';nextBtn.classList.add('primary')}
+  else{nextBtn.textContent='下一步 →';nextBtn.classList.add('primary')}
+}
+
+$('btn-prev').addEventListener('click',()=>{if(currentStep>1){currentStep--;updateWizard()}});
+$('btn-next').addEventListener('click',()=>{if(currentStep<totalSteps){currentStep++;updateWizard()}else if(currentStep===totalSteps){showToast('✅ 配置完成！','success')}});
+
+// 步骤点也可点击
+document.querySelectorAll('.step').forEach(stepEl=>{
+  stepEl.addEventListener('click',()=>{
+    const s=parseInt(stepEl.dataset.step);
+    if(s<=currentStep+1||s<currentStep){currentStep=s;updateWizard()}
+  });
+});
 
 renderTable();
 setTimeout(()=>{fetchAll().then(()=>testAll())},300);
