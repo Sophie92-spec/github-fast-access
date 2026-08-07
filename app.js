@@ -77,4 +77,21 @@ var svg='<svg width="'+W+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg">'+
   pts.map(function(p,i){if(i%7!==0&&i!==vals.length-1)return'';var xy=p.split(',');return'<circle cx="'+xy[0]+'" cy="'+xy[1]+'" r="2" fill="#80a0ff"/>'}).join('')+
   '</svg>';
 var c=document.getElementById('sv-chart');if(c)c.innerHTML=svg
-})()
+})();
+
+// Format busuanzi big numbers (88027687 -> 88.0万)
+function fmtNum(n){
+  if(n==null||n==='-')return'-';
+  n=parseInt(n);if(isNaN(n))return n;
+  if(n>=1e8)return (n/1e8).toFixed(1)+'亿';
+  if(n>=1e4)return (n/1e4).toFixed(1)+'万';
+  return String(n)
+}
+function watchFmt(el){
+  if(!el)return;
+  var fmt=function(){el.textContent=fmtNum(el.textContent.trim())};
+  fmt();
+  new MutationObserver(fmt).observe(el,{childList:true,characterData:true,subtree:true})
+}
+watchFmt(document.getElementById('busuanzi_value_site_pv'));
+watchFmt(document.getElementById('busuanzi_value_site_uv'));
