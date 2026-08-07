@@ -36,24 +36,6 @@
 
 ---
 
-## 📊 访问统计（可选后端）
-
-统计区默认使用浏览器本地存储（`localStorage`），仅记录你自己的访问。
-
-若要让**所有访客的访问都被真实记录并共享**（总访问 PV / 独立访客 UV / 今日新增 / 近 30 天趋势全网同步），可接入一个免费的 Cloudflare Workers + KV 后端：
-
-1. 在 Cloudflare 控制台创建一个 KV 命名空间（任意名称）；
-2. 新建一个 Worker，粘贴 `worker/index.js`，并把该 KV 命名空间绑定到变量名 `GH_STATS`；
-   （或本地用 Wrangler：把 `worker/wrangler.toml` 里的 `id` 换成你的 KV 命名空间 ID，再 `wrangler deploy`）
-3. 部署后得到 Worker 地址（如 `https://gh-stats.xxx.workers.dev`）；
-4. 把该地址填入 `JS/app.js` 顶部的 `var STATS_API=''`。
-
-后端不可用时会**自动降级**为本地统计，页面不会卡死。接口与字段说明见 `worker/index.js` 注释。
-
-> 说明：该后端为可选增强。不配置时工具完全离线、零依赖，行为与纯本地统计一致。
-
----
-
 ## 📁 项目结构
 
 ```
