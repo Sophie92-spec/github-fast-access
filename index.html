@@ -9,11 +9,13 @@
 :root{
   --bg:#f3f3f3;
   --sidebar-bg:#fafafa;
+  --topbar-bg:#fafafa;
+  --card:#ffffff;
   --surface:#ffffff;
   --surface-2:#f5f5f5;
-  --surface-hover:#ebebeb;
+  --surface-hover:#ededed;
   --border:#e0e0e0;
-  --border-strong:#cfcfcf;
+  --border-strong:#c8c8c8;
   --text:#1a1a1a;
   --text-secondary:#666666;
   --text-tertiary:#999999;
@@ -29,8 +31,8 @@
   --radius:8px;
   --radius-sm:6px;
   --radius-lg:10px;
-  --shadow:0 1px 3px rgba(0,0,0,.06),0 1px 2px rgba(0,0,0,.04);
-  --shadow-md:0 4px 12px rgba(0,0,0,.08);
+  --shadow:0 1px 2px rgba(0,0,0,.04),0 1px 3px rgba(0,0,0,.06);
+  --shadow-md:0 2px 8px rgba(0,0,0,.06);
   --ease:cubic-bezier(.33,.44,.33,.9);
   --mono:"Cascadia Code","Consolas","Fira Code",monospace;
   --sans:"Segoe UI Variable","Segoe UI",-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
@@ -38,110 +40,123 @@
 html{scroll-behavior:smooth}
 body{
   font-family:var(--sans);background:var(--bg);color:var(--text);
-  line-height:1.5;display:flex;min-height:100vh;overflow:hidden;
+  line-height:1.5;min-height:100vh;display:flex;flex-direction:column;
   -webkit-font-smoothing:antialiased;
 }
 
+/* ===== 顶部条 ===== */
+.topbar{
+  display:flex;align-items:center;gap:14px;height:48px;padding:0 16px;
+  background:var(--topbar-bg);border-bottom:1px solid var(--border);
+  flex-shrink:0;position:sticky;top:0;z-index:10;
+}
+.hamburger{
+  width:36px;height:36px;border-radius:6px;background:none;border:none;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  color:var(--text);transition:.12s;
+}
+.hamburger:hover{background:var(--surface-hover)}
+.hamburger span{font-size:18px;line-height:1}
+.topbar-brand{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500}
+.topbar-icon{
+  width:28px;height:28px;border-radius:6px;background:var(--accent);
+  color:#fff;display:flex;align-items:center;justify-content:center;font-size:14px;
+}
+
+/* ===== 布局 ===== */
+.layout{display:flex;flex:1;min-height:0}
+
 /* ===== 侧边栏 ===== */
 .sidebar{
-  width:240px;flex-shrink:0;background:var(--sidebar-bg);
+  width:220px;flex-shrink:0;background:var(--sidebar-bg);
   border-right:1px solid var(--border);display:flex;flex-direction:column;
-  padding:20px 14px;gap:12px;overflow-y:auto;user-select:none;
+  overflow-y:auto;padding:8px;
 }
-.sidebar-header{
-  display:flex;align-items:center;gap:10px;padding:4px 6px 14px;
-  border-bottom:1px solid var(--border);margin-bottom:4px;
+.nav{display:flex;flex-direction:column;gap:2px;padding:4px 0}
+.nav-item{
+  display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:var(--radius-sm);
+  color:var(--text);text-decoration:none;font-size:13.5px;font-weight:500;
+  cursor:pointer;transition:background .1s;position:relative;
 }
-.sidebar-icon{
-  width:36px;height:36px;border-radius:8px;
-  background:var(--accent);color:#fff;display:flex;
-  align-items:center;justify-content:center;font-size:18px;flex-shrink:0;
+.nav-item:hover{background:var(--surface-hover)}
+.nav-item.active{background:var(--accent-bg);color:var(--accent)}
+.nav-item.active::before{
+  content:'';position:absolute;left:-8px;top:8px;bottom:8px;width:3px;
+  background:var(--accent);border-radius:0 2px 2px 0;
 }
-.sidebar-title{font-size:14px;font-weight:600;letter-spacing:-.2px;line-height:1.3}
-.sidebar-subtitle{font-size:11px;color:var(--text-secondary);font-weight:400}
+.nav-item .ico{font-size:16px;width:18px;text-align:center;opacity:.85}
 
-.sidebar-label{
-  font-size:10.5px;font-weight:600;color:var(--text-tertiary);
-  text-transform:uppercase;letter-spacing:.6px;padding:6px 6px 2px;
+/* 侧边栏工具区（操作面板） */
+.sidebar-tools{
+  margin-top:16px;padding:12px;border-top:1px solid var(--border);
+  display:flex;flex-direction:column;gap:8px;
 }
-.sidebar select{
-  width:100%;padding:9px 10px;border-radius:6px;border:1px solid var(--border);
+.sidebar-tools-label{
+  font-size:10.5px;font-weight:600;color:var(--text-tertiary);
+  text-transform:uppercase;letter-spacing:.6px;margin-bottom:2px;
+}
+.sidebar-tools select{
+  width:100%;padding:8px 10px;border-radius:var(--radius-sm);border:1px solid var(--border);
   background:#fff;color:var(--text);font-size:12.5px;font-family:var(--sans);cursor:pointer;
   appearance:none;-webkit-appearance:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 10px center;
 }
-.sidebar select:hover{border-color:var(--border-strong)}
-.sidebar select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 2px rgba(0,120,212,.14)}
-
-.sidebar button{
-  width:100%;padding:9px 12px;border-radius:6px;border:none;
-  font-family:var(--sans);font-size:12.5px;font-weight:500;cursor:pointer;
-  display:flex;align-items:center;gap:8px;transition:.12s var(--ease);
-  background:#fff;color:var(--text);border:1px solid var(--border);
+.sidebar-tools select:focus{outline:none;border-color:var(--accent)}
+.sidebar-tools button{
+  width:100%;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border);
+  background:#fff;color:var(--text);font-family:var(--sans);font-size:12.5px;font-weight:500;
+  cursor:pointer;display:flex;align-items:center;gap:8px;transition:.12s;
 }
-.sidebar button:hover{background:var(--surface-hover)}
-.sidebar button:active{transform:scale(.98)}
-.sidebar button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
-.sidebar button.primary:hover{background:var(--accent-hover)}
-.sidebar button:disabled{opacity:.35;cursor:not-allowed;transform:none}
+.sidebar-tools button:hover{background:var(--surface-hover)}
+.sidebar-tools button:active{transform:scale(.98)}
+.sidebar-tools button.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.sidebar-tools button.primary:hover{background:var(--accent-hover)}
+.sidebar-tools button:disabled{opacity:.35;cursor:not-allowed;transform:none}
 
-.sidebar-progress{height:3px;background:#e8e8e8;border-radius:99px;overflow:hidden;margin:4px 0;display:none}
+.sidebar-progress{height:3px;background:#e0e0e0;border-radius:99px;overflow:hidden;margin-top:2px;display:none}
 .sidebar-progress.active{display:block}
 .sidebar-progress .fill{height:100%;background:var(--accent);width:0%;border-radius:99px;transition:width .25s var(--ease)}
 
 .sidebar-footer{
-  margin-top:auto;padding:12px 6px 0;border-top:1px solid var(--border);
+  margin-top:auto;padding:10px 12px 4px;border-top:1px solid var(--border);
   font-size:11px;color:var(--text-secondary);display:flex;align-items:center;gap:6px;
 }
 .sidebar-footer .dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-/* ===== 主内容区 ===== */
-.main{flex:1;display:flex;flex-direction:column;overflow:hidden;background:#fff}
-
-/* 标签栏 */
-.main-tabs{
-  display:flex;gap:0;padding:0 24px;background:#fff;
-  border-bottom:1px solid var(--border);flex-shrink:0;
+/* ===== 内容区 ===== */
+.content{
+  flex:1;overflow-y:auto;padding:24px 32px 40px;background:var(--bg);
 }
-.main-tab{
-  font-family:var(--sans);font-size:13.5px;font-weight:500;padding:12px 22px;
-  background:none;border:none;color:var(--text-secondary);cursor:pointer;
-  position:relative;transition:.12s;white-space:nowrap;
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius-lg);
+  padding:20px;margin-bottom:16px;box-shadow:var(--shadow);
 }
-.main-tab:hover{color:var(--text);background:var(--surface-2)}
-.main-tab.active{color:var(--accent);font-weight:600}
-.main-tab.active::after{
-  content:'';position:absolute;bottom:-1px;left:6px;right:6px;height:3px;
-  background:var(--accent);border-radius:2px 2px 0 0;
+.card:last-child{margin-bottom:0}
+.card-header{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;
+  margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);
 }
-.main-tab-spacer{flex:1}
-
-/* 状态条 */
-.main-status{
-  display:flex;align-items:center;gap:8px;padding:6px 24px 0;font-size:11px;color:var(--text-secondary);
-  flex-shrink:0;
+.card-title{font-size:14px;font-weight:600;color:var(--text)}
+.card-subtitle{font-size:12px;color:var(--text-secondary);margin-top:2px;font-weight:400}
+.card-header-right{display:flex;align-items:center;gap:8px}
+.badge-count{
+  font-size:11px;color:var(--text-secondary);font-weight:500;
+  background:var(--surface-2);padding:2px 10px;border-radius:999px;
 }
-.main-status .dot{width:5px;height:5px;border-radius:50%;background:var(--green)}
-
-/* 内容面板 */
-.main-panels{flex:1;overflow-y:auto;padding:20px 24px 32px}
-.main-panel{display:none;animation:slide-in .2s var(--ease)}
-.main-panel.active{display:block}
-@keyframes slide-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
 /* 表格 */
 .results-tbl{
-  background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);
-  overflow:hidden;box-shadow:var(--shadow);
+  background:#fff;border:1px solid var(--border);border-radius:var(--radius);
+  overflow:hidden;
 }
 table{width:100%;border-collapse:collapse}
 thead th{
-  text-align:left;padding:11px 14px;font-size:11px;font-weight:600;
+  text-align:left;padding:10px 12px;font-size:11px;font-weight:600;
   color:var(--text-secondary);background:var(--surface-2);letter-spacing:.2px;border-bottom:1px solid var(--border);
 }
-td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;transition:background .08s}
+td{padding:9px 12px;border-bottom:1px solid var(--border);font-size:13px;transition:background .08s}
 tbody tr:hover{background:var(--accent-bg)}
 tbody tr:last-child td{border-bottom:none}
 .domain-name{font-family:var(--mono);color:var(--accent);font-size:12.5px;font-weight:500}
@@ -156,11 +171,7 @@ tbody tr:last-child td{border-bottom:none}
   background:var(--surface-2);color:var(--text);border:1px solid var(--border);
   border-radius:var(--radius-sm);padding:5px 8px;font-size:12px;font-family:var(--mono);transition:.12s;
 }
-.ip-select{
-  max-width:180px;appearance:none;-webkit-appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 8px center;padding-right:26px;
-}
+.ip-select{max-width:180px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:26px}
 .ip-select:focus,.ip-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
 .ip-input{width:160px}
 .latency{font-family:var(--mono);font-size:11.5px;font-weight:600;padding:2px 8px;border-radius:999px;display:inline-block}
@@ -170,20 +181,6 @@ tbody tr:last-child td{border-bottom:none}
 .latency.fail{color:var(--text-tertiary)}
 th label{display:flex;align-items:center;gap:7px;cursor:pointer;font-weight:600;font-size:11px}
 input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
-
-/* 卡片 */
-.card{
-  background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);
-  padding:18px;box-shadow:var(--shadow);
-}
-.card-header{
-  display:flex;align-items:center;justify-content:space-between;gap:10px;
-  margin-bottom:14px;font-size:14px;font-weight:600;
-}
-.card-header .badge-count{
-  font-size:11px;color:var(--text-secondary);font-weight:500;
-  background:var(--surface-2);padding:2px 10px;border-radius:999px;
-}
 
 /* 代码窗口 */
 .code-window{border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;background:#1e1e1e}
@@ -195,16 +192,16 @@ input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:po
 .dot.red{background:#ff5f56}.dot.yellow{background:#ffbd2e}.dot.green{background:#27c93f}
 .code-title{margin-left:6px;font-family:var(--mono);font-size:11px;color:#9a9a9a}
 .code-window textarea{
-  width:100%;min-height:160px;max-height:320px;display:block;
+  width:100%;min-height:160px;max-height:340px;display:block;
   background:#1e1e1e;color:#d4d4d4;border:none;padding:12px;
   font-family:var(--mono);font-size:12px;line-height:1.65;resize:vertical;white-space:pre;overflow:auto;
 }
 .code-window textarea:focus{outline:none}
 
 /* 操作按钮 */
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;justify-content:flex-end}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;justify-content:flex-end}
 .actions button{
-  font-family:var(--sans);font-size:12.5px;font-weight:500;padding:7px 15px;border-radius:6px;
+  font-family:var(--sans);font-size:12.5px;font-weight:500;padding:7px 15px;border-radius:var(--radius-sm);
   cursor:pointer;transition:.12s;border:1px solid var(--border);
   background:#fff;color:var(--text);display:flex;align-items:center;gap:6px;
 }
@@ -216,7 +213,7 @@ input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:po
 .actions button.danger:hover{border-color:var(--red);background:var(--red-bg)}
 
 /* 使用说明内部标签 */
-.howto-tabs{display:flex;gap:0;margin-bottom:16px;border-bottom:2px solid var(--border)}
+.howto-tabs{display:flex;gap:0;margin-bottom:14px;border-bottom:1px solid var(--border)}
 .howto-tab{
   font-family:var(--sans);font-size:13px;font-weight:500;padding:8px 18px;
   background:none;border:none;color:var(--text-secondary);cursor:pointer;
@@ -224,7 +221,7 @@ input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:po
 }
 .howto-tab:hover{color:var(--text)}
 .howto-tab.active{color:var(--accent);font-weight:600}
-.howto-tab.active::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:var(--accent);border-radius:1px 1px 0 0}
+.howto-tab.active::after{content:'';position:absolute;bottom:-1px;left:6px;right:6px;height:2px;background:var(--accent);border-radius:1px 1px 0 0}
 .howto-panel{display:none;animation:fade-in .2s var(--ease)}
 .howto-panel.active{display:block}
 @keyframes fade-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
@@ -237,7 +234,7 @@ input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:po
   border-radius:var(--radius);padding:12px 14px;margin-top:12px;font-size:13px;color:#2e7d32;line-height:1.6;
 }
 
-/* Modal - 深色（代码窗口需要深底） */
+/* Modal */
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1000;align-items:center;justify-content:center;padding:20px}
 .modal.active{display:flex}
 .modal-content{
@@ -266,76 +263,80 @@ input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:po
 .toast.error{background:#c62828}
 
 /* 页脚 */
-.social{display:flex;gap:6px;margin-top:24px;padding-top:14px;border-top:1px solid var(--border)}
-.social-link{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;color:var(--text-secondary);text-decoration:none;font-size:12px;font-weight:500;transition:.12s}
+.social{display:flex;gap:4px;margin-top:8px}
+.social-link{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:var(--radius-sm);color:var(--text-secondary);text-decoration:none;font-size:12px;font-weight:500;transition:.12s}
 .social-link:hover{color:var(--text);background:var(--surface-2)}
 .social-link svg{flex-shrink:0;opacity:.6}
 
 /* 滚动条 */
-::-webkit-scrollbar{width:7px;height:7px}
+::-webkit-scrollbar{width:8px;height:8px}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:#c0c0c0;border-radius:4px}
 ::-webkit-scrollbar-thumb:hover{background:#a0a0a0}
 
-@media(max-width:700px){
+@media(max-width:760px){
   body{flex-direction:column}
-  .sidebar{width:100%;flex-shrink:0;max-height:auto;padding:14px;flex-direction:row;flex-wrap:wrap;gap:8px}
-  .sidebar-header{width:100%;border-bottom:none;padding-bottom:4px}
+  .layout{flex-direction:column}
+  .sidebar{width:100%;flex-direction:column;border-right:none;border-bottom:1px solid var(--border);padding:8px 12px}
+  .nav{flex-direction:row;flex-wrap:wrap}
+  .nav-item.active::before{display:none}
+  .sidebar-tools{margin-top:0;border-top:none;padding:0}
   .sidebar-footer{display:none}
-  .main-tabs{padding:0 10px}
-  .main-tab{padding:10px 12px;font-size:12px}
-  .main-panels{padding:14px 10px 24px}
-  .actions{justify-content:stretch}
-  .actions button{flex:1;justify-content:center}
+  .content{padding:14px 12px 24px}
 }
 </style>
 </head>
 <body>
 
-<!-- 侧边栏 -->
-<aside class="sidebar">
-  <div class="sidebar-header">
-    <div class="sidebar-icon">🚀</div>
-    <div>
-      <div class="sidebar-title">GitHub Hosts</div>
-      <div class="sidebar-subtitle">加速工具</div>
+<!-- 顶部条 -->
+<header class="topbar">
+  <button class="hamburger"><span>☰</span></button>
+  <div class="topbar-brand">
+    <div class="topbar-icon">🚀</div>
+    <span>GitHub Hosts 加速工具</span>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- 侧边栏 -->
+  <aside class="sidebar">
+    <nav class="nav" id="main-nav">
+      <a class="nav-item active" data-target="card-domains"><span class="ico">📊</span>域名查询</a>
+      <a class="nav-item" data-target="card-hosts"><span class="ico">📝</span>Hosts 内容</a>
+      <a class="nav-item" data-target="card-howto"><span class="ico">📖</span>使用说明</a>
+    </nav>
+
+    <div class="sidebar-tools">
+      <div class="sidebar-tools-label">操作</div>
+      <select id="doh-provider">
+        <option value="auto">自动选择</option>
+        <option value="dnspod">DNSPod (腾讯)</option>
+        <option value="alidns">AliDNS (阿里)</option>
+        <option value="cloudflare">Cloudflare</option>
+        <option value="google">Google</option>
+      </select>
+      <button class="primary" id="fetch-btn">🔍 获取最新 IP</button>
+      <button id="test-btn">⚡ 测试延迟</button>
+      <div class="sidebar-progress" id="progress"><div class="fill" id="progress-fill"></div></div>
     </div>
-  </div>
 
-  <div class="sidebar-label">DoH 来源</div>
-  <select id="doh-provider">
-    <option value="auto">自动选择</option>
-    <option value="dnspod">DNSPod (腾讯)</option>
-    <option value="alidns">AliDNS (阿里)</option>
-    <option value="cloudflare">Cloudflare</option>
-    <option value="google">Google</option>
-  </select>
+    <div class="sidebar-footer">
+      <span class="dot"></span>
+      <span id="update-time">就绪</span>
+    </div>
+  </aside>
 
-  <button class="primary" id="fetch-btn">🔍 获取最新 IP</button>
-  <button id="test-btn">⚡ 测试延迟</button>
+  <!-- 内容区 -->
+  <main class="content">
 
-  <div class="sidebar-progress" id="progress">
-    <div class="fill" id="progress-fill"></div>
-  </div>
-
-  <div class="sidebar-footer">
-    <span class="dot"></span>
-    <span id="update-time">就绪</span>
-  </div>
-</aside>
-
-<!-- 主内容 -->
-<div class="main">
-  <div class="main-tabs">
-    <button class="main-tab active" data-panel="domains">📊 域名查询</button>
-    <button class="main-tab" data-panel="hosts">📝 Hosts 内容</button>
-    <button class="main-tab" data-panel="howto">📖 使用说明</button>
-    <div class="main-tab-spacer"></div>
-  </div>
-
-  <div class="main-panels">
-    <!-- 面板 1: 域名查询 -->
-    <div class="main-panel active" id="panel-domains">
+    <!-- 域名查询卡片 -->
+    <div class="card" id="card-domains">
+      <div class="card-header">
+        <div>
+          <div class="card-title">📊 域名查询</div>
+          <div class="card-subtitle">自动获取最优 IP · 实时测试延迟</div>
+        </div>
+      </div>
       <div class="results-tbl">
         <table>
           <thead>
@@ -352,77 +353,85 @@ input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:po
       </div>
     </div>
 
-    <!-- 面板 2: Hosts -->
-    <div class="main-panel" id="panel-hosts">
-      <div class="card">
-        <div class="card-header">
-          📝 生成的 Hosts 内容
+    <!-- Hosts 内容卡片 -->
+    <div class="card" id="card-hosts">
+      <div class="card-header">
+        <div>
+          <div class="card-title">📝 生成的 Hosts 内容</div>
+          <div class="card-subtitle">基于上方勾选项生成，可直接应用</div>
+        </div>
+        <div class="card-header-right">
           <span class="badge-count" id="hosts-count">0 条记录</span>
         </div>
-        <div class="code-window">
-          <div class="code-window-header">
-            <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
-            <span class="code-title">hosts · read only</span>
-          </div>
-          <textarea id="hosts-content" readonly></textarea>
+      </div>
+      <div class="code-window">
+        <div class="code-window-header">
+          <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+          <span class="code-title">hosts · read only</span>
         </div>
-        <div class="actions">
-          <button class="primary" id="copy-hosts">📋 复制 Hosts 内容</button>
-          <button id="download-hosts">💾 下载 hosts.txt</button>
-          <button id="gen-ps1">🔧 生成 PowerShell 脚本</button>
-          <button id="gen-restore" class="danger">🔄 生成恢复脚本</button>
-        </div>
+        <textarea id="hosts-content" readonly></textarea>
+      </div>
+      <div class="actions">
+        <button class="primary" id="copy-hosts">📋 复制 Hosts 内容</button>
+        <button id="download-hosts">💾 下载 hosts.txt</button>
+        <button id="gen-ps1">🔧 生成 PowerShell 脚本</button>
+        <button id="gen-restore" class="danger">🔄 生成恢复脚本</button>
       </div>
     </div>
 
-    <!-- 面板 3: 使用说明 -->
-    <div class="main-panel" id="panel-howto">
-      <div class="card">
-        <div class="card-header">📖 使用说明</div>
-        <div class="howto-tabs">
-          <button class="howto-tab active" data-tab="windows">Windows</button>
-          <button class="howto-tab" data-tab="mac">macOS</button>
-          <button class="howto-tab" data-tab="linux">Linux</button>
+    <!-- 使用说明卡片 -->
+    <div class="card" id="card-howto">
+      <div class="card-header">
+        <div>
+          <div class="card-title">📖 使用说明</div>
+          <div class="card-subtitle">三步配置 hosts 加速 GitHub 访问</div>
         </div>
-        <div class="howto-panel active" id="tab-windows">
-          <ol>
-            <li>点击左侧 <code>获取最新 IP</code> 按钮，等待所有域名解析完成</li>
-            <li>切换到 <code>Hosts 内容</code> 标签，点击 <code>生成 PowerShell 脚本</code></li>
-            <li><strong>右键</strong> 以 <code>管理员身份</code> 运行下载的 <code>.ps1</code> 脚本</li>
-            <li>脚本自动备份原 hosts、写入新条目并刷新 DNS 缓存</li>
-            <li>重新打开浏览器访问 GitHub，速度应有明显提升</li>
-          </ol>
-          <div class="tip">💡 也可手动：以管理员身份打开记事本 → <code>C:\Windows\System32\drivers\etc\hosts</code> → 复制 Hosts 内容粘贴保存 → CMD 运行 <code>ipconfig /flushdns</code></div>
-        </div>
-        <div class="howto-panel" id="tab-mac">
-          <ol>
-            <li>点击左侧 <code>获取最新 IP</code>，等待解析完成</li>
-            <li>切换到 <code>Hosts 内容</code> 标签，复制生成的 hosts 内容</li>
-            <li>终端运行 <code>sudo nano /etc/hosts</code></li>
-            <li>粘贴内容，<code>Ctrl+O</code> 保存，<code>Ctrl+X</code> 退出</li>
-            <li>运行 <code>sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder</code> 刷新 DNS</li>
-          </ol>
-        </div>
-        <div class="howto-panel" id="tab-linux">
-          <ol>
-            <li>点击左侧 <code>获取最新 IP</code>，等待解析完成</li>
-            <li>切换到 <code>Hosts 内容</code> 标签，复制生成的 hosts 内容</li>
-            <li>终端运行 <code>sudo nano /etc/hosts</code></li>
-            <li>粘贴保存</li>
-            <li>运行 <code>sudo systemctl restart NetworkManager</code> 或 <code>sudo resolvectl flush-caches</code></li>
-          </ol>
-        </div>
+      </div>
+      <div class="howto-tabs">
+        <button class="howto-tab active" data-tab="windows">Windows</button>
+        <button class="howto-tab" data-tab="mac">macOS</button>
+        <button class="howto-tab" data-tab="linux">Linux</button>
+      </div>
+      <div class="howto-panel active" id="tab-windows">
+        <ol>
+          <li>点击左侧 <code>获取最新 IP</code>，等待所有域名解析完成</li>
+          <li>在 <code>Hosts 内容</code> 卡片点击 <code>生成 PowerShell 脚本</code></li>
+          <li><strong>右键</strong> 以 <code>管理员身份</code> 运行下载的 <code>.ps1</code> 脚本</li>
+          <li>脚本自动备份原 hosts、写入新条目并刷新 DNS 缓存</li>
+          <li>重新打开浏览器访问 GitHub，速度应有明显提升</li>
+        </ol>
+        <div class="tip">💡 也可手动：以管理员身份打开记事本 → 打开 <code>C:\Windows\System32\drivers\etc\hosts</code> → 复制 Hosts 内容粘贴保存 → CMD 运行 <code>ipconfig /flushdns</code></div>
+      </div>
+      <div class="howto-panel" id="tab-mac">
+        <ol>
+          <li>点击左侧 <code>获取最新 IP</code>，等待解析完成</li>
+          <li>在 <code>Hosts 内容</code> 卡片复制生成的 hosts 内容</li>
+          <li>终端运行 <code>sudo nano /etc/hosts</code></li>
+          <li>粘贴内容，<code>Ctrl+O</code> 保存，<code>Ctrl+X</code> 退出</li>
+          <li>运行 <code>sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder</code> 刷新 DNS</li>
+        </ol>
+      </div>
+      <div class="howto-panel" id="tab-linux">
+        <ol>
+          <li>点击左侧 <code>获取最新 IP</code>，等待解析完成</li>
+          <li>在 <code>Hosts 内容</code> 卡片复制生成的 hosts 内容</li>
+          <li>终端运行 <code>sudo nano /etc/hosts</code></li>
+          <li>粘贴保存</li>
+          <li>运行 <code>sudo systemctl restart NetworkManager</code> 或 <code>sudo resolvectl flush-caches</code></li>
+        </ol>
       </div>
       <footer class="social">
         <a class="social-link" href="https://github.com/Sophie92-spec/github-fast-access" target="_blank" rel="noopener">
-          <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> GitHub
+          <svg viewBox="0 0 16 16" width="15" height="15" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          GitHub
         </a>
         <a class="social-link" href="https://space.bilibili.com/447878463" target="_blank" rel="noopener">
-          <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M18.223 3.086a1.25 1.25 0 0 1 0 1.768L17.08 5.996h1.17A3.75 3.75 0 0 1 22 9.747v7.5a3.75 3.75 0 0 1-3.75 3.75H5.75A3.75 3.75 0 0 1 2 17.247v-7.5a3.75 3.75 0 0 1 3.75-3.751h1.166L5.775 4.854a1.25 1.25 0 1 1 1.767-1.768l2.652 2.652c.079.079.145.165.198.257h3.213c.053-.092.12-.18.199-.258l2.651-2.652a1.25 1.25 0 0 1 1.768 0zM18.25 8.496H5.75a1.25 1.25 0 0 0-1.247 1.157l-.003.094v7.5c0 .659.51 1.198 1.157 1.246l.093.004h12.5a1.25 1.25 0 0 0 1.247-1.157l.003-.093v-7.5c0-.69-.56-1.25-1.25-1.25zm-9.5 3.064c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25zm5.5 0c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25z"/></svg> 哔哩哔哩
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M18.223 3.086a1.25 1.25 0 0 1 0 1.768L17.08 5.996h1.17A3.75 3.75 0 0 1 22 9.747v7.5a3.75 3.75 0 0 1-3.75 3.75H5.75A3.75 3.75 0 0 1 2 17.247v-7.5a3.75 3.75 0 0 1 3.75-3.751h1.166L5.775 4.854a1.25 1.25 0 1 1 1.767-1.768l2.652 2.652c.079.079.145.165.198.257h3.213c.053-.092.12-.18.199-.258l2.651-2.652a1.25 1.25 0 0 1 1.768 0zM18.25 8.496H5.75a1.25 1.25 0 0 0-1.247 1.157l-.003.094v7.5c0 .659.51 1.198 1.157 1.246l.093.004h12.5a1.25 1.25 0 0 0 1.247-1.157l.003-.093v-7.5c0-.69-.56-1.25-1.25-1.25zm-9.5 3.064c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25zm5.5 0c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25z"/></svg>
+          哔哩哔哩
         </a>
       </footer>
     </div>
-  </div>
+  </main>
 </div>
 
 <div class="modal" id="ps1-modal">
@@ -481,7 +490,7 @@ function downloadFile(filename,content){const blob=new Blob([content],{type:'tex
 $('fetch-btn').addEventListener('click',fetchAll);
 $('test-btn').addEventListener('click',testAll);
 $('select-all').addEventListener('change',e=>{DOMAINS.forEach(d=>{state[d].included=e.target.checked});document.querySelectorAll('.inc-cb').forEach(cb=>{cb.checked=e.target.checked});updateHosts()});
-$('copy-hosts').addEventListener('click',async()=>{showToast(await copyText(hostsContent.value)?'✅ Hosts 内容已复制到剪贴板':'❌ 复制失败',await copyText(hostsContent.value)?'success':'error')});
+$('copy-hosts').addEventListener('click',async()=>{const ok=await copyText(hostsContent.value);showToast(ok?'✅ Hosts 内容已复制到剪贴板':'❌ 复制失败',ok?'success':'error')});
 $('download-hosts').addEventListener('click',()=>{downloadFile('hosts.txt',hostsContent.value);showToast('✅ hosts.txt 已下载','success')});
 $('gen-ps1').addEventListener('click',()=>{$('modal-title').textContent='🔧 PowerShell 加速脚本';$('ps1-content').value=generatePS1(false);$('ps1-modal').classList.add('active');$('download-ps1').dataset.mode='apply'});
 $('gen-restore').addEventListener('click',()=>{$('modal-title').textContent='🔄 PowerShell 恢复脚本';$('ps1-content').value=generatePS1(true);$('ps1-modal').classList.add('active');$('download-ps1').dataset.mode='restore'});
@@ -490,11 +499,11 @@ $('download-ps1').addEventListener('click',()=>{const m=$('download-ps1').datase
 $('close-modal').addEventListener('click',()=>{$('ps1-modal').classList.remove('active')});
 $('ps1-modal').addEventListener('click',e=>{if(e.target===$('ps1-modal'))$('ps1-modal').classList.remove('active')});
 
-// 主标签切换
-document.querySelectorAll('.main-tab').forEach(t=>{t.addEventListener('click',()=>{document.querySelectorAll('.main-tab').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.main-panel').forEach(x=>x.classList.remove('active'));t.classList.add('active');const id='panel-'+t.dataset.panel;$(id).classList.add('active')})});
+// 左侧导航点击 → 滚动到对应卡片并激活
+document.querySelectorAll('.nav-item').forEach(item=>{item.addEventListener('click',e=>{e.preventDefault();document.querySelectorAll('.nav-item').forEach(i=>i.classList.remove('active'));item.classList.add('active');const target=document.getElementById(item.dataset.target);if(target)target.scrollIntoView({behavior:'smooth',block:'start'})})});
 
 // 使用说明内部标签切换
-document.querySelectorAll('.howto-tab').forEach(tab=>{tab.addEventListener('click',()=>{const scope=tab.closest('.main-panel');scope.querySelectorAll('.howto-tab').forEach(t=>t.classList.remove('active'));scope.querySelectorAll('.howto-panel').forEach(c=>c.classList.remove('active'));tab.classList.add('active');scope.querySelector('#tab-'+tab.dataset.tab).classList.add('active')})});
+document.querySelectorAll('.howto-tab').forEach(tab=>{tab.addEventListener('click',()=>{const scope=tab.closest('.card');scope.querySelectorAll('.howto-tab').forEach(t=>t.classList.remove('active'));scope.querySelectorAll('.howto-panel').forEach(c=>c.classList.remove('active'));tab.classList.add('active');scope.querySelector('#tab-'+tab.dataset.tab).classList.add('active')})});
 
 renderTable();
 setTimeout(()=>{fetchAll().then(()=>testAll())},300);
