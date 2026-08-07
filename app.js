@@ -52,3 +52,24 @@ $('close-modal').addEventListener('click',()=>{$('ps1-modal').classList.remove('
 $('ps1-modal').addEventListener('click',e=>{if(e.target===$('ps1-modal'))$('ps1-modal').classList.remove('on')});
 render();setTimeout(()=>{fetchAll().then(()=>testAll())},300);
 document.querySelectorAll('.howto-tab').forEach(tab=>{tab.addEventListener('click',()=>{const scope=tab.closest('.howto');scope.querySelectorAll('.howto-tab').forEach(t=>t.classList.remove('on'));scope.querySelectorAll('.howto-panel').forEach(c=>c.classList.remove('on'));tab.classList.add('on');document.getElementById('tab-'+tab.dataset.tab).classList.add('on')})});
+
+// ===== Mini sparkline chart =====
+(function(){
+var K='gh_hosts_stats',t=new Date().toISOString().slice(0,10);
+var d=JSON.parse(localStorage.getItem(K)||'{}');
+d[t]=(d[t]||0)+1;localStorage.setItem(K,JSON.stringify(d));
+var ds=[],vals=[];
+for(var i=6;i>=0;i--){var dd=new Date();dd.setDate(dd.getDate()-i);var dd2=dd.toISOString().slice(0,10);ds.push(dd2);vals.push(d[dd2]||0)}
+var mx=Math.max(1,Math.max.apply(null,vals)),W=110,H=36,gap=3,pts=[];
+pts.push('0,'+(H-2-Math.max((vals[0]/mx)*(H-6),0)));
+for(var i=1;i<vals.length;i++){
+  var x=(i/(vals.length-1))*W;
+  var y=H-2-Math.max((vals[i]/mx)*(H-6),0);
+  pts.push(x+','+y)
+}
+var svg='<svg width="'+W+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg">'+
+  '<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+'#80a0ff'+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>'+
+  pts.map(function(p){var xy=p.split(',');return'<circle cx="'+xy[0]+'" cy="'+xy[1]+'" r="2.5" fill="'+'#80a0ff'+'" opacity="0.9"/>'}).join('')+
+  '</svg>';
+var c=document.getElementById('sv-chart');if(c)c.innerHTML=svg
+})()
