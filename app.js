@@ -59,17 +59,22 @@ var K='gh_hosts_stats',t=new Date().toISOString().slice(0,10);
 var d=JSON.parse(localStorage.getItem(K)||'{}');
 d[t]=(d[t]||0)+1;localStorage.setItem(K,JSON.stringify(d));
 var ds=[],vals=[];
-for(var i=6;i>=0;i--){var dd=new Date();dd.setDate(dd.getDate()-i);var dd2=dd.toISOString().slice(0,10);ds.push(dd2);vals.push(d[dd2]||0)}
-var mx=Math.max(1,Math.max.apply(null,vals)),W=110,H=36,gap=3,pts=[];
-pts.push('0,'+(H-2-Math.max((vals[0]/mx)*(H-6),0)));
-for(var i=1;i<vals.length;i++){
+for(var i=29;i>=0;i--){var dd=new Date();dd.setDate(dd.getDate()-i);var dd2=dd.toISOString().slice(0,10);ds.push(dd2);vals.push(d[dd2]||0)}
+var mx=Math.max(1,Math.max.apply(null,vals)),W=140,H=46,pts=[];
+for(var i=0;i<vals.length;i++){
   var x=(i/(vals.length-1))*W;
-  var y=H-2-Math.max((vals[i]/mx)*(H-6),0);
+  var y=H-2-Math.max((vals[i]/mx)*(H-8),0);
   pts.push(x+','+y)
 }
+var area='0,'+H+' '+pts.join(' ')+' '+W+','+H;
 var svg='<svg width="'+W+'" height="'+H+'" xmlns="http://www.w3.org/2000/svg">'+
-  '<polyline points="'+pts.join(' ')+'" fill="none" stroke="'+'#80a0ff'+'" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>'+
-  pts.map(function(p){var xy=p.split(',');return'<circle cx="'+xy[0]+'" cy="'+xy[1]+'" r="2.5" fill="'+'#80a0ff'+'" opacity="0.9"/>'}).join('')+
+  '<defs><linearGradient id="sg" x1="0" y1="0" x2="0" y2="1">'+
+  '<stop offset="0%" stop-color="#80a0ff" stop-opacity="0.4"/>'+
+  '<stop offset="100%" stop-color="#80a0ff" stop-opacity="0"/>'+
+  '</linearGradient></defs>'+
+  '<polygon points="'+area+'" fill="url(#sg)"/>'+
+  '<polyline points="'+pts.join(' ')+'" fill="none" stroke="#80a0ff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>'+
+  pts.map(function(p,i){if(i%7!==0&&i!==vals.length-1)return'';var xy=p.split(',');return'<circle cx="'+xy[0]+'" cy="'+xy[1]+'" r="2" fill="#80a0ff"/>'}).join('')+
   '</svg>';
 var c=document.getElementById('sv-chart');if(c)c.innerHTML=svg
 })()

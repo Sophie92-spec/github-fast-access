@@ -221,23 +221,27 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
 
 /* Stats vertical - right side middle */
 .stats-vert{
-  position:fixed;right:clamp(24px,3vw,48px);top:50%;transform:translateY(-50%);
+  position:fixed;right:clamp(40px,5vw,72px);top:50%;transform:translateY(-50%);
   z-index:80;display:flex;flex-direction:column;gap:10px;
   background:var(--glass);border:1px solid var(--border-strong);border-radius:clamp(10px,1vw,14px);
-  padding:clamp(12px,1.5vh,18px) clamp(10px,1vw,14px);
+  padding:clamp(12px,1.5vh,18px) clamp(14px,1.4vw,18px);
   backdrop-filter:blur(16px);box-shadow:var(--shadow);
   animation:slideRight .6s var(--ease) .5s both;
-  text-align:center;
+  text-align:center;min-width:clamp(130px,13vw,160px);
 }
 @keyframes slideRight{from{opacity:0;transform:translate(20px,-50%)}to{opacity:1;transform:translate(0,-50%)}}
-.stats-vert .sv-item{display:flex;flex-direction:column;align-items:center;gap:2px}
-.stats-vert .sv-icon{font-size:clamp(16px,1.4vw,20px)}
-.stats-vert .sv-num{color:var(--text);font-weight:700;font-family:var(--mono);font-size:clamp(14px,1.2vw,18px);line-height:1}
-.stats-vert .sv-label{color:var(--muted);font-size:clamp(9px,.7vw,10.5px);line-height:1}
-.stats-vert .sv-chart{margin-bottom:4px}
-.stats-vert .sv-chart svg{display:block}
+.stats-vert .sv-item{display:flex;flex-direction:column;align-items:center;gap:3px;width:100%}
+.stats-vert .sv-icon{font-size:clamp(16px,1.4vw,20px);display:block}
+.stats-vert .sv-num{
+  color:var(--text);font-weight:700;font-family:var(--mono);
+  font-size:clamp(15px,1.3vw,19px);line-height:1.1;
+  display:block;width:100%;text-align:center;
+}
+.stats-vert .sv-label{color:var(--muted);font-size:clamp(9.5px,.8vw,11px);line-height:1;display:block}
+.stats-vert .sv-chart{margin-bottom:6px}
+.stats-vert .sv-chart svg{display:block;margin:0 auto}
 @media(max-width:640px){
-  .stats-vert{right:12px;padding:10px 8px;gap:8px}
+  .stats-vert{right:16px;padding:10px 10px;gap:8px;min-width:110px}
   .stats-vert .sv-num{font-size:13px}
 }
 
