@@ -157,6 +157,19 @@ input[type=checkbox]{accent-color:var(--accent);width:13px;height:13px;cursor:po
 .howto{font-size:12px;color:var(--muted);line-height:1.65}
 .howto ol{padding-left:16px}.howto li{margin-bottom:2px}
 .howto code{background:var(--glass-2);padding:1px 5px;border-radius:4px;font-family:var(--mono);font-size:10.5px;color:var(--accent)}
+.howto .howto-tabs{display:flex;gap:0;margin-bottom:10px;border-bottom:1px solid var(--border)}
+.howto .howto-tab{padding:6px 14px;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;background:none;border:none;position:relative;transition:.15s}
+.howto .howto-tab:hover{color:var(--text)}.howto .howto-tab.on{color:var(--accent)}
+.howto .howto-tab.on::after{content:'';position:absolute;bottom:-1px;left:4px;right:4px;height:2px;background:var(--accent);border-radius:1px 1px 0 0}
+.howto .howto-panel{display:none;padding-top:8px}.howto .howto-panel.on{display:block}
+.howto .howto-panel ol{padding-left:16px}.howto .howto-panel li{margin-bottom:6px;line-height:1.65}
+.howto .tip{background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.15);border-left:2px solid var(--green);border-radius:6px;padding:10px 12px;margin-top:10px;font-size:11.5px;color:#86efac;line-height:1.5}
+
+/* Social buttons */
+.social{display:flex;justify-content:center;gap:8px;margin-top:4px}
+.social-link{display:inline-flex;align-items:center;gap:6px;padding:8px 15px;border-radius:var(--radius-sm);background:var(--glass);border:1px solid var(--border-strong);color:var(--muted);text-decoration:none;font-size:12px;font-weight:500;transition:.15s;backdrop-filter:blur(12px)}
+.social-link:hover{color:var(--text);border-color:var(--accent);box-shadow:0 4px 14px rgba(108,140,255,.2);transform:translateY(-1px)}
+.social-link svg{flex-shrink:0}
 
 /* 状态 */
 .foot{
@@ -214,9 +227,18 @@ input[type=checkbox]{accent-color:var(--accent);width:13px;height:13px;cursor:po
     </div>
   </div>
 
-  <div class="card"><div class="section-title" style="margin-bottom:8px">📖 使用说明</div><div class="howto"><ol><li>选 DoH → <code>获取 IP</code> 查询最优地址</li><li>确认域名 → <code>生成 .ps1</code></li><li><strong>右键管理员运行</strong> → 自动备份+写入+刷新 DNS</li></ol></div></div>
+  <div class="card"><div class="section-title" style="margin-bottom:6px">📖 使用说明</div>
+    <div class="howto">
+      <div class="howto-tabs"><button class="howto-tab on" data-tab="windows">Windows</button><button class="howto-tab" data-tab="mac">macOS</button><button class="howto-tab" data-tab="linux">Linux</button></div>
+      <div class="howto-panel on" id="tab-windows"><ol><li>选 DoH → <code>获取 IP</code> 等待域名解析</li><li>切换到 Hosts 内容 → <code>生成 .ps1</code></li><li>下载后<strong>右键以管理员身份运行</strong> .ps1</li><li>脚本自动备份原 hosts → 写入新条目 → 刷新 DNS</li></ol><div class="tip">💡 也可手动：记事本打开 <code>C:\Windows\System32\drivers\etc\hosts</code> → 粘贴 → CMD 执行 <code>ipconfig /flushdns</code></div></div>
+      <div class="howto-panel" id="tab-mac"><ol><li>选 DoH → <code>获取 IP</code> 等待域名解析</li><li>切换到 Hosts 内容，复制生成的 hosts</li><li>终端运行 <code>sudo nano /etc/hosts</code></li><li>粘贴保存 → <code>sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder</code></li></ol></div>
+      <div class="howto-panel" id="tab-linux"><ol><li>选 DoH → <code>获取 IP</code> 等待域名解析</li><li>切换到 Hosts 内容，复制生成的 hosts</li><li>终端运行 <code>sudo nano /etc/hosts</code></li><li>粘贴保存 → <code>sudo systemctl restart NetworkManager</code></li></ol></div>
+    </div>
+  </div>
 
-  <div class="foot"><span class="dot"></span><span id="update-time">就绪</span><span class="spacer"></span><a href="https://github.com/Sophie92-spec/github-fast-access" target="_blank">GitHub</a></div>
+  <div class="social"><a class="social-link" href="https://github.com/Sophie92-spec/github-fast-access" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> GitHub</a><a class="social-link" href="https://space.bilibili.com/447878463" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M18.223 3.086a1.25 1.25 0 0 1 0 1.768L17.08 5.996h1.17A3.75 3.75 0 0 1 22 9.747v7.5a3.75 3.75 0 0 1-3.75 3.75H5.75A3.75 3.75 0 0 1 2 17.247v-7.5a3.75 3.75 0 0 1 3.75-3.751h1.166L5.775 4.854a1.25 1.25 0 1 1 1.767-1.768l2.652 2.652c.079.079.145.165.198.257h3.213c.053-.092.12-.18.199-.258l2.651-2.652a1.25 1.25 0 0 1 1.768 0zM18.25 8.496H5.75a1.25 1.25 0 0 0-1.247 1.157l-.003.094v7.5c0 .659.51 1.198 1.157 1.246l.093.004h12.5a1.25 1.25 0 0 0 1.247-1.157l.003-.093v-7.5c0-.69-.56-1.25-1.25-1.25zm-9.5 3.064c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25zm5.5 0c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25z"/></svg> 哔哩哔哩</a></div>
+
+  <div class="foot"><span class="dot"></span><span id="update-time">就绪</span><span class="spacer"></span><span style="font-size:10.5px;color:var(--muted)">MIT · 纯前端 · 开源</span></div>
 </div>
 
 <div class="modal" id="ps1-modal"><div class="card">
@@ -258,6 +280,8 @@ $('download-ps1').addEventListener('click',()=>{const m=$('download-ps1').datase
 $('close-modal').addEventListener('click',()=>{$('ps1-modal').classList.remove('on')});
 $('ps1-modal').addEventListener('click',e=>{if(e.target===$('ps1-modal'))$('ps1-modal').classList.remove('on')});
 render();setTimeout(()=>{fetchAll().then(()=>testAll())},300);
+// Howto 标签切换
+document.querySelectorAll('.howto-tab').forEach(tab=>{tab.addEventListener('click',()=>{const scope=tab.closest('.howto');scope.querySelectorAll('.howto-tab').forEach(t=>t.classList.remove('on'));scope.querySelectorAll('.howto-panel').forEach(c=>c.classList.remove('on'));tab.classList.add('on');document.getElementById('tab-'+tab.dataset.tab).classList.add('on')})});
 </script>
 </body>
 </html>
