@@ -56,17 +56,6 @@ head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
 
 /* Controls */
 .controls{display:flex;gap:clamp(6px,.8vw,10px);align-items:center;flex-wrap:wrap}
-.controls select{
-  background:var(--glass-2);color:var(--text);border:1px solid var(--border-strong);
-  border-radius:clamp(8px,.8vw,10px);padding:clamp(8px,.8vh,12px) clamp(12px,1vw,16px);font-size:clamp(13px,1.1vw,16px);font-family:var(--sans);cursor:pointer;
-  appearance:none;-webkit-appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238890a8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 12px center;padding-right:clamp(32px,3vw,40px);
-  transition:border-color .15s var(--ease),box-shadow .15s var(--ease),background .15s var(--ease),transform .1s var(--ease);
-}
-.controls select:hover{border-color:rgba(255,255,255,.18);background:var(--glass-hover);transform:translateY(-1px)}
-.controls select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(128,160,255,.25),0 0 0 1px rgba(128,160,255,.4)}
-.controls select:active{transform:scale(.97)}
 .controls .btn{
   padding:clamp(8px,.8vh,12px) clamp(14px,1.4vw,22px);border-radius:clamp(8px,.8vw,10px);border:1px solid var(--border-strong);
   background:var(--glass-2);color:var(--text);font-family:var(--sans);font-size:clamp(13px,1.1vw,16px);font-weight:500;
