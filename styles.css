@@ -62,8 +62,10 @@ head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
   appearance:none;-webkit-appearance:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238890a8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat:no-repeat;background-position:right 12px center;padding-right:clamp(32px,3vw,40px);
+  transition:border-color .2s var(--ease),box-shadow .2s var(--ease),background .2s var(--ease);
 }
-.controls select:focus{outline:none;border-color:var(--accent)}
+.controls select:hover{border-color:rgba(255,255,255,.18);background:var(--glass-hover)}
+.controls select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(128,160,255,.25)}
 .controls .btn{
   padding:clamp(8px,.8vh,12px) clamp(14px,1.4vw,22px);border-radius:clamp(8px,.8vw,10px);border:1px solid var(--border-strong);
   background:var(--glass-2);color:var(--text);font-family:var(--sans);font-size:clamp(13px,1.1vw,16px);font-weight:500;
@@ -92,42 +94,6 @@ head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .controls .status-inline #update-time{color:var(--text);font-weight:500}
 
-/* Custom dropdown - replaces native select for animation */
-.custom-select{position:relative;z-index:200;min-width:clamp(120px,12vw,170px);isolation:isolate}
-.custom-select-trigger{
-  width:100%;padding:clamp(8px,.8vh,12px) clamp(12px,1vw,16px);border-radius:clamp(8px,.8vw,10px);
-  border:1px solid var(--border-strong);background:var(--glass-2);color:var(--text);
-  font-family:var(--sans);font-size:clamp(13px,1.1vw,16px);font-weight:500;
-  cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;
-  transition:.2s var(--ease);text-align:left;
-}
-.custom-select-trigger:hover{background:var(--glass-hover);border-color:rgba(255,255,255,.18)}
-.custom-select.open .custom-select-trigger{border-color:var(--accent);box-shadow:0 0 0 2px rgba(128,160,255,.2)}
-.custom-select-trigger .chevron{
-  font-size:10px;color:var(--muted);transition:transform .2s var(--ease);transform-origin:center;
-}
-.custom-select.open .chevron{transform:rotate(180deg);color:var(--accent)}
-.custom-select-menu{
-  position:absolute;top:100%;left:0;min-width:180px;z-index:9999;
-  background:rgb(18,20,40);border:1px solid var(--border-strong);border-radius:clamp(8px,.8vw,10px);
-  box-shadow:0 12px 32px rgba(0,0,0,.6);
-  padding:6px 4px;
-  display:flex;flex-direction:column;gap:1px;
-}
-.custom-select.open .custom-select-menu{animation:slideDown .18s var(--ease)}
-@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-.custom-select-option{
-  padding:10px 14px;border-radius:clamp(4px,.4vw,6px);
-  font-size:clamp(13px,1.1vw,15px);color:var(--text);cursor:pointer;
-  transition:background .1s,color .1s;
-  display:flex;align-items:center;gap:8px;white-space:nowrap;
-}
-.custom-select-option:hover{background:rgba(128,160,255,.15);color:var(--accent)}
-.custom-select-option.selected{background:rgba(128,160,255,.12);color:var(--accent);font-weight:500}
-.custom-select-option.selected::before{
-  content:'';width:5px;height:5px;border-radius:50%;background:var(--accent);
-  box-shadow:0 0 6px var(--accent);
-}
 
 /* Table */
 table{width:100%;border-collapse:collapse}

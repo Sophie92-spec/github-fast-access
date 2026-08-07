@@ -13,19 +13,13 @@
 
   <div class="card">
     <div class="controls">
-      <div class="custom-select" id="doh-select">
-        <button type="button" class="custom-select-trigger">
-          <span class="label">自动 DoH</span>
-          <span class="chevron">▾</span>
-        </button>
-        <div class="custom-select-menu">
-          <div class="custom-select-option selected" data-value="auto">自动 DoH</div>
-          <div class="custom-select-option" data-value="dnspod">DNSPod</div>
-          <div class="custom-select-option" data-value="alidns">AliDNS</div>
-          <div class="custom-select-option" data-value="cloudflare">Cloudflare</div>
-          <div class="custom-select-option" data-value="google">Google</div>
-        </div>
-      </div>
+      <select id="doh-provider">
+        <option value="auto">自动 DoH</option>
+        <option value="dnspod">DNSPod</option>
+        <option value="alidns">AliDNS</option>
+        <option value="cloudflare">Cloudflare</option>
+        <option value="google">Google</option>
+      </select>
       <button class="btn primary" id="fetch-btn">🔍 获取 IP</button>
       <button class="btn" id="test-btn">⚡ 延迟</button>
       <div class="prog" id="progress"><div class="fill" id="progress-fill"></div></div>
