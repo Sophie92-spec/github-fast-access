@@ -199,14 +199,6 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
   html{font-size:13px}
 }
 
-/* Stats line - centered below social */
-.stats-line{
-  display:flex;justify-content:center;gap:clamp(16px,2vw,24px);
-  font-size:clamp(11px,.9vw,12.5px);color:var(--muted);
-}
-.stats-line .stats-item{display:flex;align-items:center;gap:5px}
-.stats-line .icon{font-size:clamp(13px,1.1vw,15px)}
-.stats-line strong{color:var(--text);font-weight:700;font-family:var(--mono)}
 
 /* Stats vertical - right side middle */
 .stats-vert{
