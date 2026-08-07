@@ -93,7 +93,7 @@ head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
 .controls .status-inline #update-time{color:var(--text);font-weight:500}
 
 /* Custom dropdown - replaces native select for animation */
-.custom-select{position:relative;min-width:clamp(120px,12vw,170px)}
+.custom-select{position:relative;z-index:200;min-width:clamp(120px,12vw,170px);isolation:isolate}
 .custom-select-trigger{
   width:100%;padding:clamp(8px,.8vh,12px) clamp(12px,1vw,16px);border-radius:clamp(8px,.8vw,10px);
   border:1px solid var(--border-strong);background:var(--glass-2);color:var(--text);
@@ -108,9 +108,9 @@ head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
 }
 .custom-select.open .chevron{transform:rotate(180deg);color:var(--accent)}
 .custom-select-menu{
-  position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;
+  position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:100;
   background:var(--glass-hover);border:1px solid var(--border-strong);border-radius:clamp(8px,.8vw,10px);
-  backdrop-filter:blur(20px);box-shadow:0 8px 24px rgba(0,0,0,.4);
+  backdrop-filter:blur(20px);box-shadow:0 8px 24px rgba(0,0,0,.5);
   padding:4px;
   display:flex;flex-direction:column;gap:1px;
   opacity:0;transform:translateY(-6px) scaleY(.96);transform-origin:top center;
