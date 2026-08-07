@@ -193,7 +193,7 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
   .controls .btn{justify-content:center}
   .controls .status-inline{margin-left:0;border-left:none;padding:8px 0 0;justify-content:center}
   /* Disable heavy blur on mobile to keep the render thread responsive */
-  .card,.social-link,.stats-vert,.modal{backdrop-filter:none;-webkit-backdrop-filter:none}
+  .card,.social-link,.modal{backdrop-filter:none;-webkit-backdrop-filter:none}
 }
 @media(max-width:480px){
   html{font-size:13px}

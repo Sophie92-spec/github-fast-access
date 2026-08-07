@@ -85,7 +85,7 @@ export default {
       uv += 1;
       writes.push(kv.put('uv', String(uv)));
     }
-    ctx.waitFor(Promise.all(writes));
+    ctx.waitUntil(Promise.all(writes));
 
     // 近 30 天趋势（并行读取，oldest -> newest）
     const keys = [];
