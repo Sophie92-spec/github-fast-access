@@ -97,8 +97,8 @@ document.querySelectorAll('.howto-tab').forEach(tab=>{tab.addEventListener('clic
 // ===== 访问统计 =====
 // 默认走本地 localStorage（离线/未配置后端时）；若配置 STATS_API（Cloudflare Workers+KV），
 // 则改为全网真实共享统计：PV/UV/今日/30天趋势 全部由后端返回，且每次打开页面 +1 计入后端。
-// 请改成你部署后的 Worker 地址，例如 'https://gh-stats.xxx.workers.dev'
-var STATS_API='https://delicate-hall-8973github-hosts-stats.sophieyoucha.workers.dev';
+// 请改成你部署后的 Worker 地址，例如 'https://stats.yourdomain.com'
+var STATS_API='https://stats.sophieyoucha.cc.cd';
 var K='gh_hosts_stats',t=new Date().toISOString().slice(0,10);
 // 本地记录：仅作为后端不可用时的降级数据源（每次打开页面给「今天」+1）
 (function(){
