@@ -29,3 +29,18 @@ $('close-modal').addEventListener('click',()=>{$('ps1-modal').classList.remove('
 $('ps1-modal').addEventListener('click',e=>{if(e.target===$('ps1-modal'))$('ps1-modal').classList.remove('on')});
 render();setTimeout(()=>{fetchAll().then(()=>testAll())},300);
 document.querySelectorAll('.howto-tab').forEach(tab=>{tab.addEventListener('click',()=>{const scope=tab.closest('.howto');scope.querySelectorAll('.howto-tab').forEach(t=>t.classList.remove('on'));scope.querySelectorAll('.howto-panel').forEach(c=>c.classList.remove('on'));tab.classList.add('on');document.getElementById('tab-'+tab.dataset.tab).classList.add('on')})});
+
+// ===== Stats =====
+!function(){
+var K='gh_hosts_stats',t=new Date().toISOString().slice(0,10);
+var d=JSON.parse(localStorage.getItem(K)||'{}');
+d[t]=(d[t]||0)+1;localStorage.setItem(K,JSON.stringify(d));
+var ds=[],vs=Object.values(d),mx=Math.max(1,Math.max.apply(null,vs));
+for(var i=6;i>=0;i--){var dd=new Date();dd.setDate(dd.getDate()-i);ds.push(dd.toISOString().slice(0,10))}
+var L=['日','一','二','三','四','五','六'],c=document.getElementById('stats-chart');
+c.innerHTML=ds.map(function(D){
+var v=d[D]||0,h=Math.max((v/mx)*100,2);
+return '<div style="text-align:center"><div class="stats-bar'+(D===t?' today':'')+'" style="height:'+h+'%" title="'+D+': '+v+'"></div><div class="stats-bar-label">'+L[new Date(D).getDay()]+'</div></div>'
+}).join('');
+document.getElementById('stats-today').textContent=d[t]||0
+}();
