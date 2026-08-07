@@ -221,7 +221,7 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
 
 /* Stats vertical - right side middle */
 .stats-vert{
-  position:absolute;right:clamp(-90px,-9vw,-48px);top:38%;transform:translateY(-50%);
+  position:fixed;right:clamp(48px,6vw,80px);top:50%;transform:translateY(-50%);
   z-index:80;display:flex;flex-direction:column;gap:6px;align-items:center;
   background:var(--glass);border:1px solid var(--border-strong);border-radius:clamp(10px,1vw,14px);
   padding:clamp(10px,1.2vh,16px) clamp(14px,1.4vw,18px);
