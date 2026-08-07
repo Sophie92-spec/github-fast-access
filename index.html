@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GitHub Hosts 加速工具</title>
 <style>
+html{font-size:16px}
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#0b0d14;
@@ -18,11 +19,8 @@
   --accent:#80a0ff;
   --accent-2:#b090f8;
   --green:#4ade80;
-  --green-glow:rgba(74,222,128,.3);
   --red:#f87171;
   --orange:#fb923c;
-  --radius:14px;
-  --radius-sm:10px;
   --shadow:0 8px 32px rgba(0,0,0,.55);
   --ease:cubic-bezier(.4,0,.2,1);
   --mono:"JetBrains Mono","Cascadia Code","Consolas",monospace;
@@ -30,54 +28,52 @@
 }
 body{
   font-family:var(--sans);background:var(--bg);color:var(--text);
-  line-height:1.55;min-height:100vh;position:relative;overflow-x:hidden;
-  -webkit-font-smoothing:antialiased;
+  line-height:1.6;min-height:100vh;position:relative;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;font-size:1rem;
 }
 body::before{
   content:'';position:fixed;top:-20%;left:50%;transform:translateX(-50%);
-  width:1000px;height:700px;z-index:0;pointer-events:none;
+  width:clamp(800px,60vw,1200px);height:clamp(600px,50vh,800px);z-index:0;pointer-events:none;
   background:radial-gradient(circle at 35% 40%,rgba(128,160,255,.12),transparent 55%),
             radial-gradient(circle at 70% 50%,rgba(176,144,248,.10),transparent 55%);
   filter:blur(60px);
 }
-.wrap{position:relative;z-index:1;max-width:920px;margin:0 auto;padding:48px 24px 64px}
+.wrap{position:relative;z-index:1;max-width:clamp(600px,90vw,980px);margin:0 auto;padding:clamp(24px,4vh,48px) clamp(12px,2vw,24px) clamp(40px,6vh,64px)}
 .wrap>*{animation:in .5s var(--ease) both}.wrap>*:nth-child(1){animation-delay:0s}
 .wrap>*:nth-child(2){animation-delay:.06s}.wrap>*:nth-child(3){animation-delay:.12s}
-.wrap>*:nth-child(4){animation-delay:.18s}.wrap>*:nth-child(5){animation-delay:.24s}
+.wrap>*:nth-child(4){animation-delay:.18s}.wrap>*:nth-child(5){animation-delay:.24s}.wrap>*:nth-child(6){animation-delay:.3s}
 @keyframes in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 
 /* Header */
-head-bar{display:flex;align-items:center;gap:14px;margin-bottom:30px}
+head-bar{display:flex;align-items:center;gap:1rem;margin-bottom:clamp(20px,3vh,32px)}
 .logo{
-  width:50px;height:50px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;
+  width:clamp(44px,3.5vw,56px);height:clamp(44px,3.5vw,56px);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:clamp(22px,2vw,28px);
   background:linear-gradient(135deg,var(--accent),var(--accent-2));flex-shrink:0;
 }
-head-bar h2{font-size:22px;font-weight:700;letter-spacing:-.3px}
-head-bar p{font-size:13.5px;color:var(--muted);margin-top:2px}
+head-bar h2{font-size:clamp(18px,2.2vw,26px);font-weight:700;letter-spacing:-.3px}
+head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
 
-/* 卡片 */
+/* Card */
 .card{
-  background:var(--glass);border:1px solid var(--border);border-radius:var(--radius);
-  padding:20px 24px;margin-bottom:16px;backdrop-filter:blur(20px);
-  box-shadow:var(--shadow);transition:border-color .2s;
+  background:var(--glass);border:1px solid var(--border);border-radius:clamp(10px,1vw,14px);
+  padding:clamp(14px,2vw,24px);margin-bottom:clamp(10px,1vw,18px);backdrop-filter:blur(20px);
+  box-shadow:var(--shadow);
 }
 
-/* 控制行 */
-.controls{
-  display:flex;gap:10px;align-items:center;flex-wrap:wrap;
-}
+/* Controls */
+.controls{display:flex;gap:clamp(6px,.8vw,10px);align-items:center;flex-wrap:wrap}
 .controls select{
   background:var(--glass-2);color:var(--text);border:1px solid var(--border-strong);
-  border-radius:var(--radius-sm);padding:10px 14px;font-size:14px;font-family:var(--sans);cursor:pointer;
+  border-radius:clamp(8px,.8vw,10px);padding:clamp(8px,.8vh,12px) clamp(12px,1vw,16px);font-size:clamp(13px,1.1vw,16px);font-family:var(--sans);cursor:pointer;
   appearance:none;-webkit-appearance:none;
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238890a8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;
+  background-repeat:no-repeat;background-position:right 12px center;padding-right:clamp(32px,3vw,40px);
 }
 .controls select:focus{outline:none;border-color:var(--accent)}
 .controls .btn{
-  padding:10px 20px;border-radius:var(--radius-sm);border:1px solid var(--border-strong);
-  background:var(--glass-2);color:var(--text);font-family:var(--sans);font-size:14px;font-weight:500;
-  cursor:pointer;display:flex;align-items:center;gap:7px;transition:.15s;
+  padding:clamp(8px,.8vh,12px) clamp(14px,1.4vw,22px);border-radius:clamp(8px,.8vw,10px);border:1px solid var(--border-strong);
+  background:var(--glass-2);color:var(--text);font-family:var(--sans);font-size:clamp(13px,1.1vw,16px);font-weight:500;
+  cursor:pointer;display:flex;align-items:center;gap:clamp(5px,.5vw,8px);transition:.15s;
 }
 .controls .btn:hover{background:var(--glass-hover);border-color:rgba(255,255,255,.18)}
 .controls .btn:active{transform:scale(.97)}
@@ -85,124 +81,135 @@ head-bar p{font-size:13.5px;color:var(--muted);margin-top:2px}
   background:linear-gradient(135deg,var(--accent),#90b0ff);color:#fff;border-color:transparent;
   box-shadow:0 4px 16px rgba(128,160,255,.3);
 }
-.controls .btn.primary:hover{box-shadow:0 6px 22px rgba(128,160,255,.45)}
+.controls .btn.primary:hover{box-shadow:0 6px 24px rgba(128,160,255,.45)}
 .controls .btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
 .controls .prog{
-  flex:1;min-width:70px;height:4px;background:var(--glass-2);border-radius:99px;overflow:hidden;display:none;
+  flex:1;min-width:clamp(50px,6vw,80px);height:clamp(3px,.3vw,4px);background:var(--glass-2);border-radius:99px;overflow:hidden;display:none;
 }
 .controls .prog.on{display:block}
 .controls .prog .fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0%;border-radius:99px;transition:width .25s var(--ease)}
+
+/* Status inline */
 .controls .status-inline{
-  display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--muted);
-  padding:0 12px 0 4px;flex-shrink:0;border-left:1px solid var(--border-strong);margin-left:auto;
+  display:flex;align-items:center;gap:clamp(6px,.6vw,8px);font-size:clamp(12px,1vw,14px);color:var(--muted);
+  padding:0 clamp(8px,1vw,14px) 0 clamp(2px,.3vw,6px);flex-shrink:0;border-left:1px solid var(--border-strong);margin-left:auto;
 }
-.controls .status-inline .dot{width:6px;height:6px;border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s infinite}
+.controls .status-inline .dot{width:clamp(5px,.5vw,7px);height:clamp(5px,.5vw,7px);border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .controls .status-inline #update-time{color:var(--text);font-weight:500}
 
-/* 表格 */
+/* Table */
 table{width:100%;border-collapse:collapse}
 thead th{
-  text-align:left;padding:9px 14px;font-size:11.5px;font-weight:600;
-  color:var(--muted);letter-spacing:.4px;border-bottom:1px solid var(--border);
+  text-align:left;padding:clamp(8px,.7vh,12px) clamp(10px,1vw,16px);font-size:clamp(11px,1vw,13px);font-weight:600;
+  color:var(--muted);letter-spacing:.3px;border-bottom:1px solid var(--border);
 }
-td{padding:8px 14px;border-bottom:1px solid var(--border);font-size:13.5px;line-height:1.5}
+td{padding:clamp(7px,.6vh,10px) clamp(10px,1vw,16px);border-bottom:1px solid var(--border);font-size:clamp(12.5px,1vw,15px);line-height:1.55}
 tbody tr:hover{background:rgba(128,160,255,.05)}tbody tr:last-child td{border-bottom:none}
-.domain-name{font-family:var(--mono);color:var(--accent);font-size:13px}
-.status-dot{display:inline-block;width:7px;height:7px;border-radius:50%}
+.domain-name{font-family:var(--mono);color:var(--accent);font-size:clamp(12px,1vw,14px)}
+.status-dot{display:inline-block;width:clamp(6px,.5vw,8px);height:clamp(6px,.5vw,8px);border-radius:50%}
 .status-dot.loading{background:var(--orange);animation:pulse 1s infinite}
-.status-dot.success{background:var(--green);box-shadow:0 0 8px var(--green-glow)}
+.status-dot.success{background:var(--green);box-shadow:0 0 8px rgba(74,222,128,.3)}
 .status-dot.fail{background:var(--red)}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.ip-cell{font-family:var(--mono);font-size:13px}
+.ip-cell{font-family:var(--mono);font-size:clamp(12px,1vw,14px)}
 .ip-select,.ip-input{
   background:var(--glass-2);color:var(--text);border:1px solid var(--border-strong);
-  border-radius:8px;padding:5px 10px;font-size:12.5px;font-family:var(--mono);transition:.12s;
+  border-radius:clamp(6px,.6vw,8px);padding:clamp(4px,.4vh,6px) clamp(7px,.7vw,10px);font-size:clamp(12px,1vw,14px);font-family:var(--mono);transition:.12s;
 }
-.ip-select{max-width:180px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%238890a8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:26px}
+.ip-select{max-width:clamp(140px,15vw,190px);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%238890a8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:clamp(24px,2.5vw,28px)}
 .ip-select:focus,.ip-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px rgba(128,160,255,.4)}
-.ip-input{width:160px}
-.latency{font-family:var(--mono);font-size:12px;font-weight:600;padding:2px 8px;border-radius:999px}
+.ip-input{width:clamp(130px,14vw,170px)}
+.latency{font-family:var(--mono);font-size:clamp(11px,.9vw,13px);font-weight:600;padding:2px 8px;border-radius:999px;display:inline-block}
 .latency.good{color:var(--green);background:rgba(74,222,128,.1)}.latency.ok{color:var(--orange);background:rgba(251,146,60,.1)}
 .latency.slow{color:var(--red);background:rgba(248,113,113,.1)}.latency.fail{color:var(--muted)}
-th label{display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11.5px}
-input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:pointer}
+th label{display:flex;align-items:center;gap:clamp(5px,.5vw,7px);cursor:pointer;font-size:clamp(11px,1vw,13px);font-weight:600}
+input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);accent-color:var(--accent);cursor:pointer}
 
-/* Hosts 面板 */
+/* Section */
 .section-title{
-  font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border);
+  font-size:clamp(14px,1.2vw,17px);font-weight:600;display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:clamp(8px,.8vh,14px);padding-bottom:clamp(7px,.7vh,10px);border-bottom:1px solid var(--border);
 }
-.section-title .count{font-size:12px;color:var(--muted);font-weight:500;background:var(--glass-2);padding:3px 11px;border-radius:999px}
-.code-box{border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;background:rgba(0,0,0,.35)}
-.code-bar{
-  display:flex;align-items:center;gap:7px;padding:8px 12px;background:rgba(0,0,0,.25);border-bottom:1px solid var(--border);
-}
-.code-bar .dot{width:9px;height:9px;border-radius:50%}.dot.r{background:#ff5f56}.dot.y{background:#ffbd2e}.dot.g{background:#27c93f}
-.code-bar span{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-left:7px}
+.section-title .count{font-size:clamp(11px,.9vw,13px);color:var(--muted);font-weight:500;background:var(--glass-2);padding:3px 12px;border-radius:999px}
+
+/* Code */
+.code-box{border:1px solid var(--border);border-radius:clamp(8px,.8vw,10px);overflow:hidden;background:rgba(0,0,0,.35)}
+.code-bar{display:flex;align-items:center;gap:7px;padding:clamp(7px,.7vh,10px) clamp(10px,1vw,14px);background:rgba(0,0,0,.25);border-bottom:1px solid var(--border)}
+.code-bar .dot{width:clamp(8px,.7vw,10px);height:clamp(8px,.7vw,10px);border-radius:50%}.dot.r{background:#ff5f56}.dot.y{background:#ffbd2e}.dot.g{background:#27c93f}
+.code-bar span{font-family:var(--mono);font-size:clamp(11px,.9vw,13px);color:var(--muted);margin-left:7px}
 .code-box textarea{
-  width:100%;min-height:90px;max-height:200px;display:block;background:transparent;color:#c9d1d9;
-  border:none;padding:12px 14px;font-family:var(--mono);font-size:12.5px;line-height:1.65;
+  width:100%;min-height:clamp(70px,10vh,100px);max-height:clamp(160px,25vh,250px);display:block;background:transparent;color:#c9d1d9;
+  border:none;padding:clamp(10px,1vw,14px);font-family:var(--mono);font-size:clamp(12px,1vw,14px);line-height:1.7;
   resize:vertical;white-space:pre;overflow:auto;
 }
 .code-box textarea:focus{outline:none}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.actions{display:flex;gap:clamp(6px,.6vw,10px);flex-wrap:wrap;margin-top:clamp(8px,1vh,14px)}
 .actions .btn{
-  padding:9px 18px;border-radius:8px;border:1px solid var(--border-strong);
-  background:var(--glass-2);color:var(--text);font-family:var(--sans);font-size:13.5px;font-weight:500;
-  cursor:pointer;display:flex;align-items:center;gap:6px;transition:.15s;
+  padding:clamp(8px,.8vh,11px) clamp(14px,1.4vw,20px);border-radius:clamp(6px,.6vw,8px);border:1px solid var(--border-strong);
+  background:var(--glass-2);color:var(--text);font-family:var(--sans);font-size:clamp(13px,1.1vw,15px);font-weight:500;
+  cursor:pointer;display:flex;align-items:center;gap:clamp(5px,.5vw,7px);transition:.15s;
 }
 .actions .btn:hover{background:var(--glass-hover)}
 .actions .btn:active{transform:scale(.97)}
-.actions .btn.primary{
-  background:linear-gradient(135deg,#2d6a4f,#40916c);color:#fff;border-color:transparent;
-}
-.actions .btn.danger{color:var(--red)}
-.actions .btn.danger:hover{border-color:var(--red)}
+.actions .btn.primary{background:linear-gradient(135deg,#2d6a4f,#40916c);color:#fff;border-color:transparent}
+.actions .btn.danger{color:var(--red)}.actions .btn.danger:hover{border-color:var(--red)}
 
-/* 使用说明 */
-.howto{font-size:13.5px;color:var(--muted);line-height:1.7}
-.howto .howto-tabs{display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid var(--border)}
-.howto .howto-tab{padding:7px 16px;font-size:13.5px;font-weight:500;color:var(--muted);cursor:pointer;background:none;border:none;position:relative;transition:.15s}
+/* Howto */
+.howto{font-size:clamp(13px,1.1vw,15px);color:var(--muted);line-height:1.75}
+.howto .howto-tabs{display:flex;gap:0;margin-bottom:clamp(10px,1vh,14px);border-bottom:1px solid var(--border)}
+.howto .howto-tab{padding:clamp(6px,.6vh,9px) clamp(12px,1.2vw,18px);font-size:clamp(13px,1.1vw,15px);font-weight:500;color:var(--muted);cursor:pointer;background:none;border:none;position:relative;transition:.15s}
 .howto .howto-tab:hover{color:var(--text)}.howto .howto-tab.on{color:var(--accent)}
 .howto .howto-tab.on::after{content:'';position:absolute;bottom:-1px;left:4px;right:4px;height:2px;background:var(--accent);border-radius:1px 1px 0 0}
-.howto .howto-panel{display:none;padding-top:10px}.howto .howto-panel.on{display:block}
-.howto .howto-panel ol{padding-left:18px}.howto .howto-panel li{margin-bottom:8px;line-height:1.7;font-size:13.5px}
-.howto .tip{background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.15);border-left:2px solid var(--green);border-radius:8px;padding:12px 14px;margin-top:12px;font-size:13px;color:#86efac;line-height:1.55}
-
-/* Social buttons */
-.social{display:flex;justify-content:center;gap:10px;margin-top:6px}
-.social-link{display:inline-flex;align-items:center;gap:7px;padding:10px 18px;border-radius:var(--radius-sm);background:var(--glass);border:1px solid var(--border-strong);color:var(--muted);text-decoration:none;font-size:13px;font-weight:500;transition:.15s;backdrop-filter:blur(14px)}
-.social-link:hover{color:var(--text);border-color:var(--accent);box-shadow:0 4px 16px rgba(128,160,255,.25);transform:translateY(-1px)}
-.social-link svg{flex-shrink:0}
-
-/* 状态 */
-.foot{
-  display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-top:8px;
+.howto .howto-panel{display:none;padding-top:clamp(8px,.8vh,12px)}.howto .howto-panel.on{display:block}
+.howto .howto-panel ol{padding-left:clamp(16px,2vw,20px)}
+.howto .howto-panel li{margin-bottom:clamp(6px,.7vh,10px);line-height:1.8;font-size:clamp(13px,1.1vw,15px);color:var(--text)}
+.howto .howto-panel li::marker{color:var(--accent)}
+.howto .tip{
+  background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.15);border-left:2px solid var(--green);
+  border-radius:clamp(6px,.6vw,8px);padding:clamp(10px,1vh,14px) clamp(12px,1.2vw,16px);
+  margin-top:clamp(10px,1vh,14px);font-size:clamp(12.5px,1vw,14px);color:#86efac;line-height:1.6;
 }
-.foot .dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-.foot .spacer{flex:1}
-.foot a{color:var(--muted);text-decoration:none}.foot a:hover{color:var(--accent)}
+
+/* Social */
+.social{display:flex;justify-content:center;gap:clamp(8px,.8vw,12px);margin-top:clamp(4px,.5vh,8px)}
+.social-link{display:inline-flex;align-items:center;gap:clamp(6px,.6vw,8px);padding:clamp(9px,.9vh,12px) clamp(14px,1.4vw,20px);border-radius:clamp(8px,.8vw,10px);background:var(--glass);border:1px solid var(--border-strong);color:var(--muted);text-decoration:none;font-size:clamp(13px,1.1vw,15px);font-weight:500;transition:.15s;backdrop-filter:blur(14px)}
+.social-link:hover{color:var(--text);border-color:var(--accent);box-shadow:0 4px 16px rgba(128,160,255,.25);transform:translateY(-1px)}
+.social-link svg{flex-shrink:0;width:clamp(15px,1.3vw,18px);height:clamp(15px,1.3vw,18px)}
 
 /* Modal */
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px)}
 .modal.on{display:flex}.modal.on .card{animation:pop .2s var(--ease)}
 @keyframes pop{from{opacity:0;transform:scale(.96)}}to{opacity:1;transform:none}}
-.modal .card{width:92%;max-width:680px;max-height:90vh;overflow:auto}
-.modal .card h2{margin-bottom:14px;font-size:17px;font-weight:600}
-.ps1-tip{padding:12px 14px;border-radius:var(--radius-sm);background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.15);color:#e8b860;font-size:13px;line-height:1.5;margin-bottom:12px}
+.modal .card{width:min(92%, 700px);max-height:90vh;overflow:auto}
+.modal .card h2{margin-bottom:clamp(10px,1vh,16px);font-size:clamp(16px,1.4vw,18px);font-weight:600}
+.ps1-tip{padding:clamp(10px,1vh,14px);border-radius:clamp(8px,.8vw,10px);background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.15);color:#e8b860;font-size:clamp(12.5px,1vw,14px);line-height:1.55;margin-bottom:clamp(10px,1vh,14px)}
 
 /* Toast */
 .toast{
   position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);
-  background:rgba(20,22,36,.96);color:#fff;padding:12px 22px;border-radius:var(--radius-sm);
-  border:1px solid var(--border-strong);font-size:13.5px;font-weight:500;z-index:200;
+  background:rgba(20,22,36,.96);color:#fff;padding:clamp(10px,1vh,14px) clamp(18px,1.8vw,24px);border-radius:clamp(8px,.8vw,10px);
+  border:1px solid var(--border-strong);font-size:clamp(13px,1.1vw,15px);font-weight:500;z-index:200;
   transition:.25s;backdrop-filter:blur(14px);
 }
 .toast.on{transform:translateX(-50%) translateY(0)}
 .toast.good{border-color:rgba(74,222,128,.4)}.toast.bad{border-color:rgba(248,113,113,.4)}
 ::-webkit-scrollbar{width:6px}::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:3px}
-@media(max-width:640px){.wrap{padding:28px 12px 48px}}
+
+/* ===== 自适应断点 ===== */
+@media(min-width:1400px){
+  html{font-size:18px}
+}
+@media(max-width:768px){
+  html{font-size:14px}
+  .controls{flex-direction:column;align-items:stretch}
+  .controls select{width:100%}
+  .controls .btn{justify-content:center}
+  .controls .status-inline{margin-left:0;border-left:none;padding:8px 0 0;justify-content:center}
+}
+@media(max-width:480px){
+  html{font-size:13px}
+}
 </style>
 </head>
 <body>
@@ -221,7 +228,7 @@ input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:po
   </div>
 
   <div class="card" style="padding:0;overflow:hidden">
-    <table><thead><tr><th style="width:34px"><label><input type="checkbox" id="select-all" checked></label></th><th>域名</th><th style="width:44px">状态</th><th>IP 地址</th><th style="width:76px">延迟</th></tr></thead><tbody id="results-body"></tbody></table>
+    <table><thead><tr><th style="width:2.5rem"><label><input type="checkbox" id="select-all" checked></label></th><th>域名</th><th style="width:3rem">状态</th><th>IP 地址</th><th style="width:5rem">延迟</th></tr></thead><tbody id="results-body"></tbody></table>
   </div>
 
   <div class="card">
@@ -235,15 +242,13 @@ input[type=checkbox]{accent-color:var(--accent);width:15px;height:15px;cursor:po
   <div class="card"><div class="section-title" style="margin-bottom:6px">📖 使用说明</div>
     <div class="howto">
       <div class="howto-tabs"><button class="howto-tab on" data-tab="windows">Windows</button><button class="howto-tab" data-tab="mac">macOS</button><button class="howto-tab" data-tab="linux">Linux</button></div>
-      <div class="howto-panel on" id="tab-windows"><ol><li>选择 DoH 来源，点击 <code>获取 IP</code>，等待所有域名解析完成</li><li>查看状态列：绿色 ✓ 表示成功，红色 ✗ 可手动输入</li><li>确认需要加速的域名已勾选（可取消不需要的）</li><li>切换到下方 Hosts 内容区，点击 <code>生成 .ps1</code></li><li>下载后<strong>右键 → 以管理员身份运行</strong> .ps1 脚本</li><li>脚本将自动：备份原 hosts → 写入新条目 → 刷新 DNS 缓存</li></ol><div class="tip">💡 也可手动：以管理员身份打开记事本 → 打开 <code>C:\Windows\System32\drivers\etc\hosts</code>（注意无扩展名）→ 将 Hosts 内容粘贴到文件末尾 → 保存 → CMD 运行 <code>ipconfig /flushdns</code></div></div>
-      <div class="howto-panel" id="tab-mac"><ol><li>选择 DoH 来源，点击 <code>获取 IP</code>，等待所有域名解析完成</li><li>查看状态列确认解析成功，勾选需要加速的域名</li><li>切换到下方 Hosts 内容区，点击 <code>复制</code> 或手动全选</li><li>打开终端（Terminal），输入 <code>sudo nano /etc/hosts</code></li><li>输入密码后，将光标移至文件末尾，粘贴 Hosts 内容</li><li>按 <code>Control + O</code> 保存，按 <code>Control + X</code> 退出</li><li>终端执行 <code>sudo dscacheutil -flushcache</code> 和 <code>sudo killall -HUP mDNSResponder</code></li></ol><div class="tip">💡 如果 sudo nano 命令提示无权限，请确认使用的账号具有管理员权限（系统偏好设置 → 用户与群组）</div></div>
-      <div class="howto-panel" id="tab-linux"><ol><li>选择 DoH 来源，点击 <code>获取 IP</code>，等待所有域名解析完成</li><li>查看状态列，确认成功解析的域名，取消不需要的勾选</li><li>切换到 Hosts 内容区，点击 <code>复制</code> 获取 hosts 文本</li><li>打开终端，输入 <code>sudo nano /etc/hosts</code>（或 <code>sudo vi /etc/hosts</code>）</li><li>将光标移至文件末尾，粘贴 Hosts 内容</li><li>按 <code>Control + O</code> 保存，<code>Control + X</code> 退出</li><li>刷新 DNS：<code>sudo systemctl restart NetworkManager</code>（或 <code>sudo resolvectl flush-caches</code>）</li></ol><div class="tip">💡 不同发行版 DNS 刷新命令略有不同：Ubuntu/Debian 用 <code>sudo systemd-resolve --flush-caches</code>，CentOS/RHEL 用 <code>sudo systemctl restart NetworkManager</code></div></div>
+      <div class="howto-panel on" id="tab-windows"><ol><li>选择 DoH 来源，点击 <code>获取 IP</code>，等待所有域名解析完成</li><li>查看状态列：绿色 ✓ 表示成功，红色 ✗ 可手动输入 IP</li><li>确认需要加速的域名已勾选（可取消不需要的域名）</li><li>切换到下方 Hosts 内容区，点击 <code>生成 .ps1</code></li><li>下载后<strong>右键 → 以管理员身份运行</strong> .ps1 脚本</li><li>脚本将自动：备份原 hosts → 写入新条目 → 刷新 DNS 缓存</li></ol><div class="tip">💡 也可手动操作：以管理员身份打开记事本 → 打开文件 <code>C:\Windows\System32\drivers\etc\hosts</code>（注意文件无扩展名！）→ 将 Hosts 内容粘贴到文件末尾 → 保存 → 在 CMD 中执行 <code>ipconfig /flushdns</code></div></div>
+      <div class="howto-panel" id="tab-mac"><ol><li>选择 DoH 来源，点击 <code>获取 IP</code>，等待所有域名解析完成</li><li>查看状态列确认解析成功（绿色 ✓），勾选需要加速的域名</li><li>切换到下方 Hosts 内容区，点击 <code>复制</code> 或手动全选文本</li><li>打开终端（Terminal.app），输入 <code>sudo nano /etc/hosts</code></li><li>输入系统密码后，将光标移至文件末尾，粘贴 Hosts 内容</li><li>按 <code>Control + O</code> 保存文件，再按 <code>Control + X</code> 退出 nano</li><li>终端执行 <code>sudo dscacheutil -flushcache</code> 和 <code>sudo killall -HUP mDNSResponder</code></li></ol><div class="tip">💡 如果 nano 提示无写入权限，请确认当前账号具有管理员权限（系统偏好设置 → 用户与群组）</div></div>
+      <div class="howto-panel" id="tab-linux"><ol><li>选择 DoH 来源，点击 <code>获取 IP</code>，等待所有域名解析完成</li><li>查看状态列，绿色 ✓ 表示成功，取消不需要加速的域名勾选</li><li>切换到 Hosts 内容区，点击 <code>复制</code> 获取 hosts 文本</li><li>打开终端，输入 <code>sudo nano /etc/hosts</code>（也可用 <code>sudo vi /etc/hosts</code>）</li><li>将光标移至文件末尾，粘贴 Hosts 内容</li><li>按 <code>Control + O</code> 保存，<code>Control + X</code> 退出</li><li>刷新 DNS 缓存，根据发行版选择对应命令</li></ol><div class="tip">💡 不同发行版刷新命令：Ubuntu/Debian → <code>sudo systemd-resolve --flush-caches</code>；CentOS/RHEL/Fedora → <code>sudo systemctl restart NetworkManager</code>；Arch → <code>sudo resolvectl flush-caches</code></div></div>
     </div>
   </div>
 
-  <div class="social"><a class="social-link" href="https://github.com/Sophie92-spec/github-fast-access" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" width="17" height="17" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> GitHub</a><a class="social-link" href="https://space.bilibili.com/447878463" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M18.223 3.086a1.25 1.25 0 0 1 0 1.768L17.08 5.996h1.17A3.75 3.75 0 0 1 22 9.747v7.5a3.75 3.75 0 0 1-3.75 3.75H5.75A3.75 3.75 0 0 1 2 17.247v-7.5a3.75 3.75 0 0 1 3.75-3.751h1.166L5.775 4.854a1.25 1.25 0 1 1 1.767-1.768l2.652 2.652c.079.079.145.165.198.257h3.213c.053-.092.12-.18.199-.258l2.651-2.652a1.25 1.25 0 0 1 1.768 0zM18.25 8.496H5.75a1.25 1.25 0 0 0-1.247 1.157l-.003.094v7.5c0 .659.51 1.198 1.157 1.246l.093.004h12.5a1.25 1.25 0 0 0 1.247-1.157l.003-.093v-7.5c0-.69-.56-1.25-1.25-1.25zm-9.5 3.064c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25zm5.5 0c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25z"/></svg> 哔哩哔哩</a></div>
-
-  </div>
+  <div class="social"><a class="social-link" href="https://github.com/Sophie92-spec/github-fast-access" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> GitHub</a><a class="social-link" href="https://space.bilibili.com/447878463" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.223 3.086a1.25 1.25 0 0 1 0 1.768L17.08 5.996h1.17A3.75 3.75 0 0 1 22 9.747v7.5a3.75 3.75 0 0 1-3.75 3.75H5.75A3.75 3.75 0 0 1 2 17.247v-7.5a3.75 3.75 0 0 1 3.75-3.751h1.166L5.775 4.854a1.25 1.25 0 1 1 1.767-1.768l2.652 2.652c.079.079.145.165.198.257h3.213c.053-.092.12-.18.199-.258l2.651-2.652a1.25 1.25 0 0 1 1.768 0zM18.25 8.496H5.75a1.25 1.25 0 0 0-1.247 1.157l-.003.094v7.5c0 .659.51 1.198 1.157 1.246l.093.004h12.5a1.25 1.25 0 0 0 1.247-1.157l.003-.093v-7.5c0-.69-.56-1.25-1.25-1.25zm-9.5 3.064c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25zm5.5 0c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25z"/></svg> 哔哩哔哩</a></div>
 </div>
 
 <div class="modal" id="ps1-modal"><div class="card">
