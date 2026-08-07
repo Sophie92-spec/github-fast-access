@@ -1,0 +1,9 @@
+name = "github-hosts-stats"
+main = "worker/index.js"
+compatibility_date = "2024-09-23"
+
+# KV 命名空间绑定：变量名必须和 worker 里 env.GH_STATS 一致
+# 部署前请先把 id 换成你在 Cloudflare 控制台创建的 KV 命名空间 ID
+[[kv_namespaces]]
+binding = "GH_STATS"
+id = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"

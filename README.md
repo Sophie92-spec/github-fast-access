@@ -2,7 +2,7 @@
 
 > 自动查询最优 GitHub IP · 一键生成 hosts 配置 · 自动生成 PowerShell 脚本
 
-一个**纯前端、零后端**的网页工具，帮助你获取 GitHub 相关域名的最优 IP，并生成可直接应用的 `hosts` 配置与一键脚本，缓解部分地区访问 GitHub 缓慢的问题。
+一个**纯前端、可选云端后端**的网页工具，帮助你获取 GitHub 相关域名的最优 IP，并生成可直接应用的 `hosts` 配置与一键脚本，缓解部分地区访问 GitHub 缓慢的问题。
 
 ---
 
@@ -36,15 +36,38 @@
 
 ---
 
+## 📊 访问统计（可选后端）
+
+统计区默认使用浏览器本地存储（`localStorage`），仅记录你自己的访问。
+
+若要让**所有访客的访问都被真实记录并共享**（总访问 PV / 独立访客 UV / 今日新增 / 近 30 天趋势全网同步），可接入一个免费的 Cloudflare Workers + KV 后端：
+
+1. 在 Cloudflare 控制台创建一个 KV 命名空间（任意名称）；
+2. 新建一个 Worker，粘贴 `worker/index.js`，并把该 KV 命名空间绑定到变量名 `GH_STATS`；
+   （或本地用 Wrangler：把 `worker/wrangler.toml` 里的 `id` 换成你的 KV 命名空间 ID，再 `wrangler deploy`）
+3. 部署后得到 Worker 地址（如 `https://gh-stats.xxx.workers.dev`）；
+4. 把该地址填入 `JS/app.js` 顶部的 `var STATS_API=''`。
+
+后端不可用时会**自动降级**为本地统计，页面不会卡死。接口与字段说明见 `worker/index.js` 注释。
+
+> 说明：该后端为可选增强。不配置时工具完全离线、零依赖，行为与纯本地统计一致。
+
+---
+
 ## 📁 项目结构
 
 ```
 github-hosts-tool/
-├── index.html      # 主程序（HTML 结构）
-├── styles.css      # 样式（玻璃拟态 UI）
-├── app.js          # 逻辑（DoH 查询、hosts 生成）
-├── LICENSE         # MIT 开源协议
-└── README.md       # 本说明文档
+├── index.html          # 主程序（HTML 结构）
+├── CSS/
+│   └── styles.css      # 样式（玻璃拟态 UI）
+├── JS/
+│   └── app.js          # 逻辑（DoH 查询、hosts 生成、访问统计）
+├── worker/
+│   ├── index.js        # 可选：Cloudflare Workers 全站统计后端
+│   └── wrangler.toml   # Worker 部署配置（KV 绑定）
+├── LICENSE             # MIT 开源协议
+└── README.md           # 本说明文档
 ```
 
 ---

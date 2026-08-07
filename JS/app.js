@@ -94,12 +94,15 @@ document.querySelectorAll('.btn').forEach(function(b){
 });
 document.querySelectorAll('.howto-tab').forEach(tab=>{tab.addEventListener('click',()=>{const scope=tab.closest('.howto');scope.querySelectorAll('.howto-tab').forEach(t=>t.classList.remove('on'));scope.querySelectorAll('.howto-panel').forEach(c=>c.classList.remove('on'));tab.classList.add('on');document.getElementById('tab-'+tab.dataset.tab).classList.add('on')})});
 
-// ===== 访问统计：全部基于本地 localStorage，从零开始，与折线图同步 =====
+// ===== 访问统计 =====
+// 默认走本地 localStorage（离线/未配置后端时）；若配置 STATS_API（Cloudflare Workers+KV），
+// 则改为全网真实共享统计：PV/UV/今日/30天趋势 全部由后端返回，且每次打开页面 +1 计入后端。
+// 请改成你部署后的 Worker 地址，例如 'https://gh-stats.xxx.workers.dev'
+var STATS_API='';
 var K='gh_hosts_stats',t=new Date().toISOString().slice(0,10);
-// 本地记录：每次打开页面给「今天」+1（PV/UV/今日新增/折线图 全部由这份数据派生）
+// 本地记录：仅作为后端不可用时的降级数据源（每次打开页面给「今天」+1）
 (function(){
-  var d=JSON.parse(localStorage.getItem(K)||'{}');
-  d[t]=(d[t]||0)+1;localStorage.setItem(K,JSON.stringify(d));
+  try{var d=JSON.parse(localStorage.getItem(K)||'{}');d[t]=(d[t]||0)+1;localStorage.setItem(K,JSON.stringify(d))}catch(e){}
 })();
 function fmtDate(iso){
   var p=iso.split('-');var dt=new Date(+p[0],+p[1]-1,+p[2]);
@@ -185,20 +188,47 @@ function localVals(){
   for(var i=29;i>=0;i--){var dd=new Date();dd.setDate(dd.getDate()-i);vals.push(d[dd.toISOString().slice(0,10)]||0)}
   return vals
 }
-// PV/UV/今日新增/折线图 全部由同一份本地数据派生，三者完全同步、从零起算
-function renderStats(){
+// 从本地数据派生一份统计对象（后端不可用时的降级数据）
+function localData(){
   var d=JSON.parse(localStorage.getItem(K)||'{}');
   var vals=localVals();
-  var pv=vals.reduce(function(a,b){return a+(b||0)},0);   // 总访问 = 近30天访问量之和
-  var uv=vals.filter(function(v){return v>0}).length;     // 独立访客 = 有访问的天数
-  var today=d[t]||0;                                       // 今日新增
-  drawTrend(vals);
-  var rd=document.getElementById('report-date');if(rd)rd.textContent=fmtDate(t);
-  countUp(document.getElementById('report-today'),today);
-  countUp(document.getElementById('report-pv'),pv);
-  countUp(document.getElementById('report-uv'),uv);
+  return {
+    pv:vals.reduce(function(a,b){return a+(b||0)},0),
+    uv:vals.filter(function(v){return v>0}).length,
+    today:d[t]||0,
+    trend:vals
+  }
 }
-renderStats();
+// 渲染：data = { pv, uv, today, trend:[30] }
+function renderStats(data){
+  data=data||localData();
+  drawTrend(data.trend);
+  var rd=document.getElementById('report-date');if(rd)rd.textContent=fmtDate(t);
+  countUp(document.getElementById('report-today'),data.today);
+  countUp(document.getElementById('report-pv'),data.pv);
+  countUp(document.getElementById('report-uv'),data.uv);
+  // 已接入后端则把图表标题标记为「全网实时」
+  if(STATS_API){
+    var tt=document.querySelector('.stats-chart-card .stats-card-title');
+    if(tt&&tt.textContent.indexOf('实时')<0)tt.textContent='📈 近 30 天访问趋势 · 全网实时';
+  }
+}
+// 加载统计：优先后端（真实共享），失败则降级到本地，保证页面永不卡死
+async function loadStats(){
+  if(!STATS_API){renderStats(localData());return}
+  try{
+    var ctrl=new AbortController();var id=setTimeout(function(){ctrl.abort()},4000);
+    var r=await fetch(STATS_API,{method:'GET',credentials:'include',headers:{'Accept':'application/json'},signal:ctrl.signal});
+    clearTimeout(id);
+    if(!r.ok)throw new Error('bad status '+r.status);
+    var j=await r.json();
+    if(typeof j.pv!=='number'||!Array.isArray(j.trend))throw new Error('bad payload');
+    renderStats({pv:j.pv,uv:j.uv||0,today:j.today||0,trend:j.trend});
+  }catch(e){
+    renderStats(localData());   // 后端不可用 -> 本地降级，不影响主功能
+  }
+}
+loadStats();
 
 // 大数字格式化（88027687 -> 8802.8万，120000000 -> 1.2亿）
 function fmtNum(n){
