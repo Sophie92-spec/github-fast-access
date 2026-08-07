@@ -40,7 +40,9 @@
 
 ```
 github-hosts-tool/
-├── index.html      # 主程序（纯前端单文件，含 CSS/JS）
+├── index.html      # 主程序（HTML 结构）
+├── styles.css      # 样式（玻璃拟态 UI）
+├── app.js          # 逻辑（DoH 查询、hosts 生成）
 ├── LICENSE         # MIT 开源协议
 └── README.md       # 本说明文档
 ```
