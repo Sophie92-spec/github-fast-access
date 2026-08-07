@@ -98,7 +98,7 @@ document.querySelectorAll('.howto-tab').forEach(tab=>{tab.addEventListener('clic
 // 默认走本地 localStorage（离线/未配置后端时）；若配置 STATS_API（Cloudflare Workers+KV），
 // 则改为全网真实共享统计：PV/UV/今日/30天趋势 全部由后端返回，且每次打开页面 +1 计入后端。
 // 请改成你部署后的 Worker 地址，例如 'https://gh-stats.xxx.workers.dev'
-var STATS_API='';
+var STATS_API='https://delicate-hall-8973github-hosts-stats.sophieyoucha.workers.dev';
 var K='gh_hosts_stats',t=new Date().toISOString().slice(0,10);
 // 本地记录：仅作为后端不可用时的降级数据源（每次打开页面给「今天」+1）
 (function(){
@@ -199,23 +199,21 @@ function localData(){
     trend:vals
   }
 }
-// 渲染：data = { pv, uv, today, trend:[30] }
-function renderStats(data){
+// 渲染：data = { pv, uv, today, trend:[30] }；live=true 表示数据来自后端（真实共享）
+function renderStats(data,live){
   data=data||localData();
   drawTrend(data.trend);
   var rd=document.getElementById('report-date');if(rd)rd.textContent=fmtDate(t);
   countUp(document.getElementById('report-today'),data.today);
   countUp(document.getElementById('report-pv'),data.pv);
   countUp(document.getElementById('report-uv'),data.uv);
-  // 已接入后端则把图表标题标记为「全网实时」
-  if(STATS_API){
-    var tt=document.querySelector('.stats-chart-card .stats-card-title');
-    if(tt&&tt.textContent.indexOf('实时')<0)tt.textContent='📈 近 30 天访问趋势 · 全网实时';
-  }
+  // 仅当数据确实来自后端时才标「全网实时」，降级本地时不误导
+  var tt=document.querySelector('.stats-chart-card .stats-card-title');
+  if(tt)tt.textContent=live?'📈 近 30 天访问趋势 · 全网实时':'📈 近 30 天访问趋势';
 }
 // 加载统计：优先后端（真实共享），失败则降级到本地，保证页面永不卡死
 async function loadStats(){
-  if(!STATS_API){renderStats(localData());return}
+  if(!STATS_API){renderStats(localData(),false);return}
   try{
     var ctrl=new AbortController();var id=setTimeout(function(){ctrl.abort()},4000);
     var r=await fetch(STATS_API,{method:'GET',credentials:'include',headers:{'Accept':'application/json'},signal:ctrl.signal});
@@ -223,7 +221,7 @@ async function loadStats(){
     if(!r.ok)throw new Error('bad status '+r.status);
     var j=await r.json();
     if(typeof j.pv!=='number'||!Array.isArray(j.trend))throw new Error('bad payload');
-    renderStats({pv:j.pv,uv:j.uv||0,today:j.today||0,trend:j.trend});
+    renderStats({pv:j.pv,uv:j.uv||0,today:j.today||0,trend:j.trend},true);
   }catch(e){
     renderStats(localData());   // 后端不可用 -> 本地降级，不影响主功能
   }
