@@ -4,10 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GitHub Hosts 加速工具</title>
-<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="CSS/styles.css">
 </head>
 <body>
 
+<div class="layout">
 <div class="wrap">
   <head-bar><div class="logo">🚀</div><div><h2>GitHub Hosts 加速</h2><p>DoH 查询最优 IP · 一键生成 hosts · PowerShell 脚本</p></div></head-bar>
 
@@ -52,13 +53,46 @@
   
 </div>
 
-<div class="stats-vert">
-    <div class="sv-chart" id="sv-chart"></div>
-    <div class="sv-row">
-      <div class="sv-item"><span class="sv-icon">👁</span><span class="sv-num" id="busuanzi_value_site_pv">-</span><span class="sv-label">次访问</span></div>
-      <div class="sv-item"><span class="sv-icon">👤</span><span class="sv-num" id="busuanzi_value_site_uv">-</span><span class="sv-label">个访客</span></div>
+<div class="stats-side">
+    <!-- 折线图卡片 -->
+    <div class="stats-card stats-chart-card">
+      <div class="stats-card-head"><span class="stats-card-title">📈 近 30 天访问趋势</span></div>
+      <div class="sv-chart" id="sv-chart"></div>
+      <div class="tk-tip" id="tk-tip"><span class="tk-date"></span><span class="tk-val"></span></div>
+      <div class="chart-foot">
+        <label class="date-pick" for="date-pick">
+          <span class="dp-label">📅 选择日期</span>
+          <input type="date" id="date-pick" />
+        </label>
+        <div class="sel-stat" id="sel-stat"></div>
+      </div>
+    </div>
+    <!-- 报告式次数卡片 -->
+    <div class="stats-card stats-report-card">
+      <div class="report-head">
+        <span class="report-badge">REPORT</span>
+        <span class="report-title">访问统计</span>
+        <span class="report-date" id="report-date"></span>
+      </div>
+      <div class="report-grid">
+        <div class="report-item">
+          <div class="report-label">总访问量 PV</div>
+          <div class="report-value"><span class="sv-icon">👁</span><span class="sv-num" id="report-pv">0</span></div>
+          <div class="report-sub">Page Views</div>
+        </div>
+        <div class="report-item">
+          <div class="report-label">独立访客 UV</div>
+          <div class="report-value"><span class="sv-icon">👤</span><span class="sv-num" id="report-uv">0</span></div>
+          <div class="report-sub">Unique Visitors</div>
+        </div>
+      </div>
+      <div class="report-foot">
+        <span>今日新增</span>
+        <span class="report-today" id="report-today">0</span>
+      </div>
     </div>
   </div>
+</div>
 
 <div class="modal" id="ps1-modal"><div class="card">
   <h2 id="modal-title">脚本</h2>
@@ -68,7 +102,6 @@
 </div></div>
 <div class="toast" id="toast"></div>
 
-<script src="app.js"></script>
-<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<script src="JS/app.js"></script>
 </body>
 </html>
