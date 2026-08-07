@@ -50,7 +50,7 @@ $('copy-ps1').addEventListener('click',async()=>{const ok=await copy($('ps1-cont
 $('download-ps1').addEventListener('click',()=>{const m=$('download-ps1').dataset.mode;const n=m==='restore'?'github-hosts-restore.ps1':'github-hosts-apply.ps1';dl(n,$('ps1-content').value);toast('✅ '+n,'good')});
 $('close-modal').addEventListener('click',()=>{$('ps1-modal').classList.remove('on')});
 $('ps1-modal').addEventListener('click',e=>{if(e.target===$('ps1-modal'))$('ps1-modal').classList.remove('on')});
-render();setTimeout(()=>{fetchAll().then(()=>testAll())},300);
+render();
 document.querySelectorAll('.howto-tab').forEach(tab=>{tab.addEventListener('click',()=>{const scope=tab.closest('.howto');scope.querySelectorAll('.howto-tab').forEach(t=>t.classList.remove('on'));scope.querySelectorAll('.howto-panel').forEach(c=>c.classList.remove('on'));tab.classList.add('on');document.getElementById('tab-'+tab.dataset.tab).classList.add('on')})});
 
 // ===== Mini sparkline chart =====
