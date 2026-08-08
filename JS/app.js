@@ -45,7 +45,7 @@ async function pickAuto(){
   return autoPref;
 }
 async function fetchAll(){
-  const btn=$('fetch-btn'),tbtn=$('test-btn');btn.disabled=true;tbtn.disabled=true;btn.textContent='…';$('progress').classList.add('on');$('ip-status').textContent='获取中…';
+  const btn=$('fetch-btn'),tbtn=$('test-btn');btn.disabled=true;tbtn.disabled=true;btn.textContent='…';$('progress').classList.add('on');$('progress-percent').classList.add('on');$('progress-percent').textContent='0%';$('ip-status').textContent='获取中…';
   DOMAINS.forEach(d=>{S[d].status='loading';upRow(d)});
   let done=0;const total=DOMAINS.length;
   const pref=dohValue==='auto'?await pickAuto():dohValue;
@@ -55,16 +55,16 @@ async function fetchAll(){
     await Promise.all(chunk.map(async d=>{
       const r=await rd(d,pref||'auto');
       S[d].ips=r.ips;S[d].selectedIp=r.ips[0]||'';S[d].status=r.ips.length>0?'success':'fail';
-      done++;$('progress-fill').style.width=(done/total*100)+'%';upRow(d);
+      done++;const pct=Math.round(done/total*100);$('progress-fill').style.width=pct+'%';$('progress-percent').textContent=pct+'%';upRow(d);
     }));
   }
   update();
   const ok=DOMAINS.filter(d=>S[d].status==='success').length,fail=total-ok;
   $('ip-status').textContent=new Date().toLocaleTimeString('zh-CN')+` (${ok}/${total} 成功${fail?`, ${fail} 失败`:''})`;
-  btn.disabled=false;tbtn.disabled=false;btn.textContent='🔍 获取 IP';$('progress').classList.remove('on');$('progress-fill').style.width='0%';
+  btn.disabled=false;tbtn.disabled=false;btn.textContent='🔍 获取 IP';$('progress').classList.remove('on');$('progress-percent').classList.remove('on');$('progress-fill').style.width='0%';
   if(ok===total)toast(`✅ ${total} 个域名全部成功`,'good');else if(ok>0)toast(`⚠️ ${ok}/${total} 成功`,'');else toast('❌ 不可用','bad')
 }
-async function testAll(){const btn=$('test-btn'),fbtn=$('fetch-btn');btn.disabled=true;fbtn.disabled=true;btn.textContent='…';$('progress').classList.add('on');$('ip-status').textContent='测延迟中…';DOMAINS.forEach(d=>{S[d].latency=null;const el=$(`lat-${d}`);if(el){el.className='latency fail';el.textContent='...'}});let done=0;const total=DOMAINS.length;const batch=4;let best=null,bestD=null,worst=null,worstD=null;for(let i=0;i<DOMAINS.length;i+=batch){const chunk=DOMAINS.slice(i,i+batch);await Promise.all(chunk.map(async d=>{const l=await tl(d);S[d].latency=l;let clsName='latency';if(l===null){clsName+=' lt-timeout'}else{if(best===null||l<best){best=l;bestD=d}if(worst===null||l>worst){worst=l;worstD=d}clsName+=' '+cls(l)}const el=$(`lat-${d}`);if(el){el.className=clsName;el.textContent=l===null?'超时':l+'ms'};done++;$('progress-fill').style.width=(done/total*100)+'%'}))}const usable=DOMAINS.filter(d=>S[d].latency!==null);if(usable.length>=2){if(bestD){const e=$(`lat-${bestD}`);if(e)e.className='latency '+cls(S[bestD].latency)+' lt-best'}if(worstD&&worstD!==bestD){const e=$(`lat-${worstD}`);if(e)e.className='latency '+cls(S[worstD].latency)+' lt-worst'}};$('progress').classList.remove('on');$('progress-fill').style.width='0%';btn.disabled=false;fbtn.disabled=false;btn.textContent='⚡ 测 IP 延迟';const avg=usable.map(d=>S[d].latency);if(avg.length>0){$('ip-status').textContent='平均 '+Math.round(avg.reduce((a,b)=>a+b,0)/avg.length)+'ms ('+avg.length+'/'+total+' 测到)';toast(`⚡ 平均: ${Math.round(avg.reduce((a,b)=>a+b,0)/avg.length)}ms`,'good')}else{$('ip-status').textContent='无法连接';toast('❌ 无法连接','bad')}}
+async function testAll(){const btn=$('test-btn'),fbtn=$('fetch-btn');btn.disabled=true;fbtn.disabled=true;btn.textContent='…';$('progress').classList.add('on');$('progress-percent').classList.add('on');$('progress-percent').textContent='0%';$('ip-status').textContent='测延迟中…';DOMAINS.forEach(d=>{S[d].latency=null;const el=$(`lat-${d}`);if(el){el.className='latency fail';el.textContent='...'}});let done=0;const total=DOMAINS.length;const batch=4;let best=null,bestD=null,worst=null,worstD=null;for(let i=0;i<DOMAINS.length;i+=batch){const chunk=DOMAINS.slice(i,i+batch);await Promise.all(chunk.map(async d=>{const l=await tl(d);S[d].latency=l;let clsName='latency';if(l===null){clsName+=' lt-timeout'}else{if(best===null||l<best){best=l;bestD=d}if(worst===null||l>worst){worst=l;worstD=d}clsName+=' '+cls(l)}const el=$(`lat-${d}`);if(el){el.className=clsName;el.textContent=l===null?'超时':l+'ms'};done++;const pct=Math.round(done/total*100);$('progress-fill').style.width=pct+'%';$('progress-percent').textContent=pct+'%'}))}const usable=DOMAINS.filter(d=>S[d].latency!==null);if(usable.length>=2){if(bestD){const e=$(`lat-${bestD}`);if(e)e.className='latency '+cls(S[bestD].latency)+' lt-best'}if(worstD&&worstD!==bestD){const e=$(`lat-${worstD}`);if(e)e.className='latency '+cls(S[worstD].latency)+' lt-worst'}};$('progress').classList.remove('on');$('progress-percent').classList.remove('on');$('progress-fill').style.width='0%';btn.disabled=false;fbtn.disabled=false;btn.textContent='⚡ 测 IP 延迟';const avg=usable.map(d=>S[d].latency);if(avg.length>0){$('ip-status').textContent='平均 '+Math.round(avg.reduce((a,b)=>a+b,0)/avg.length)+'ms ('+avg.length+'/'+total+' 测到)';toast(`⚡ 平均: ${Math.round(avg.reduce((a,b)=>a+b,0)/avg.length)}ms`,'good')}else{$('ip-status').textContent='无法连接';toast('❌ 无法连接','bad')}}
 function gen(restore) {
   var ts = new Date().toLocaleString('zh-CN');
   var entries = [];
