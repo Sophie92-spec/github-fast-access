@@ -182,67 +182,53 @@ document.querySelectorAll('.btn').forEach(function(b){
 });
 document.querySelectorAll('.howto-tab').forEach(tab=>{tab.addEventListener('click',()=>{const scope=tab.closest('.howto');scope.querySelectorAll('.howto-tab').forEach(t=>t.classList.remove('on'));scope.querySelectorAll('.howto-panel').forEach(c=>c.classList.remove('on'));tab.classList.add('on');document.getElementById('tab-'+tab.dataset.tab).classList.add('on')})});
 
-// ===== 候选 IP 延迟对比 =====
-// 对每个域名，把它解析出的多个候选 IP 全部测一遍延迟并排对比，
-// 自动标出每个域名最快的 IP（绿框），并支持「选用最快」替换当前选中的 IP。
-// 测延迟复用 tl()；仅多 IP 的域名进入对比（单 IP 域名无需对比）。
-var CMP=[],cmpTesting=false;
-function escCmp(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-function bestIdx(arr){var m=null,mi=-1;for(var i=0;i<arr.length;i++){if(arr[i].l!==null&&(m===null||arr[i].l<m)){m=arr[i].l;mi=i}}return mi}
-function cmpMulti(){return DOMAINS.filter(function(d){return S[d].ips&&S[d].ips.length>1})}
-function renderCmp(){
+// ===== DoH 延迟对比 =====
+// 测每个 DoH 解析源的延迟，选最快的那个用于后续「🔍 获取 IP」。
+// dohLats: { provider: ms|null }；dohValue 为当前选中源（与顶部下拉联动）。
+var dohLats={},cmpTesting=false;
+function dohName(k){for(var i=0;i<OPTIONS.length;i++){if(OPTIONS[i].v===k)return OPTIONS[i].t}return k}
+function dohBest(){var bk=null,bv=null;A.forEach(function(k){var v=dohLats[k];if(v!==null&&v!==undefined&&(bv===null||v<bv)){bv=v;bk=k}});return bk}
+function dohPick(k){if(!k)return;dohValue=k;dLabel.textContent=dohName(k);renderDoh();toast('已选用 DoH：'+dohName(k),'good')}
+async function dohTest(){
+  if(cmpTesting)return;cmpTesting=true;
+  var btn=$('cmp-test');btn.disabled=true;btn.textContent='…';$('cmp-status').textContent='测速中…';
+  dohLats={};var total=A.length,done=0,batch=4;
+  for(var i=0;i<A.length;i+=batch){
+    var chunk=A.slice(i,i+batch);
+    await Promise.all(chunk.map(async function(k){
+      var s=performance.now();
+      try{await rwp('github.com',k);dohLats[k]=Math.round(performance.now()-s);}
+      catch(e){dohLats[k]=null;}
+      done++;$('cmp-status').textContent='测速中 '+done+'/'+total;renderDoh();
+    }));
+  }
+  cmpTesting=false;btn.disabled=false;btn.textContent='⚡ 测 DoH 延迟';
+  var best=dohBest();
+  $('cmp-status').textContent=best?('最快：'+dohName(best)+' '+dohLats[best]+'ms'):'都无法连接';
+  toast(best?('测速完成，最快 '+dohName(best)):'测速完成（都无法连接）',best?'good':'bad');
+}
+function renderDoh(){
   var table=$('cmp-table'),empty=$('cmp-empty');if(!table)return;
-  if(CMP.length===0){table.innerHTML='';empty.style.display='block';if($('cmp-count'))$('cmp-count').textContent='0';return}
-  empty.style.display='none';
-  if($('cmp-count'))$('cmp-count').textContent=CMP.length;
-  var head='<thead><tr><th>域名</th>'+CMP[0].ips.map(function(ip,i){return '<th>IP '+(i+1)+'</th>'}).join('')+'<th>最快</th><th>操作</th></tr></thead>';
-  var body='<tbody>'+CMP.map(function(r){
-    var best=bestIdx(r.ips);
-    var cells=r.ips.map(function(it,i){return '<td class="latency '+(it.l===null?'fail':cls(it.l))+(i===best?' cmp-win':'')+'">'+(it.l===null?'—':it.l+'ms')+'</td>'}).join('');
-    var pick='<button class="cmp-pick" data-d="'+r.domain+'" data-ip="'+escCmp(r.ips[best].ip)+'">选用最快</button>';
-    return '<tr><td class="domain-name">'+escCmp(r.domain)+'</td>'+cells+'<td class="cmp-best">'+(best<0?'—':r.ips[best].ip)+'</td><td>'+pick+'</td></tr>';
+  if(A.length===0){table.innerHTML='';if(empty)empty.style.display='block';return}
+  if(empty)empty.style.display='none';
+  if($('cmp-count'))$('cmp-count').textContent=Object.keys(dohLats).length;
+  var best=dohBest();
+  var head='<thead><tr><th>DoH 源</th><th>延迟</th><th>操作</th></tr></thead>';
+  var body='<tbody>'+A.map(function(k){
+    var measured=(k in dohLats),l=dohLats[k];
+    var c=measured?(l===null?'fail':cls(l)):'fail';
+    var win=(k===best&&measured&&l!==null)?' cmp-win':'';
+    var cur=(k===dohValue)?' cmp-cur':'';
+    var label=measured?(l===null?'超时':l+'ms'):'未测';
+    var curTag=cur?' <span class="cmp-cur">当前</span>':'';
+    return '<tr><td class="domain-name">'+dohName(k)+curTag+'</td><td class="latency '+c+win+'">'+label+'</td><td><button class="cmp-pick" data-k="'+k+'">选用</button></td></tr>';
   }).join('')+'</tbody>';
   table.innerHTML=head+body;
-  table.querySelectorAll('.cmp-pick').forEach(function(b){b.addEventListener('click',function(){cmpPick(b.dataset.d,b.dataset.ip)})});
+  table.querySelectorAll('.cmp-pick').forEach(function(b){b.addEventListener('click',function(){dohPick(b.dataset.k)})});
 }
-function cmpPick(d,ip){var s=S[d];if(!s)return;s.selectedIp=ip;upRow(d);update();toast('已为 '+d+' 选用最快 IP：'+ip,'good')}
-async function cmpTest(){
-  if(cmpTesting)return;
-  var multi=cmpMulti();
-  if(multi.length===0){toast('请先「🔍 获取 IP」让域名解析出多个候选 IP','bad');return}
-  cmpTesting=true;var tbtn=$('cmp-test');tbtn.disabled=true;tbtn.textContent='…';
-  $('cmp-status').textContent='测速中…';
-  CMP=multi.map(function(d){return{domain:d,ips:S[d].ips.map(function(ip){return{ip:ip,l:null}}),ok:0}});
-  renderCmp();
-  var total=multi.reduce(function(a,d){return a+S[d].ips.length},0),done=0;
-  for(var i=0;i<CMP.length;i++){
-    var r=CMP[i];
-    for(var j=0;j<r.ips.length;j++){
-      var it=r.ips[j];
-      it.l=await tl(it.ip);
-      if(it.l!==null)r.ok++;
-      done++;
-      $('cmp-status').textContent='测速中… '+done+'/'+total;
-      renderCmp();   // 实时刷新本行结果
-    }
-  }
-  // 自动：为每个多 IP 域名选最快（仅在该域全部测出时才自动选，避免半截覆盖用户选择）
-  cmpTesting=false;tbtn.disabled=false;tbtn.textContent='⚡ 测所有候选 IP 延迟';
-  var pickable=CMP.filter(function(r){var b=bestIdx(r.ips);return b>=0&&r.ok===r.ips.length});
-  if(pickable.length){var n=0;pickable.forEach(function(r){var b=bestIdx(r.ips);S[r.domain].selectedIp=r.ips[b].ip;upRow(r.domain);n++});update();}
-  $('cmp-status').textContent=pickable.length+' 个域名已自动选最快';
-  if(pickable.length>0)toast('测速完成，已自动为 '+pickable.length+' 个域名选最快 IP','good');else toast('测速完成（部分 IP 无法连接）','')
-}
-function cmpApplyAll(){
-  var pickable=CMP.filter(function(r){var b=bestIdx(r.ips);return b>=0&&r.ok===r.ips.length});
-  if(pickable.length===0){toast('请先「⚡ 测所有候选 IP 延迟」','bad');return}
-  pickable.forEach(function(r){var b=bestIdx(r.ips);S[r.domain].selectedIp=r.ips[b].ip;upRow(r.domain)});
-  update();renderCmp();
-  toast('已为 '+pickable.length+' 个域名全部选用最快 IP','good');
-}
-$('cmp-test').addEventListener('click',cmpTest);
-$('cmp-apply-all').addEventListener('click',cmpApplyAll);
-renderCmp();
+$('cmp-test').addEventListener('click',dohTest);
+$('cmp-apply-all').addEventListener('click',function(){dohPick(dohBest())});
+renderDoh();
 
 // ===== 访问统计 =====
 // 默认走本地 localStorage（离线/未配置后端时）；若配置 STATS_API（Cloudflare Workers+KV），

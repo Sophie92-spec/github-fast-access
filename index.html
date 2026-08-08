@@ -32,15 +32,15 @@
   </div>
 
   <div class="card" id="cmp-card">
-    <div class="section-title">📊 候选 IP 延迟对比 <span class="count" id="cmp-count">0</span></div>
-    <div class="cmp-hint">对每个域名，把它解析出的多个候选 IP 全部测一遍延迟并排对比，自动标出最快的一个（绿框），可一键「选用最快」替换当前选中的 IP。需先「🔍 获取 IP」让域名解析出多个候选 IP（仅多 IP 的域名会进入对比）。</div>
+    <div class="section-title">📊 DoH 延迟对比 <span class="count" id="cmp-count">0</span></div>
+    <div class="cmp-hint">测每个 DoH 解析源（DNSPod / 阿里 / Cloudflare / Google…）的延迟，选最快的那个用于后续「🔍 获取 IP」。绿框 = 本次测速最快，<span style="color:var(--green)">当前</span> = 顶部下拉当前选中的源。点「⚡ 测 DoH 延迟」开始，点「✅ 选用最快」一键切换。</div>
     <div class="cmp-actions">
-      <button class="btn" id="cmp-test">⚡ 测所有候选 IP 延迟</button>
-      <button class="btn" id="cmp-apply-all">✅ 全部选用最快</button>
+      <button class="btn" id="cmp-test">⚡ 测 DoH 延迟</button>
+      <button class="btn" id="cmp-apply-all">✅ 选用最快</button>
       <span class="status-inline"><span class="dot"></span><span id="cmp-status">就绪</span></span>
     </div>
     <div class="cmp-table-wrap"><table class="cmp-table" id="cmp-table"></table></div>
-    <div class="cmp-empty" id="cmp-empty">点「⚡ 测所有候选 IP 延迟」开始。需先「🔍 获取 IP」让每个域名解析出候选 IP（仅多 IP 的域名会进入对比）。</div>
+    <div class="cmp-empty" id="cmp-empty">点「⚡ 测 DoH 延迟」开始测速。</div>
   </div>
 
   <div class="card">
@@ -117,6 +117,6 @@
 </div></div>
 <div class="toast" id="toast"></div>
 
-<script src="JS/app.js?v=20260808i"></script>
+<script src="JS/app.js?v=20260808j"></script>
 </body>
 </html>

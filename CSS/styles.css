@@ -200,7 +200,7 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
 }
 
 
-/* ===== 候选 IP 延迟对比 ===== */
+/* ===== DoH 延迟对比 ===== */
 .cmp-hint{font-size:clamp(12px,1vw,14px);color:var(--muted);margin-bottom:clamp(8px,1vh,12px);line-height:1.65}
 .cmp-actions{display:flex;gap:clamp(6px,.6vw,10px);flex-wrap:wrap;align-items:center;margin-bottom:clamp(10px,1vh,14px)}
 .cmp-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:clamp(8px,.8vw,10px)}
@@ -211,7 +211,7 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
 .cmp-table .domain-name{font-family:var(--mono);color:var(--accent);font-size:clamp(11.5px,1vw,13.5px)}
 .cmp-table .latency{font-family:var(--mono);font-weight:600;padding:2px 8px;border-radius:999px;display:inline-block}
 .cmp-table .latency.cmp-win{outline:2px solid var(--green);box-shadow:0 0 10px rgba(74,222,128,.3)}
-.cmp-table .cmp-best{color:var(--green);font-family:var(--mono);font-weight:700}
+.cmp-table .cmp-cur{color:var(--green);font-size:11px;font-weight:700;margin-left:5px}
 .cmp-pick{background:var(--glass-2);border:1px solid var(--border-strong);color:var(--green);border-radius:6px;cursor:pointer;font-size:12px;padding:4px 9px;line-height:1;transition:.12s}
 .cmp-pick:hover{border-color:var(--green);background:rgba(74,222,128,.1)}
 .cmp-empty{color:var(--muted);font-size:clamp(12.5px,1vw,14px);padding:clamp(12px,1.4vh,18px);text-align:center;border:1px dashed var(--border-strong);border-radius:10px;line-height:1.7}
