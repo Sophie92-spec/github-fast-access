@@ -60,7 +60,7 @@ async function fetchAll(){
   }
   update();
   const ok=DOMAINS.filter(d=>S[d].status==='success').length,fail=total-ok;
-  $('update-time').textContent=new Date().toLocaleTimeString('zh-CN')+` (${ok}/${total} 成功${fail?`, ${fail} 失败`:''})`;
+  $('cmp-status').textContent=new Date().toLocaleTimeString('zh-CN')+` (${ok}/${total} 成功${fail?`, ${fail} 失败`:''})`;
   btn.disabled=false;tbtn.disabled=false;btn.textContent='🔍 获取 IP';$('progress').classList.remove('on');$('progress-fill').style.width='0%';
   if(ok===total)toast(`✅ ${total} 个域名全部成功`,'good');else if(ok>0)toast(`⚠️ ${ok}/${total} 成功`,'');else toast('❌ 不可用','bad')
 }

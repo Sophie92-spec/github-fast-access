@@ -12,7 +12,9 @@
 <div class="wrap">
   <head-bar><div class="logo">🚀</div><div><h2>GitHub Hosts 加速</h2><p>DoH 查询最优 IP · 一键生成 hosts · .bat 脚本</p></div></head-bar>
 
-  <div class="card">
+  <div class="card" id="cmp-card">
+    <div class="section-title">📊 DoH 延迟对比 <span class="count" id="cmp-count">0</span></div>
+    <div class="cmp-hint">测每个 DoH 解析源（DNSPod / 阿里 / Cloudflare / Google…）的延迟，选最快的那个。绿框 = 本次测速最快，<span style="color:var(--green)">当前</span> = 下拉选中的源。测速后点「🔍 获取 IP」用该源查 GitHub 域名，再点「⚡ 测延迟」测各 IP 延迟。</div>
     <div class="controls">
       <div id="doh-trigger-wrap">
         <button type="button" class="btn doh-trigger" id="doh-trigger">
@@ -20,29 +22,22 @@
           <span class="doh-arrow">▾</span>
         </button>
       </div>
+      <button class="btn" id="cmp-test">⚡ 测 DoH 延迟</button>
+      <button class="btn" id="cmp-apply-all">✅ 选用最快</button>
       <button class="btn primary" id="fetch-btn">🔍 获取 IP</button>
-      <button class="btn" id="test-btn">⚡ 延迟</button>
+      <button class="btn" id="test-btn">⚡ 测延迟</button>
       <div class="prog" id="progress"><div class="fill" id="progress-fill"></div></div>
-      <div class="status-inline"><span class="dot"></span><span id="update-time">就绪</span></div>
+      <div class="status-inline"><span class="dot"></span><span id="cmp-status">就绪</span></div>
     </div>
+    <div class="cmp-table-wrap"><table class="cmp-table" id="cmp-table"></table></div>
+    <div class="cmp-empty" id="cmp-empty">点「⚡ 测 DoH 延迟」开始测速。</div>
   </div>
 
   <div class="card" style="padding:0;overflow:hidden">
     <table><thead><tr><th style="width:2.5rem"><label><input type="checkbox" id="select-all" checked></label></th><th>域名</th><th style="width:3rem">状态</th><th>IP 地址</th><th style="width:5rem">延迟</th></tr></thead><tbody id="results-body"></tbody></table>
   </div>
 
-  <div class="card" id="cmp-card">
-    <div class="section-title">📊 DoH 延迟对比 <span class="count" id="cmp-count">0</span></div>
-    <div class="cmp-hint">测每个 DoH 解析源（DNSPod / 阿里 / Cloudflare / Google…）的延迟，选最快的那个用于后续「🔍 获取 IP」。绿框 = 本次测速最快，<span style="color:var(--green)">当前</span> = 顶部下拉当前选中的源。点「⚡ 测 DoH 延迟」开始，点「✅ 选用最快」一键切换。</div>
-    <div class="cmp-actions">
-      <button class="btn" id="cmp-test">⚡ 测 DoH 延迟</button>
-      <button class="btn" id="cmp-apply-all">✅ 选用最快</button>
-      <span class="status-inline"><span class="dot"></span><span id="cmp-status">就绪</span></span>
-    </div>
-    <div class="cmp-table-wrap"><table class="cmp-table" id="cmp-table"></table></div>
-    <div class="cmp-empty" id="cmp-empty">点「⚡ 测 DoH 延迟」开始测速。</div>
-  </div>
-
+  
   <div class="card">
     <div class="section-title">📝 Hosts 内容 <span class="count" id="hosts-count">0</span></div>
     <div class="code-box"><div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span>hosts</span></div><textarea id="hosts-content" readonly></textarea></div>
@@ -117,6 +112,6 @@
 </div></div>
 <div class="toast" id="toast"></div>
 
-<script src="JS/app.js?v=20260808j"></script>
+<script src="JS/app.js?v=20260808k"></script>
 </body>
 </html>

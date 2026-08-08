@@ -81,7 +81,7 @@ head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
 }
 .controls .status-inline .dot{width:clamp(5px,.5vw,7px);height:clamp(5px,.5vw,7px);border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.controls .status-inline #update-time{color:var(--text);font-weight:500}
+.controls .status-inline #cmp-status{color:var(--text);font-weight:500}
 
 
 /* Table */
