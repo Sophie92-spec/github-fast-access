@@ -73,6 +73,14 @@ async function fetchDomains(){
     renderUnified();
     update();
   }
+  // 测每个域名的实际访问延迟（favicon 探测），并发限 4
+  for(let i=0;i<total;i+=batch){
+    const chunk=DOMAINS.slice(i,i+batch);
+    await Promise.all(chunk.map(async d=>{
+      S[d].latency=await tl(d,3500);
+      renderUnified();
+    }));
+  }
   const ok=DOMAINS.filter(domStatusOk).length;
   return ok;
 }
@@ -155,7 +163,6 @@ function renderUnified(){
     '<th>名称</th>'+
     '<th style="width:11rem">IP 地址</th>'+
     '<th style="width:4.5rem">延迟</th>'+
-    '<th style="width:5rem">操作</th>'+
     '</tr></thead>';
 
   var best=dohBest(),worst=dohWorst();
@@ -178,7 +185,6 @@ function renderUnified(){
       '<td class="domain-name">'+dohName(k)+cur+'</td>'+
       '<td class="ip-cell"><span class="ip-empty">—</span></td>'+
       '<td><span class="latency '+c+win+warn+'">'+label+'</span></td>'+
-      '<td><button class="lt-pick" data-k="'+k+'">选用</button></td>'+
       '</tr>';
   }).join('');
 
@@ -186,7 +192,7 @@ function renderUnified(){
   var okN=DOMAINS.filter(domStatusOk).length;
   var pendN=DOMAINS.filter(d=>S[d].status==='loading').length;
   var progTxt=pendN>0?('解析中 '+pendN+'/'+DOMAINS.length+'…'):(okN+' / '+DOMAINS.length+' 解析成功');
-  var divider='<tr class="row-divider"><td colspan="5">'+
+  var divider='<tr class="row-divider"><td colspan="4">'+
     '<span class="divider-title">📌 GitHub 域名</span>'+
     '<span class="divider-meta">'+progTxt+'</span>'+
     '<label class="divider-sel"><input type="checkbox" id="select-all" '+(DOMAINS.every(d=>S[d].included)?'checked':'')+'> 全选</label>'+
@@ -206,7 +212,6 @@ function renderUnified(){
       '</label></td>'+
       '<td class="ip-cell">'+ipHtml+'</td>'+
       '<td><span class="latency '+cls(s.latency)+'">'+txt(s.latency)+'</span></td>'+
-      '<td><span class="op-empty">—</span></td>'+
       '</tr>';
   }).join('');
 
@@ -216,7 +221,6 @@ function renderUnified(){
     '<tbody class="section-dom">'+domRows+'</tbody>';
 
   // —— 事件绑定 ——
-  table.querySelectorAll('.lt-pick').forEach(function(b){b.addEventListener('click',function(){dohPick(b.dataset.k)})});
   table.querySelectorAll('.inc-cb').forEach(function(cb){cb.addEventListener('change',e=>{S[e.target.dataset.domain].included=e.target.checked;update()})});
   table.querySelectorAll('.ip-select').forEach(function(sel){sel.addEventListener('change',e=>{S[e.target.dataset.domain].selectedIp=e.target.value;update()})});
   table.querySelectorAll('.ip-input').forEach(function(inp){inp.addEventListener('input',e=>{S[e.target.dataset.domain].selectedIp=e.target.value.trim();update()})});
