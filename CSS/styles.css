@@ -19,6 +19,10 @@ html{font-size:16px}
   --ease:cubic-bezier(.4,0,.2,1);
   --mono:"JetBrains Mono","Cascadia Code","Consolas",monospace;
   --sans:"Segoe UI",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+  /* Hero button (新主操作按钮) */
+  --hero-grad-from:#7c9aff;
+  --hero-grad-to:#6e84ff;
+  --hero-glow:rgba(124,154,255,.45);
 }
 body{
   font-family:var(--sans);background:var(--bg);color:var(--text);
@@ -53,46 +57,100 @@ head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
   box-shadow:var(--shadow);
 }
 
-/* Controls - 三行节奏，DoH 配置行（绿底） + IP 获取主区（紫底） + 状态位差异化 */
-.controls{display:flex;flex-direction:column;gap:clamp(8px,.8vh,12px);margin-bottom:clamp(10px,1vh,14px)}
-.controls .ctl-row{display:flex;gap:clamp(8px,.8vw,12px);align-items:center;flex-wrap:wrap;padding:clamp(8px,.8vh,12px) clamp(12px,1.2vw,16px);border-radius:clamp(10px,1vw,12px);border:1px solid var(--border-strong)}
-/* Row 1: DoH 配置行（绿调柔底，强调"源选择 / 测速"是第一步） */
-.ctl-row-doh{background:rgba(74,222,128,.045);border-color:rgba(74,222,128,.18)}
-/* Row 2: IP 获取主区（紫调柔底，强调"获取 IP + 测延迟"是核心操作） */
-.ctl-row-accent{background:rgba(128,160,255,.07);border-color:rgba(128,160,255,.22);box-shadow:0 2px 14px rgba(128,160,255,.06) inset}
-.controls .btn{
-  padding:clamp(8px,.8vh,12px) clamp(14px,1.4vw,22px);border-radius:clamp(8px,.8vw,10px);border:1px solid var(--border-strong);
-  background:var(--glass-2);color:var(--text);font-family:var(--sans);font-size:clamp(13px,1.1vw,16px);font-weight:500;
+/* ===== 操作面板（Step 流程：① 选 DoH 源 + ② 获取 IP 主操作） ===== */
+.step-panel{
+  display:flex;flex-direction:column;gap:clamp(10px,1vh,14px);
+  padding:clamp(12px,1.2vh,18px) clamp(14px,1.4vw,20px);
+  border-radius:clamp(10px,1vw,14px);border:1px solid var(--border-strong);
+  margin-bottom:clamp(10px,1vh,14px);
+}
+.step-panel-doh{background:rgba(74,222,128,.04);border-color:rgba(74,222,128,.22)}
+.step-panel-ip{
+  background:linear-gradient(135deg,rgba(128,160,255,.09) 0%,rgba(110,132,255,.05) 100%);
+  border-color:rgba(128,160,255,.28);
+  box-shadow:0 4px 24px rgba(128,160,255,.08),0 1px 0 rgba(255,255,255,.04) inset;
+}
+.step-head{
+  display:flex;align-items:center;gap:clamp(8px,.8vw,12px);
+  font-size:clamp(12.5px,1vw,14.5px);color:var(--muted);flex-wrap:wrap;
+}
+.step-num{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:24px;height:24px;border-radius:50%;font-weight:700;font-size:13px;
+  background:var(--glass-2);border:1px solid var(--border-strong);color:var(--accent);flex-shrink:0;
+}
+.step-title{font-weight:600;color:var(--text);font-size:clamp(13px,1.1vw,15px)}
+.step-desc{color:var(--muted);font-size:clamp(11.5px,.95vw,13px);margin-left:auto}
+.step-body{display:flex;gap:clamp(8px,.8vw,12px);align-items:center;flex-wrap:wrap}
+.ip-step-body{flex-direction:column;align-items:stretch;gap:clamp(10px,1vh,14px)}
+.ip-progress-row{display:flex;align-items:center;gap:clamp(10px,1vw,14px)}
+
+.status-inline{
+  display:flex;align-items:center;gap:6px;
+  font-size:clamp(12px,1vw,13px);color:var(--muted);font-weight:500;
+}
+.status-inline #doh-status,
+.status-inline #ip-status{color:var(--text)}
+.status-inline .dot{
+  width:clamp(6px,.6vw,8px);height:clamp(6px,.6vw,8px);border-radius:50%;
+  background:var(--green);animation:pulse 2s infinite;flex-shrink:0;
+}
+.step-panel-doh .status-inline .dot{background:var(--accent)}
+.step-panel-ip .status-inline .dot{background:var(--green)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+.step-panel .btn{
+  padding:clamp(8px,.8vh,12px) clamp(14px,1.4vw,22px);border-radius:clamp(8px,.8vw,10px);
+  border:1px solid var(--border-strong);background:var(--glass-2);color:var(--text);
+  font-family:var(--sans);font-size:clamp(13px,1.1vw,16px);font-weight:500;
   cursor:pointer;display:flex;align-items:center;gap:clamp(5px,.5vw,8px);transition:.15s;
 }
-.controls .btn:hover{background:var(--glass-hover);border-color:rgba(255,255,255,.18)}
-.controls .btn:active{transform:scale(.97)}
-.controls .btn.primary{
-  background:linear-gradient(135deg,var(--accent),#90b0ff);color:#fff;border-color:transparent;
-  box-shadow:0 4px 16px rgba(128,160,255,.3);
-}
-.controls .btn.primary:hover{box-shadow:0 6px 24px rgba(128,160,255,.45)}
-.controls .btn:disabled{opacity:.35;cursor:not-allowed;transform:none}
-.controls .prog{
-  flex:1;min-width:clamp(50px,6vw,80px);height:clamp(3px,.3vw,4px);background:var(--glass-2);border-radius:99px;overflow:hidden;display:none;
-}
-.controls .prog.on{display:block}
-.controls .prog .fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0%;border-radius:99px;transition:width .25s var(--ease)}
+.step-panel .btn:hover{background:var(--glass-hover);border-color:rgba(255,255,255,.18)}
+.step-panel .btn:active{transform:scale(.97)}
+.step-panel .btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.step-panel-doh .btn:hover{border-color:rgba(74,222,128,.4);background:rgba(74,222,128,.06)}
 
-/* Status inline - 基础 + DoH/IP 两种差异化 */
-.controls .status-inline{
-  display:flex;align-items:center;gap:clamp(6px,.6vw,8px);font-size:clamp(12px,1vw,14px);color:var(--muted);
-  flex-shrink:0;
+/* HERO 主按钮（② IP 面板的「立即获取 IP」） */
+.btn-hero{
+  display:flex;align-items:center;justify-content:center;gap:clamp(10px,1vw,14px);
+  width:100%;padding:clamp(14px,1.6vh,22px) clamp(18px,1.8vw,24px);
+  border:none;border-radius:clamp(10px,1vw,14px);
+  background:linear-gradient(135deg,var(--hero-grad-from) 0%,var(--hero-grad-to) 100%);
+  color:#fff;cursor:pointer;
+  box-shadow:0 6px 20px var(--hero-glow),0 1px 0 rgba(255,255,255,.18) inset;
+  transition:.18s;font-family:var(--sans);
+  position:relative;overflow:hidden;
 }
-.controls .status-inline .dot{width:clamp(5px,.5vw,7px);height:clamp(5px,.5vw,7px);border-radius:50%;animation:pulse 2s infinite;flex-shrink:0}
-/* DoH 状态：靠右贴边 + 竖线（与「测 DoH 延迟」按钮形成视觉单元） */
-.controls .status-doh{margin-left:auto;padding-left:clamp(12px,1.2vw,16px);border-left:1px solid var(--border-strong)}
-.controls .status-doh .dot{background:var(--accent)}
-.controls .status-doh #doh-status{color:var(--text);font-weight:500}
-/* IP 状态：紧贴进度条（无竖线，避免和「测 IP 延迟」按钮视觉冲突） */
-.controls .status-ip .dot{background:var(--green)}
-.controls .status-ip #ip-status{color:var(--text);font-weight:500}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.btn-hero::after{
+  content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.18) 50%,transparent 70%);
+  opacity:0;transition:opacity .25s;
+}
+.btn-hero:hover{transform:translateY(-1px);box-shadow:0 10px 28px var(--hero-glow),0 1px 0 rgba(255,255,255,.2) inset}
+.btn-hero:hover::after{opacity:1}
+.btn-hero:active{transform:translateY(0)}
+.btn-hero:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:0 4px 14px rgba(128,160,255,.2)}
+.hero-icon{font-size:clamp(20px,1.8vw,24px);flex-shrink:0;line-height:1}
+.hero-text{font-size:clamp(16px,1.4vw,19px);font-weight:700;letter-spacing:.3px}
+.hero-sub{font-size:clamp(11.5px,.95vw,13px);opacity:.88;font-weight:400}
+
+/* ② IP 面板"测 IP 延迟"次按钮（独立一行，宽度 100% 但视觉弱于主按钮） */
+.btn-secondary{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  width:100%;padding:clamp(8px,.8vh,11px) clamp(14px,1.4vw,20px);
+  border-radius:clamp(8px,.8vw,10px);border:1px solid var(--border-strong);
+  background:var(--glass-2);color:var(--text);font-family:var(--sans);
+  font-size:clamp(13px,1.05vw,14.5px);font-weight:500;cursor:pointer;transition:.15s;
+}
+.btn-secondary:hover{background:var(--glass-hover)}
+.btn-secondary:active{transform:scale(.97)}
+.btn-secondary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+.step-panel .prog{
+  flex:1;min-width:clamp(60px,8vw,120px);height:clamp(4px,.4vw,6px);background:var(--glass-2);
+  border-radius:99px;overflow:hidden;display:none;
+}
+.step-panel .prog.on{display:block}
+.step-panel .prog .fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0%;border-radius:99px;transition:width .25s var(--ease)}
 
 /* Table */
 table{width:100%;border-collapse:collapse}
@@ -213,14 +271,20 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
 }
 @media(max-width:768px){
   html{font-size:14px}
-  .controls{flex-direction:column;align-items:stretch}
-  .controls .btn{justify-content:center}
-  .controls .status-inline{margin-left:0;border-left:none;padding:8px 0 0;justify-content:center}
-  /* Disable heavy blur on mobile to keep the render thread responsive */
+  /* ① DoH 面板：小屏按钮允许换行居中显示 */
+  .doh-step-body .btn,
+  .step-panel-doh .btn{flex:1 1 auto;justify-content:center}
+  /* ② IP 面板独立步骤的排列无变化（垂直） */
+  .step-panel .btn{justify-content:center}
+  .status-inline{margin:0 auto;justify-content:center}
+  /* 移动端停用大模糊滤镜保证渲染性能 */
   .card,.social-link,.modal{backdrop-filter:none;-webkit-backdrop-filter:none}
 }
 @media(max-width:480px){
   html{font-size:13px}
+  /* 小屏：步骤标题/副标题垂直排列 */
+  .step-head{flex-direction:column;align-items:flex-start;gap:4px}
+  .step-desc{margin-left:0}
 }
 
 
@@ -233,7 +297,6 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
 .cmp-table tbody tr:hover{background:rgba(128,160,255,.05)}
 .cmp-table .domain-name{font-family:var(--mono);color:var(--accent);font-size:clamp(11.5px,1vw,13.5px)}
 /* ===== DoH 对比专用汇总/空态/横向排版（强烈态样式见上文通用 .latency.lt-*） ===== */
-/* 汇总行：横向排列 + 柔和底 */
 .cmp-summary{display:flex;gap:clamp(8px,.8vw,12px);flex-wrap:wrap;padding:clamp(10px,1.2vh,14px);margin-top:clamp(8px,1vh,12px);border-radius:clamp(8px,.8vw,10px);background:rgba(128,160,255,.05);border:1px solid rgba(128,160,255,.15);animation:in .35s var(--ease) both}
 .cmp-sum-item{display:flex;flex-direction:column;gap:2px;padding:clamp(5px,.5vh,8px) clamp(10px,1vw,14px);background:rgba(255,255,255,.04);border-radius:8px;border:1px solid var(--border)}
 .cmp-sum-label{font-size:clamp(10px,.9vw,12px);color:var(--muted);font-weight:500;letter-spacing:.05em}
@@ -353,14 +416,11 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
 .doh-menu-item.on::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent)}
 
 /* ===== 动效增强：折线图 / 统计数字 / 按钮 ===== */
-/* 折线图面积渐显 */
 .trend-area{animation:fadeIn .9s ease .15s both}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-/* 数据点逐个弹出 */
 .trend-dot{transform-box:fill-box;transform-origin:center;animation:dotPop .35s var(--ease) both}
 @keyframes dotPop{from{opacity:0;transform:scale(0)}to{opacity:1;transform:scale(1)}}
 
-/* 按钮水波纹 + 主按钮微光扫过 */
 .btn{position:relative;overflow:hidden}
 .btn .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.32);transform:scale(0);animation:ripple .6s linear;pointer-events:none}
 @keyframes ripple{to{transform:scale(2.6);opacity:0}}

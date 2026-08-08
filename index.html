@@ -14,10 +14,16 @@
 
   <div class="card" id="cmp-card">
     <div class="section-title">📊 DoH 延迟对比</div>
-    <div class="cmp-hint">测每个 DoH 解析源（DNSPod / 阿里 / Cloudflare / Google…）的延迟，挑最快的用于后续「🔍 获取 IP」。<span style="color:var(--green)">绿框</span> = 本次最快，<span style="color:var(--red)">红框</span> = 本次最慢（不建议用），<span style="color:var(--green)">✓ 当前</span> = 下拉选中的源。<b>测完后会自动切到最快的源</b>，不用再手动点。</div>
-    <div class="controls">
-      <!-- Row 1: DoH 配置行（绿底强调 · 源选择/测速） -->
-      <div class="ctl-row ctl-row-doh">
+    <div class="cmp-hint">测每个 DoH 解析源（DNSPod / 阿里 / Cloudflare / Google…）的延迟，挑最快的用于下方「🔍 获取 IP」。<span style="color:var(--green)">绿框</span> = 本次最快，<span style="color:var(--red)">红框</span> = 本次最慢（不建议用），<span style="color:var(--accent)">✓ 当前</span> = 下拉选中的源。<b>测完后会自动切到最快的源</b>，不用再手动点。</div>
+
+    <!-- ① 选 DoH 源 (单行紧凑面板) -->
+    <div class="step-panel step-panel-doh">
+      <div class="step-head">
+        <span class="step-num">①</span>
+        <span class="step-title">选 DoH 源</span>
+        <span class="step-desc">决定下方「获取 IP」用哪个解析</span>
+      </div>
+      <div class="step-body doh-step-body">
         <div id="doh-trigger-wrap">
           <button type="button" class="btn doh-trigger" id="doh-trigger">
             <span id="doh-label">自动 DoH</span>
@@ -26,15 +32,27 @@
         </div>
         <button class="btn" id="cmp-test">⚡ 测 DoH 延迟</button>
         <button class="btn" id="cmp-apply-all">✅ 选用最快</button>
-        <div class="status-inline status-doh"><span class="dot"></span><span id="doh-status">DoH 未测速</span></div>
+        <div class="status-inline"><span class="dot"></span><span id="doh-status">DoH 未测速</span></div>
       </div>
+    </div>
 
-      <!-- Row 2: IP 获取主区（紫底强调 · 主操作/测延迟） -->
-      <div class="ctl-row ctl-row-accent">
-        <button class="btn primary" id="fetch-btn">🔍 获取 IP</button>
-        <div class="prog" id="progress"><div class="fill" id="progress-fill"></div></div>
-        <div class="status-inline status-ip"><span class="dot"></span><span id="ip-status">就绪</span></div>
-        <button class="btn" id="test-btn">⚡ 测 IP 延迟</button>
+    <!-- ② IP 主操作 (大主按钮突出) -->
+    <div class="step-panel step-panel-ip">
+      <div class="step-head">
+        <span class="step-num">②</span>
+        <span class="step-title">获取 IP + 测速</span>
+      </div>
+      <div class="step-body ip-step-body">
+        <button class="btn-hero" id="fetch-btn">
+          <span class="hero-icon">🔍</span>
+          <span class="hero-text">立即获取 IP</span>
+          <span class="hero-sub">解析所有 GitHub 域名</span>
+        </button>
+        <div class="ip-progress-row">
+          <div class="prog" id="progress"><div class="fill" id="progress-fill"></div></div>
+          <div class="status-inline"><span class="dot"></span><span id="ip-status">就绪</span></div>
+        </div>
+        <button class="btn-secondary" id="test-btn">⚡ 测 IP 延迟</button>
       </div>
     </div>
     <div class="cmp-table-wrap"><table class="cmp-table" id="cmp-table"></table></div>
@@ -121,6 +139,6 @@
 </div></div>
 <div class="toast" id="toast"></div>
 
-<script src="JS/app.js?v=20260808n"></script>
+<script src="JS/app.js?v=20260808o"></script>
 </body>
 </html>
