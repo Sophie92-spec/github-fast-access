@@ -111,6 +111,20 @@ tbody tr:hover{background:rgba(128,160,255,.05)}tbody tr:last-child td{border-bo
 .latency{font-family:var(--mono);font-size:clamp(11px,.9vw,13px);font-weight:600;padding:2px 8px;border-radius:999px;display:inline-block}
 .latency.good{color:var(--green);background:rgba(74,222,128,.1)}.latency.ok{color:var(--orange);background:rgba(251,146,60,.1)}
 .latency.slow{color:var(--red);background:rgba(248,113,113,.1)}.latency.fail{color:var(--muted)}
+
+/* 通用强烈态（DoH 表和域名表共用，做「同一个内容」的关键）：
+   - lt-best：本轮最快，绿框 + 微光
+   - lt-worst：本轮最慢（且≥1000ms，避免误伤），红框警示
+   - lt-timeout：超时/未测，淡红虚线
+   - lt-cur：「当前」蓝点（DoH 表专用，样式可复用到任何"当前项"标记）
+   - lt-pick：选用按钮（DoH 表专用，样式通用） */
+.latency.lt-best{outline:2px solid var(--green);outline-offset:2px;box-shadow:0 0 12px rgba(74,222,128,.45);background:rgba(74,222,128,.08);color:var(--green)}
+.latency.lt-worst{outline:2px solid var(--red);outline-offset:2px;background:rgba(248,113,113,.08);color:var(--red)}
+.latency.lt-timeout{background:rgba(248,113,113,.08);color:rgba(248,113,113,.6);border:1px dashed rgba(248,113,113,.25)}
+.lt-cur{color:var(--accent);font-size:11px;font-weight:700;margin-left:6px;display:inline-flex;align-items:center;gap:2px}
+.lt-cur::before{content:'●';font-size:9px}
+.lt-pick{background:var(--glass-2);border:1px solid var(--border-strong);color:var(--green);border-radius:6px;cursor:pointer;font-size:12px;padding:4px 9px;line-height:1;transition:.12s}
+.lt-pick:hover{border-color:var(--green);background:rgba(74,222,128,.1)}
 th label{display:flex;align-items:center;gap:clamp(5px,.5vw,7px);cursor:pointer;font-size:clamp(11px,1vw,13px);font-weight:600}
 input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);accent-color:var(--accent);cursor:pointer}
 
@@ -211,18 +225,7 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
 .cmp-table thead th{color:var(--muted);font-weight:600;font-size:clamp(11px,1vw,13px)}
 .cmp-table tbody tr:hover{background:rgba(128,160,255,.05)}
 .cmp-table .domain-name{font-family:var(--mono);color:var(--accent);font-size:clamp(11.5px,1vw,13.5px)}
-.cmp-table .latency{font-family:var(--mono);font-weight:600;padding:2px 8px;border-radius:999px;display:inline-block;min-width:54px;text-align:center}
-/* 最快：绿框 + 微光 */
-.cmp-table .latency.cmp-win{outline:2px solid var(--green);outline-offset:2px;box-shadow:0 0 12px rgba(74,222,128,.45);background:rgba(74,222,128,.08);color:var(--green)}
-/* 最慢（且≥1000ms）：红框警示 */
-.cmp-table .latency.cmp-warn{outline:2px solid var(--red);outline-offset:2px;background:rgba(248,113,113,.08);color:var(--red)}
-/* 超时：淡红底 + 灰字（区别于「未测」纯灰） */
-.cmp-table .latency.cmp-soft-fail{background:rgba(248,113,113,.08);color:rgba(248,113,113,.6);border:1px dashed rgba(248,113,113,.25)}
-/* "✓ 当前" 蓝点标记，跟绿框最快视觉区分 */
-.cmp-cur{color:var(--accent);font-size:11px;font-weight:700;margin-left:6px;display:inline-flex;align-items:center;gap:2px}
-.cmp-cur::before{content:'●';font-size:9px}
-.cmp-pick{background:var(--glass-2);border:1px solid var(--border-strong);color:var(--green);border-radius:6px;cursor:pointer;font-size:12px;padding:4px 9px;line-height:1;transition:.12s}
-.cmp-pick:hover{border-color:var(--green);background:rgba(74,222,128,.1)}
+/* ===== DoH 对比专用汇总/空态/横向排版（强烈态样式见上文通用 .latency.lt-*） ===== */
 /* 汇总行：横向排列 + 柔和底 */
 .cmp-summary{display:flex;gap:clamp(8px,.8vw,12px);flex-wrap:wrap;padding:clamp(10px,1.2vh,14px);margin-top:clamp(8px,1vh,12px);border-radius:clamp(8px,.8vw,10px);background:rgba(128,160,255,.05);border:1px solid rgba(128,160,255,.15);animation:in .35s var(--ease) both}
 .cmp-sum-item{display:flex;flex-direction:column;gap:2px;padding:clamp(5px,.5vh,8px) clamp(10px,1vw,14px);background:rgba(255,255,255,.04);border-radius:8px;border:1px solid var(--border)}
