@@ -30,6 +30,8 @@ function toast(m,g){T.textContent=m;T.className='toast on '+(g||'');setTimeout((
 async function rwp(d,k,t=2500){const p=P[k],c=new AbortController();const id=setTimeout(()=>c.abort(),t);try{const r=await fetch(p.url(d),{headers:p.headers,signal:c.signal});clearTimeout(id);const d2=await r.json();return d2.Answer?d2.Answer.filter(a=>a.type===1).map(a=>a.data):[]}catch(e){clearTimeout(id);throw e}}
 async function rd(d,pref){const ps=pref==='auto'?A:[pref];for(const p of ps){try{const ips=await rwp(d,p);if(ips.length>0)return{ips}}catch(e){}}return{ips:[]}}
 function tl(d,t=5000){return new Promise(r=>{const img=new Image(),s=performance.now();let done=false;const id=setTimeout(()=>{if(!done){done=true;r(null)}},t);img.onload=img.onerror=()=>{if(!done){done=true;clearTimeout(id);r(Math.round(performance.now()-s))}};img.src=`https://${d}/favicon.ico?_t=${Date.now()}`})}
+// 按具体 IP 实测延迟（用于"选最快 IP"）：直接连该 IP 的 443，TLS 失败也算到达，取耗时作 RTT 代理
+function ipLat(ip,t=2500){return new Promise(function(r){var img=new Image(),s=performance.now(),done=false;var id=setTimeout(function(){if(!done){done=true;r(null)}},t);img.onload=img.onerror=function(){if(!done){done=true;clearTimeout(id);r(Math.round(performance.now()-s))}};img.src='https://'+ip+'/favicon.ico?_t='+Date.now()})}
 function cls(l){if(l===null)return'fail';if(l<200)return'good';if(l<800)return'ok';return'slow'}
 function txt(l){return l===null?'—':l+'ms'}
 function domStatusOk(d){return S[d].status==='success'&&S[d].ips.length>0}
@@ -40,7 +42,7 @@ function ipCellHtml(d){
   if(s.status==='loading')return'<span style="color:var(--muted)">查询中...</span>';
   if(s.status==='success'&&s.ips.length>0){
     if(s.ips.length===1)return`<input type="text" class="ip-input" data-domain="${d}" value="${s.selectedIp}">`;
-    return`<select class="ip-select" data-domain="${d}">${s.ips.map(ip=>`<option value="${ip}" ${ip===s.selectedIp?'selected':''}>${ip}</option>`).join('')}</select>`;
+    return`<select class="ip-select" data-domain="${d}">${s.ips.map(ip=>{const lt=(s.ipLats&&s.ipLats[ip]!=null)?' ('+s.ipLats[ip]+'ms)':'';return `<option value="${ip}" ${ip===s.selectedIp?'selected':''}>${ip}${lt}</option>`}).join('')}</select>`;
   }
   if(s.status==='fail')return`<input type="text" class="ip-input" data-domain="${d}" placeholder="手动输入IP" value="${s.selectedIp}">`;
   return'<span style="color:var(--muted)">—</span>';
@@ -48,13 +50,11 @@ function ipCellHtml(d){
 
 function update(){const e=[];DOMAINS.forEach(d=>{const s=S[d];if(s.included&&s.selectedIp&&/^(\d{1,3}\.){3}\d{1,3}$/.test(s.selectedIp))e.push(`${s.selectedIp.padEnd(22)} ${d}`)});H.value=`# GitHub Hosts Start (更新于 ${new Date().toLocaleString('zh-CN')})\n${e.join('\n')}\n# GitHub Hosts End`;$('hosts-count').textContent=e.length;H.style.height='auto';H.style.height=H.scrollHeight+'px'}
 
-let autoPref=null;
 async function pickAuto(){
-  if(autoPref)return autoPref;
   const races=A.map(k=>rwp('github.com',k).then(()=>k).catch(()=>null));
-  autoPref=await Promise.race([...races,new Promise(r=>setTimeout(()=>r(null),3000))]);
-  if(!autoPref){for(const k of A){try{await rwp('github.com',k);autoPref=k;break}catch(e){}}}
-  return autoPref;
+  let pref=await Promise.race([...races,new Promise(r=>setTimeout(()=>r(null),3000))]);
+  if(!pref){for(const k of A){try{await rwp('github.com',k);pref=k;break}catch(e){}}}
+  return pref;
 }
 
 // 解析域名（通过当前 dohValue），并发限 4，结果更新到 S[d] 并刷新表格
@@ -73,16 +73,35 @@ async function fetchDomains(){
     renderUnified();
     update();
   }
-  // 测每个域名的实际访问延迟（favicon 探测），并发限 4
+  // 按延迟自动选用每个域名的最快 IP（轻量版"候选 IP 对比"）
+  await measureDomainLatency();
+  const ok=DOMAINS.filter(domStatusOk).length;
+  return ok;
+}
+// 测每个域名候选 IP 的延迟，自动选用最快；并发限 4。无 IP 的域名跳过
+async function measureDomainLatency(){
+  const batch=4,total=DOMAINS.length;
   for(let i=0;i<total;i+=batch){
     const chunk=DOMAINS.slice(i,i+batch);
     await Promise.all(chunk.map(async d=>{
-      S[d].latency=await tl(d,3500);
+      if(S[d].ips.length===0){S[d].latency=null;renderUnified();return;}
+      let lat=null;
+      if(S[d].ips.length===1){
+        S[d].selectedIp=S[d].ips[0];
+        lat=await ipLat(S[d].ips[0]);
+      }else{
+        const lats=await Promise.all(S[d].ips.map(ip=>ipLat(ip)));
+        S[d].ipLats={};S[d].ips.forEach((ip,idx)=>{S[d].ipLats[ip]=lats[idx]});
+        let bi=S[d].ips[0],bv=null;
+        S[d].ips.forEach((ip,idx)=>{const v=lats[idx];if(v!==null&&(bv===null||v<bv)){bv=v;bi=ip}});
+        S[d].selectedIp=bi;lat=bv;
+      }
+      if(lat===null)lat=await tl(d,3500); // 回退：IP 探测全超时则用域名级延迟
+      S[d].latency=lat;
       renderUnified();
     }));
   }
-  const ok=DOMAINS.filter(domStatusOk).length;
-  return ok;
+  update();
 }
 
 // ===== DoH 延迟对比（同时驱动统一表渲染）=====
@@ -167,6 +186,11 @@ function renderUnified(){
 
   var best=dohBest(),worst=dohWorst();
 
+  // 域名行的最快/最慢（用于高亮）
+  var domLats=DOMAINS.map(d=>S[d].latency).filter(v=>v!==null&&v!==undefined);
+  var dMin=domLats.length?Math.min.apply(null,domLats):null;
+  var dMax=domLats.length?Math.max.apply(null,domLats):null;
+
   // —— 段 1：DoH 源 ——
   var dohRows=A.map(function(k){
     var measured=(k in dohLats),l=dohLats[k];
@@ -203,6 +227,8 @@ function renderUnified(){
     var s=S[d];
     var ipHtml=ipCellHtml(d);
     var checked=s.included?'checked':'';
+    var dwin=(s.latency!==null&&s.latency===dMin)?' lt-best':'';
+    var dwarn=(s.latency!==null&&s.latency===dMax&&dMax>=1000&&dMax!==dMin)?' lt-worst':'';
     return '<tr class="row-dom">'+
       '<td><span class="type-badge type-dom">域</span></td>'+
       '<td class="domain-name"><label class="dom-label">'+
@@ -211,7 +237,7 @@ function renderUnified(){
         ' <span class="status-dot '+s.status+'"></span>'+
       '</label></td>'+
       '<td class="ip-cell">'+ipHtml+'</td>'+
-      '<td><span class="latency '+cls(s.latency)+'">'+txt(s.latency)+'</span></td>'+
+      '<td><span class="latency '+cls(s.latency)+dwin+dwarn+'">'+txt(s.latency)+'</span></td>'+
       '</tr>';
   }).join('');
 
@@ -228,7 +254,16 @@ function renderUnified(){
   if(selAll)selAll.addEventListener('change',e=>{DOMAINS.forEach(d=>{S[d].included=e.target.checked});table.querySelectorAll('.inc-cb').forEach(cb=>{cb.checked=e.target.checked});update()});
 }
 
+async function retestLatency(){
+  if(cmpTesting)return;
+  if(!DOMAINS.some(d=>S[d].ips.length>0)){toast('请先点「测 DoH + 解析域名」解析域名','bad');return;}
+  var btn=$('retest-lat');if(btn)btn.disabled=true;
+  await measureDomainLatency();
+  if(btn)btn.disabled=false;
+  toast('域名延迟已重测，已自动选用最快 IP','good');
+}
 $('cmp-test').addEventListener('click',dohTest);
+$('retest-lat').addEventListener('click',retestLatency);
 renderUnified();
 
 function gen(restore) {

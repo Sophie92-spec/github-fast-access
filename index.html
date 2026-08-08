@@ -14,7 +14,7 @@
 
   <div class="card" id="cmp-card">
     <div class="section-title">📊 解析表 · DoH 源 + GitHub 域名</div>
-    <div class="cmp-hint">测每个 DoH 解析源的延迟，挑最快用于解析下方 GitHub 域名。<span style="color:var(--green)">绿框</span> = 本轮最快，<span style="color:var(--red)">红框</span> = 本轮最慢（≥1000ms）。<b>测完自动切到最快的源并解析所有域名</b>，不用再手动点。</div>
+    <div class="cmp-hint">测每个 DoH 源的延迟并自动切最快源解析下方全部 GitHub 域名；每个域名会实测各候选 IP 延迟、<b>自动选用最快的那个</b>。<span style="color:var(--green)">绿框</span> = 最快，<span style="color:var(--red)">红框</span> = 最慢（≥1000ms）。点「🔄 重测延迟」可在不重跑 DoH 测速的情况下刷新域名延迟与最快 IP。</div>
 
     <!-- ① 选 DoH 源 (绿光玻璃卡) —— 测速后自动解析下方所有 GitHub 域名 -->
     <div class="step-panel step-panel-doh">
@@ -34,6 +34,7 @@
           </button>
         </div>
         <button class="btn btn-glow-green" id="cmp-test">⚡ 测 DoH + 解析域名</button>
+        <button class="btn" id="retest-lat">🔄 重测延迟</button>
       </div>
     </div>
 
@@ -118,6 +119,6 @@
 </div></div>
 <div class="toast" id="toast"></div>
 
-<script src="JS/app.js?v=20260808s"></script>
+<script src="JS/app.js?v=20260808t"></script>
 </body>
 </html>
