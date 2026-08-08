@@ -45,7 +45,7 @@ async function pickAuto(){
   return autoPref;
 }
 async function fetchAll(){
-  const btn=$('fetch-btn'),tbtn=$('test-btn');btn.disabled=true;tbtn.disabled=true;btn.textContent='…';$('progress').classList.add('on');
+  const btn=$('fetch-btn'),tbtn=$('test-btn');btn.disabled=true;tbtn.disabled=true;btn.textContent='…';$('progress').classList.add('on');$('ip-status').textContent='获取中…';
   DOMAINS.forEach(d=>{S[d].status='loading';upRow(d)});
   let done=0;const total=DOMAINS.length;
   const pref=dohValue==='auto'?await pickAuto():dohValue;
@@ -60,11 +60,11 @@ async function fetchAll(){
   }
   update();
   const ok=DOMAINS.filter(d=>S[d].status==='success').length,fail=total-ok;
-  $('cmp-status').textContent=new Date().toLocaleTimeString('zh-CN')+` (${ok}/${total} 成功${fail?`, ${fail} 失败`:''})`;
+  $('ip-status').textContent=new Date().toLocaleTimeString('zh-CN')+` (${ok}/${total} 成功${fail?`, ${fail} 失败`:''})`;
   btn.disabled=false;tbtn.disabled=false;btn.textContent='🔍 获取 IP';$('progress').classList.remove('on');$('progress-fill').style.width='0%';
   if(ok===total)toast(`✅ ${total} 个域名全部成功`,'good');else if(ok>0)toast(`⚠️ ${ok}/${total} 成功`,'');else toast('❌ 不可用','bad')
 }
-async function testAll(){const btn=$('test-btn'),fbtn=$('fetch-btn');btn.disabled=true;fbtn.disabled=true;btn.textContent='…';$('progress').classList.add('on');DOMAINS.forEach(d=>{S[d].latency=null;const el=$(`lat-${d}`);if(el){el.className='latency fail';el.textContent='...'}});let done=0;const total=DOMAINS.length;const batch=4;for(let i=0;i<DOMAINS.length;i+=batch){const chunk=DOMAINS.slice(i,i+batch);await Promise.all(chunk.map(async d=>{const l=await tl(d);S[d].latency=l;const el=$(`lat-${d}`);if(el){el.className='latency '+cls(l);el.textContent=txt(l)};done++;$('progress-fill').style.width=(done/total*100)+'%'}))}$('progress').classList.remove('on');$('progress-fill').style.width='0%';btn.disabled=false;fbtn.disabled=false;btn.textContent='⚡ 延迟';const avg=DOMAINS.filter(d=>S[d].latency!==null).map(d=>S[d].latency);if(avg.length>0)toast(`⚡ 平均: ${Math.round(avg.reduce((a,b)=>a+b,0)/avg.length)}ms`,'good');else toast('❌ 无法连接','bad')}
+async function testAll(){const btn=$('test-btn'),fbtn=$('fetch-btn');btn.disabled=true;fbtn.disabled=true;btn.textContent='…';$('progress').classList.add('on');$('ip-status').textContent='测延迟中…';DOMAINS.forEach(d=>{S[d].latency=null;const el=$(`lat-${d}`);if(el){el.className='latency fail';el.textContent='...'}});let done=0;const total=DOMAINS.length;const batch=4;for(let i=0;i<DOMAINS.length;i+=batch){const chunk=DOMAINS.slice(i,i+batch);await Promise.all(chunk.map(async d=>{const l=await tl(d);S[d].latency=l;const el=$(`lat-${d}`);if(el){el.className='latency '+cls(l);el.textContent=txt(l)};done++;$('progress-fill').style.width=(done/total*100)+'%'}))}$('progress').classList.remove('on');$('progress-fill').style.width='0%';btn.disabled=false;fbtn.disabled=false;btn.textContent='⚡ 测 IP 延迟';const avg=DOMAINS.filter(d=>S[d].latency!==null).map(d=>S[d].latency);if(avg.length>0){$('ip-status').textContent='平均 '+Math.round(avg.reduce((a,b)=>a+b,0)/avg.length)+'ms ('+avg.length+'/'+total+' 测到)';toast(`⚡ 平均: ${Math.round(avg.reduce((a,b)=>a+b,0)/avg.length)}ms`,'good')}else{$('ip-status').textContent='无法连接';toast('❌ 无法连接','bad')}}
 function gen(restore) {
   var ts = new Date().toLocaleString('zh-CN');
   var entries = [];
@@ -183,49 +183,90 @@ document.querySelectorAll('.btn').forEach(function(b){
 document.querySelectorAll('.howto-tab').forEach(tab=>{tab.addEventListener('click',()=>{const scope=tab.closest('.howto');scope.querySelectorAll('.howto-tab').forEach(t=>t.classList.remove('on'));scope.querySelectorAll('.howto-panel').forEach(c=>c.classList.remove('on'));tab.classList.add('on');document.getElementById('tab-'+tab.dataset.tab).classList.add('on')})});
 
 // ===== DoH 延迟对比 =====
-// 测每个 DoH 解析源的延迟，选最快的那个用于后续「🔍 获取 IP」。
+// 测每个 DoH 解析源的延迟，挑最快的用于「🔍 获取 IP」。
 // dohLats: { provider: ms|null }；dohValue 为当前选中源（与顶部下拉联动）。
+// 测完自动 dohPick(best)，用户不用再点「✅ 选用最快」（保留按钮作手动覆盖）。
 var dohLats={},cmpTesting=false;
 function dohName(k){for(var i=0;i<OPTIONS.length;i++){if(OPTIONS[i].v===k)return OPTIONS[i].t}return k}
 function dohBest(){var bk=null,bv=null;A.forEach(function(k){var v=dohLats[k];if(v!==null&&v!==undefined&&(bv===null||v<bv)){bv=v;bk=k}});return bk}
-function dohPick(k){if(!k)return;dohValue=k;dLabel.textContent=dohName(k);renderDoh();toast('已选用 DoH：'+dohName(k),'good')}
+function dohWorst(){var wk=null,wv=null;A.forEach(function(k){var v=dohLats[k];if(v!==null&&v!==undefined&&(wv===null||v>wv)){wv=v;wk=k}});return wk}
+function dohUsable(){return A.filter(function(k){return(k in dohLats)&&dohLats[k]!==null}).length}
+function dohAvg(){var vs=A.map(function(k){return dohLats[k]}).filter(function(v){return v!==null&&v!==undefined});return vs.length?Math.round(vs.reduce(function(a,b){return a+b},0)/vs.length):null}
+function dohPick(k){
+  if(!k)return;
+  var wasSame=dohValue===k;
+  dohValue=k;dLabel.textContent=dohName(k);renderDoh();
+  if(!wasSame)toast('已选用 DoH：'+dohName(k),'good');
+}
 async function dohTest(){
   if(cmpTesting)return;cmpTesting=true;
-  var btn=$('cmp-test');btn.disabled=true;btn.textContent='…';$('cmp-status').textContent='测速中…';
-  dohLats={};var total=A.length,done=0,batch=4;
+  var btn=$('cmp-test');btn.disabled=true;btn.textContent='…';var ds=$('doh-status');ds.textContent='DoH 状态：测速中…';
+  dohLats={};renderDoh();$('cmp-summary').style.display='none';if($('cmp-empty'))$('cmp-empty').style.display='none';
+  var total=A.length,done=0,batch=4;
   for(var i=0;i<A.length;i+=batch){
     var chunk=A.slice(i,i+batch);
     await Promise.all(chunk.map(async function(k){
       var s=performance.now();
       try{await rwp('github.com',k);dohLats[k]=Math.round(performance.now()-s);}
       catch(e){dohLats[k]=null;}
-      done++;$('cmp-status').textContent='测速中 '+done+'/'+total;renderDoh();
+      done++;ds.textContent='DoH 状态：测速中 '+done+'/'+total;renderDoh();
     }));
   }
   cmpTesting=false;btn.disabled=false;btn.textContent='⚡ 测 DoH 延迟';
-  var best=dohBest();
-  $('cmp-status').textContent=best?('最快：'+dohName(best)+' '+dohLats[best]+'ms'):'都无法连接';
-  toast(best?('测速完成，最快 '+dohName(best)):'测速完成（都无法连接）',best?'good':'bad');
+  var best=dohBest(),worst=dohWorst(),us=dohUsable(),avg=dohAvg();
+  if(us===0){
+    ds.textContent='DoH 状态：全 '+total+' 个源都连不上';
+    toast('测速完成（都连不上）','bad');
+  }else if(us<A.length){
+    ds.textContent='DoH 状态：'+us+'/'+total+' 可用，最快 '+dohName(best)+' '+dohLats[best]+'ms（均 '+avg+'ms）';
+    toast('最快 '+dohName(best)+' '+dohLats[best]+'ms','good');
+  }else{
+    ds.textContent='DoH 状态：'+us+'/'+total+' 全部可用，最快 '+dohName(best)+' '+dohLats[best]+'ms（均 '+avg+'ms）';
+    toast('最快 '+dohName(best)+' '+dohLats[best]+'ms','good');
+  }
+  // 自动切到最快源——用户原本就要"用最快的"
+  if(best&&dohValue!==best){
+    dohValue=best;dLabel.textContent=dohName(best);
+  }
+  renderDoh();
+  // 汇总
+  var sum=$('cmp-summary');if(sum&&us>0){
+    var sup=Math.max(...A.map(function(k){var v=dohLats[k];return(v===null||v===undefined)?0:v}));
+    var fail=A.filter(function(k){return(k in dohLats)&&dohLats[k]===null}).length;
+    var slow=A.filter(function(k){var v=dohLats[k];return(v!==null&&v!==undefined)&&v>=1000}).length;
+    var row='<div class="cmp-sum-item"><span class="cmp-sum-label">可用源</span><span class="cmp-sum-val">'+us+' / '+A.length+'</span></div>'+
+      '<div class="cmp-sum-item"><span class="cmp-sum-label">超时</span><span class="cmp-sum-val">'+(fail||'0')+'</span></div>'+
+      '<div class="cmp-sum-item"><span class="cmp-sum-label">慢（≥1000ms）</span><span class="cmp-sum-val">'+slow+'</span></div>'+
+      '<div class="cmp-sum-item"><span class="cmp-sum-label">平均延迟</span><span class="cmp-sum-val">'+avg+' ms</span></div>'+
+      '<div class="cmp-sum-item cmp-sum-recommend"><span class="cmp-sum-label">推荐使用</span><span class="cmp-sum-val"><span style="color:var(--green)">'+dohName(best)+'</span> '+dohLats[best]+'ms</span></div>';
+    sum.innerHTML=row;sum.style.display='flex';
+  }
 }
 function renderDoh(){
   var table=$('cmp-table'),empty=$('cmp-empty');if(!table)return;
   if(A.length===0){table.innerHTML='';if(empty)empty.style.display='block';return}
   if(empty)empty.style.display='none';
-  if($('cmp-count'))$('cmp-count').textContent=Object.keys(dohLats).length;
-  var best=dohBest();
+  var best=dohBest(),worst=dohWorst();
   var head='<thead><tr><th>DoH 源</th><th>延迟</th><th>操作</th></tr></thead>';
   var body='<tbody>'+A.map(function(k){
     var measured=(k in dohLats),l=dohLats[k];
-    var c=measured?(l===null?'fail':cls(l)):'fail';
-    var win=(k===best&&measured&&l!==null)?' cmp-win':'';
-    var cur=(k===dohValue)?' cmp-cur':'';
-    var label=measured?(l===null?'超时':l+'ms'):'未测';
-    var curTag=cur?' <span class="cmp-cur">当前</span>':'';
-    return '<tr><td class="domain-name">'+dohName(k)+curTag+'</td><td class="latency '+c+win+'">'+label+'</td><td><button class="cmp-pick" data-k="'+k+'">选用</button></td></tr>';
+    var c,win,warn,label;
+    if(!measured){c='fail';win='';warn='';label='未测';}
+    else if(l===null){c='fail';win='';warn=' cmp-soft-fail';label='超时';}
+    else{
+      c=cls(l);
+      win=(k===best&&best&&l!==null)?' cmp-win':'';
+      warn=(k===worst&&worst&&k!==best&&us()>=2&&l>=1000)?' cmp-warn':'';
+      label=l+'ms';
+    }
+    var cur=(k===dohValue)?' <span class="cmp-cur">✓ 当前</span>':'';
+    return '<tr><td class="domain-name">'+dohName(k)+cur+'</td><td class="latency '+c+win+warn+'">'+label+'</td><td><button class="cmp-pick" data-k="'+k+'">选用</button></td></tr>';
   }).join('')+'</tbody>';
   table.innerHTML=head+body;
   table.querySelectorAll('.cmp-pick').forEach(function(b){b.addEventListener('click',function(){dohPick(b.dataset.k)})});
 }
+// 可用源数（供 renderDoh 闭包用，避免函数递归依赖）
+function us(){return dohUsable()}
 $('cmp-test').addEventListener('click',dohTest);
 $('cmp-apply-all').addEventListener('click',function(){dohPick(dohBest())});
 renderDoh();

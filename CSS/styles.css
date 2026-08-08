@@ -54,7 +54,12 @@ head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
 }
 
 /* Controls */
-.controls{display:flex;gap:clamp(6px,.8vw,10px);align-items:center;flex-wrap:wrap}
+.controls{display:flex;flex-direction:column;gap:clamp(6px,.6vh,10px);margin-bottom:clamp(10px,1vh,14px)}
+.controls .ctl-row{display:flex;gap:clamp(6px,.8vw,10px);align-items:center;flex-wrap:wrap}
+.controls .ctl-row-accent{padding:clamp(6px,.6vh,10px) clamp(10px,1vw,14px);border-radius:clamp(8px,.8vw,10px);background:rgba(128,160,255,.06);border:1px solid rgba(128,160,255,.18)}
+.controls .doh-status-row{display:flex;align-items:center;gap:6px;font-size:clamp(11px,.9vw,13px);color:var(--muted);padding:2px 4px}
+.controls .doh-status-row .dot{width:clamp(5px,.5vw,7px);height:clamp(5px,.5vw,7px);border-radius:50%;background:var(--accent);animation:pulse 2s infinite;flex-shrink:0}
+.controls .doh-status-row #doh-status{color:var(--text);font-weight:500}
 .controls .btn{
   padding:clamp(8px,.8vh,12px) clamp(14px,1.4vw,22px);border-radius:clamp(8px,.8vw,10px);border:1px solid var(--border-strong);
   background:var(--glass-2);color:var(--text);font-family:var(--sans);font-size:clamp(13px,1.1vw,16px);font-weight:500;
@@ -81,8 +86,6 @@ head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
 }
 .controls .status-inline .dot{width:clamp(5px,.5vw,7px);height:clamp(5px,.5vw,7px);border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.controls .status-inline #cmp-status{color:var(--text);font-weight:500}
-
 
 /* Table */
 table{width:100%;border-collapse:collapse}
@@ -201,19 +204,32 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
 
 
 /* ===== DoH 延迟对比 ===== */
-.cmp-hint{font-size:clamp(12px,1vw,14px);color:var(--muted);margin-bottom:clamp(8px,1vh,12px);line-height:1.65}
-.cmp-actions{display:flex;gap:clamp(6px,.6vw,10px);flex-wrap:wrap;align-items:center;margin-bottom:clamp(10px,1vh,14px)}
+.cmp-hint{font-size:clamp(12px,1vw,14px);color:var(--muted);margin-bottom:clamp(8px,1vh,12px);line-height:1.75}
 .cmp-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:clamp(8px,.8vw,10px)}
 .cmp-table{width:100%;border-collapse:collapse;min-width:max-content}
 .cmp-table th,.cmp-table td{padding:clamp(7px,.6vh,10px) clamp(10px,1vw,16px);border-bottom:1px solid var(--border);font-size:clamp(12px,1vw,14px);white-space:nowrap;text-align:left}
 .cmp-table thead th{color:var(--muted);font-weight:600;font-size:clamp(11px,1vw,13px)}
 .cmp-table tbody tr:hover{background:rgba(128,160,255,.05)}
 .cmp-table .domain-name{font-family:var(--mono);color:var(--accent);font-size:clamp(11.5px,1vw,13.5px)}
-.cmp-table .latency{font-family:var(--mono);font-weight:600;padding:2px 8px;border-radius:999px;display:inline-block}
-.cmp-table .latency.cmp-win{outline:2px solid var(--green);box-shadow:0 0 10px rgba(74,222,128,.3)}
-.cmp-table .cmp-cur{color:var(--green);font-size:11px;font-weight:700;margin-left:5px}
+.cmp-table .latency{font-family:var(--mono);font-weight:600;padding:2px 8px;border-radius:999px;display:inline-block;min-width:54px;text-align:center}
+/* 最快：绿框 + 微光 */
+.cmp-table .latency.cmp-win{outline:2px solid var(--green);outline-offset:2px;box-shadow:0 0 12px rgba(74,222,128,.45);background:rgba(74,222,128,.08);color:var(--green)}
+/* 最慢（且≥1000ms）：红框警示 */
+.cmp-table .latency.cmp-warn{outline:2px solid var(--red);outline-offset:2px;background:rgba(248,113,113,.08);color:var(--red)}
+/* 超时：淡红底 + 灰字（区别于「未测」纯灰） */
+.cmp-table .latency.cmp-soft-fail{background:rgba(248,113,113,.08);color:rgba(248,113,113,.6);border:1px dashed rgba(248,113,113,.25)}
+/* "✓ 当前" 蓝点标记，跟绿框最快视觉区分 */
+.cmp-cur{color:var(--accent);font-size:11px;font-weight:700;margin-left:6px;display:inline-flex;align-items:center;gap:2px}
+.cmp-cur::before{content:'●';font-size:9px}
 .cmp-pick{background:var(--glass-2);border:1px solid var(--border-strong);color:var(--green);border-radius:6px;cursor:pointer;font-size:12px;padding:4px 9px;line-height:1;transition:.12s}
 .cmp-pick:hover{border-color:var(--green);background:rgba(74,222,128,.1)}
+/* 汇总行：横向排列 + 柔和底 */
+.cmp-summary{display:flex;gap:clamp(8px,.8vw,12px);flex-wrap:wrap;padding:clamp(10px,1.2vh,14px);margin-top:clamp(8px,1vh,12px);border-radius:clamp(8px,.8vw,10px);background:rgba(128,160,255,.05);border:1px solid rgba(128,160,255,.15);animation:in .35s var(--ease) both}
+.cmp-sum-item{display:flex;flex-direction:column;gap:2px;padding:clamp(5px,.5vh,8px) clamp(10px,1vw,14px);background:rgba(255,255,255,.04);border-radius:8px;border:1px solid var(--border)}
+.cmp-sum-label{font-size:clamp(10px,.9vw,12px);color:var(--muted);font-weight:500;letter-spacing:.05em}
+.cmp-sum-val{font-family:var(--mono);font-size:clamp(13px,1.1vw,15px);font-weight:700;color:var(--text)}
+.cmp-sum-recommend{flex:1 1 220px;background:rgba(74,222,128,.06);border-color:rgba(74,222,128,.25)}
+.cmp-sum-recommend .cmp-sum-val{font-size:clamp(14px,1.2vw,16px)}
 .cmp-empty{color:var(--muted);font-size:clamp(12.5px,1vw,14px);padding:clamp(12px,1.4vh,18px);text-align:center;border:1px dashed var(--border-strong);border-radius:10px;line-height:1.7}
 
 /* 右侧统计栏 */
