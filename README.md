@@ -1,4 +1,4 @@
-# GitHub Hosts 加速工具
+# GitHub Hosts 优化器
 
 一个**纯前端**的网页小工具：帮你把 GitHub 那一堆域名在当前网络下**最快的 IP** 查出来，自动生成一份 `hosts` 文本，再给你一个 Windows 一键脚本，把 hosts 写进本机 —— 让直连 GitHub 慢得像在翻墙的环境也能跑得顺畅。
 
@@ -182,7 +182,7 @@ MIT。随便用、随便改。
 
 ## English
 
-# GitHub Hosts Accelerator
+# GitHub Hosts Optimizer
 
 A **pure front-end** web tool that finds the **fastest IP** for GitHub's domains on your current network, generates a `hosts` file automatically, and gives you a one-click Windows script to apply it — so GitHub loads smoothly even where direct access is slow.
 

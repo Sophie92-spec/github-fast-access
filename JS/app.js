@@ -22,8 +22,8 @@ let dohValue='auto';
 /* ===== 国际化 i18n（中文 / English） ===== */
 const I18N={
   zh:{
-    page_title:'GitHub Hosts 加速器',
-    app_title:'GitHub Hosts 加速器',
+    page_title:'GitHub Hosts 优化器',
+    app_title:'GitHub Hosts 优化器',
     app_sub:'DoH 查询最优 IP · 一键生成 hosts · .bat 脚本',
     sec_cmp:'📊 解析表 · DoH 源 + GitHub 域名',
     cmp_hint:'测每个 DoH 源的延迟并自动切最快源解析下方全部 GitHub 域名；每个域名会实测各候选 IP 延迟、<b>自动选用最快的那个</b>。<span style="color:var(--green)">绿框</span> = 最快，<span style="color:var(--red)">红框</span> = 最慢（≥1000ms）。点「🔄 重测延迟」可在不重跑 DoH 测速的情况下刷新域名延迟与最快 IP。',
@@ -111,8 +111,8 @@ const I18N={
     cmp_empty:'点「⚡ 测 DoH + 解析域名」开始：先测每个 DoH 源的延迟，挑最快用于解析下方全部 12 个 GitHub 域名。<b>绿框</b> = 最快，<b>红框</b> = 最慢（≥1000ms）。'
   },
   en:{
-    page_title:'GitHub Hosts Accelerator',
-    app_title:'GitHub Hosts Accelerator',
+    page_title:'GitHub Hosts Optimizer',
+    app_title:'GitHub Hosts Optimizer',
     app_sub:'Find the fastest IP via DoH · generate hosts · .bat script',
     sec_cmp:'📊 Comparison · DoH sources + GitHub domains',
     cmp_hint:'Measures each DoH source\'s latency and auto-picks the fastest to resolve all GitHub domains below; each domain gets its candidate IPs latency-tested and the <b>fastest one is auto-selected</b>. <span style="color:var(--green)">Green box</span> = fastest, <span style="color:var(--red)">red box</span> = slowest (≥1000ms). Click <b>🔄 Retest latency</b> to refresh domain latency and fastest IP without re-running the DoH speed test.',
