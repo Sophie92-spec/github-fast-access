@@ -21,21 +21,38 @@ html{font-size:16px;background:var(--bg)}
   --sans:"Segoe UI",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
 }
 body{
-  font-family:var(--sans);background:var(--bg);color:var(--text);
+  font-family:var(--sans);background:radial-gradient(125% 120% at 50% -10%, transparent 36%, rgba(0,0,0,.42) 100%), var(--bg);color:var(--text);
   line-height:1.6;min-height:100vh;position:relative;overflow-x:hidden;
   -webkit-font-smoothing:antialiased;font-size:1rem;
 }
 body::before{
-  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  content:'';position:fixed;inset:-20%;z-index:0;pointer-events:none;
   background:
     radial-gradient(42% 52% at 12% 16%, rgba(128,160,255,.22), transparent 60%),
-    radial-gradient(40% 50% at 88% 12%, rgba(176,144,248,.20), transparent 62%),
-    radial-gradient(46% 56% at 82% 86%, rgba(74,222,128,.14), transparent 64%),
-    radial-gradient(52% 60% at 16% 92%, rgba(96,165,250,.15), transparent 62%);
+    radial-gradient(40% 50% at 88% 12%, rgba(176,144,248,.20), transparent 62%);
+  will-change:transform;
+  animation:bgA 26s ease-in-out infinite;
 }
 body::after{
-  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:radial-gradient(125% 120% at 50% -10%, transparent 36%, rgba(0,0,0,.42) 100%);
+  content:'';position:fixed;inset:-20%;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(46% 56% at 82% 86%, rgba(74,222,128,.14), transparent 64%),
+    radial-gradient(52% 60% at 16% 92%, rgba(96,165,250,.15), transparent 62%);
+  will-change:transform;
+  animation:bgB 32s ease-in-out infinite;
+}
+@keyframes bgA{
+  0%{transform:translate3d(0,0,0) scale(1)}
+  50%{transform:translate3d(4%,-3%,0) scale(1.12)}
+  100%{transform:translate3d(0,0,0) scale(1)}
+}
+@keyframes bgB{
+  0%{transform:translate3d(0,0,0) scale(1.05)}
+  50%{transform:translate3d(-4%,4%,0) scale(1)}
+  100%{transform:translate3d(0,0,0) scale(1.05)}
+}
+@media (prefers-reduced-motion:reduce){
+  body::before,body::after{animation:none}
 }
 .layout{display:flex;align-items:flex-start;justify-content:center;gap:clamp(14px,2vw,24px);max-width:calc(980px + clamp(260px,22vw,320px) + clamp(28px,4vw,48px));margin:0 auto;padding:clamp(24px,4vh,48px) clamp(12px,2vw,24px) clamp(40px,6vh,64px);position:relative;z-index:1}
 .wrap{position:relative;z-index:1;flex:1 1 980px;max-width:980px;margin:0 auto;min-width:0}
