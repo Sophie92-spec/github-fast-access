@@ -48,13 +48,21 @@
 ## 怎么把 hosts 真正写进系统
 
 1. 打开页面，点「⚡ 测 DoH + 解析域名」—— 它会**一步做完**：测 DoH 延迟 → 自动切最快源 → 解析全部 12 个域名 → 逐 IP 测延迟 → 自动选用最快 IP。
-2. 确认域名都勾选了（不需要的可以取消勾选）。
+2. 确认域名都勾选了（不需要的可以取消勾选；**解析失败的域名默认不勾选**，避免把不通的 IP 写进系统）。
 3. 点「生成 .bat」，下载脚本。
 4. **双击运行**（或右键 → 以管理员身份运行）—— 会弹 UAC 提权，点「是」。
 5. 脚本自动：备份原 hosts → 写入新条目 → 刷新 DNS 缓存，结果**停在窗口里**让你看清楚。
 6. 重开浏览器，去 GitHub 试试速度。
 
-不想用脚本也行：点「复制」拿到 hosts 文本，以管理员身份打开 `C:\Windows\System32\drivers\etc\hosts` 粘贴进去保存，再在 CMD 里执行 `ipconfig /flushdns`，一样生效。
+### 不想用脚本？手动也行（两种方式）
+
+**方式一：复制文本框内容**
+点「复制」拿到 hosts 文本 → 以**管理员身份**打开 `C:\Windows\System32\drivers\etc\hosts`（记事本 / VSCode 都行，但必须管理员，否则保存被拒）→ 把文本粘贴到文件末尾 → 保存 → 在 CMD / PowerShell 里执行 `ipconfig /flushdns`，生效。
+
+**方式二：下载 `hosts.txt`**
+点「下载 hosts.txt」拿到一份 `hosts.txt`（内容就是文本框里那份）。两种用法任选其一：
+- 直接打开 `hosts.txt`，复制里面的内容，按「方式一」手动贴进系统 hosts；
+- 或把 `hosts.txt` 改名为 `hosts`（**无扩展名**），以管理员身份覆盖到 `C:\Windows\System32\drivers\etc\hosts`，再 `ipconfig /flushdns`。
 
 ### 关于那个 `.bat` 脚本
 
