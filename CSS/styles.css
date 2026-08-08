@@ -460,6 +460,15 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
 @keyframes tpflow{from{background-position:0 0}to{background-position:200% 0}}
 .tp-label{margin-top:6px;font-size:.8rem;color:var(--muted);text-align:center;letter-spacing:.02em}
 
+/* 版本标识（右下角小字，便于用户确认拿到最新版） */
+.ver-tag{
+  position:fixed;right:12px;bottom:10px;font-size:11px;color:var(--muted);
+  background:rgba(15,20,32,.7);padding:3px 8px;border-radius:8px;
+  border:1px solid var(--border);z-index:50;pointer-events:none;
+  font-family:ui-monospace,Consolas,monospace;letter-spacing:.3px;
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+}
+
 /* 无障碍：尊重「减少动态效果」系统偏好，关闭非必要动画（保留功能） */
 @media (prefers-reduced-motion: reduce){
   *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}

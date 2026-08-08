@@ -154,51 +154,63 @@ async function dohTest(){
   var ds=$('doh-status');ds.textContent='DoH 状态：测速中…';
   dohLats={};renderUnified();$('cmp-summary').style.display='none';if($('cmp-empty'))$('cmp-empty').style.display='none';
   setProgress(0,'准备测速…');
-  var total=A.length,done=0,batch=4;
-  for(var i=0;i<A.length;i+=batch){
-    var chunk=A.slice(i,i+batch);
-    await Promise.all(chunk.map(async function(k){
-      var s=performance.now();
-      try{await rwp('github.com',k);dohLats[k]=Math.round(performance.now()-s);}
-      catch(e){dohLats[k]=null;}
-      done++;ds.textContent='DoH 状态：测速中 '+done+'/'+total;setProgress(Math.round(done/total*35),'测 DoH 源 '+done+'/'+total);renderUnified();
-    }));
-  }
-  var best=dohBest(),worst=dohWorst(),usN=us(),avg=dohAvg();
-  if(usN===0){
-    ds.textContent='DoH 状态：全 '+total+' 个源都连不上';
-    toast('测速完成（都连不上）','bad');
-  }else if(usN<A.length){
-    ds.textContent='DoH 状态：'+usN+'/'+total+' 可用，最快 '+dohName(best)+' '+dohLats[best]+'ms（均 '+avg+'ms）';
-    toast('最快 '+dohName(best)+' '+dohLats[best]+'ms','good');
-  }else{
-    ds.textContent='DoH 状态：'+usN+'/'+total+' 全部可用，最快 '+dohName(best)+' '+dohLats[best]+'ms（均 '+avg+'ms）';
-    toast('最快 '+dohName(best)+' '+dohLats[best]+'ms','good');
-  }
-  // 汇总
-  var sum=$('cmp-summary');
-  if(sum&&usN>0){
-    var fail=A.filter(function(k){return(k in dohLats)&&dohLats[k]===null}).length;
-    var slow=A.filter(function(k){var v=dohLats[k];return(v!==null&&v!==undefined)&&v>=1000}).length;
-    var row='<div class="cmp-sum-item"><span class="cmp-sum-label">可用源</span><span class="cmp-sum-val">'+usN+' / '+A.length+'</span></div>'+
-      '<div class="cmp-sum-item"><span class="cmp-sum-label">超时</span><span class="cmp-sum-val">'+(fail||'0')+'</span></div>'+
-      '<div class="cmp-sum-item"><span class="cmp-sum-label">慢（≥1000ms）</span><span class="cmp-sum-val">'+slow+'</span></div>'+
-      '<div class="cmp-sum-item"><span class="cmp-sum-label">平均延迟</span><span class="cmp-sum-val">'+avg+' ms</span></div>'+
-      '<div class="cmp-sum-item cmp-sum-recommend"><span class="cmp-sum-label">推荐使用</span><span class="cmp-sum-val"><span style="color:var(--green)">'+dohName(best)+'</span> '+dohLats[best]+'ms</span></div>';
-    sum.innerHTML=row;sum.style.display='flex';
-  }
-  // 自动切到最快源并解析域名（用户核心诉求："只用 DoH"）
-  if(best){
-    dohValue=best;dLabel.textContent=dohName(best);
-    renderUnified();
-    setProgress(35,'解析 GitHub 域名…');
-    await fetchDomains(function(p){setProgress(35+Math.round(p*0.6),'解析 GitHub 域名…')});
-    setProgress(100,'完成 ✓');
-  }else{
+  // 硬超时兜底：万一 DoH 源全卡住，30s 后强制结束（不会让按钮永远停在 "…"）
+  var hardTimer=setTimeout(function(){
+    if(!cmpTesting)return;
+    ds.textContent='DoH 状态：测速超时（30s 未完成，可能网络问题）';
     setProgress(null);
+    cmpTesting=false;btn.disabled=false;btn.textContent='⚡ 测 DoH + 解析域名';
+    toast('测速超时，建议检查网络或换源','bad');
+  },30000);
+  try{
+    var total=A.length,done=0,batch=4;
+    for(var i=0;i<A.length;i+=batch){
+      var chunk=A.slice(i,i+batch);
+      await Promise.all(chunk.map(async function(k){
+        var s=performance.now();
+        try{await rwp('github.com',k);dohLats[k]=Math.round(performance.now()-s);}
+        catch(e){dohLats[k]=null;}
+        done++;ds.textContent='DoH 状态：测速中 '+done+'/'+total;setProgress(Math.round(done/total*35),'测 DoH 源 '+done+'/'+total);renderUnified();
+      }));
+    }
+    var best=dohBest(),worst=dohWorst(),usN=us(),avg=dohAvg();
+    if(usN===0){
+      ds.textContent='DoH 状态：全 '+total+' 个源都连不上';
+      toast('测速完成（都连不上）','bad');
+    }else if(usN<A.length){
+      ds.textContent='DoH 状态：'+usN+'/'+total+' 可用，最快 '+dohName(best)+' '+dohLats[best]+'ms（均 '+avg+'ms）';
+      toast('最快 '+dohName(best)+' '+dohLats[best]+'ms','good');
+    }else{
+      ds.textContent='DoH 状态：'+usN+'/'+total+' 全部可用，最快 '+dohName(best)+' '+dohLats[best]+'ms（均 '+avg+'ms）';
+      toast('最快 '+dohName(best)+' '+dohLats[best]+'ms','good');
+    }
+    // 汇总
+    var sum=$('cmp-summary');
+    if(sum&&usN>0){
+      var fail=A.filter(function(k){return(k in dohLats)&&dohLats[k]===null}).length;
+      var slow=A.filter(function(k){var v=dohLats[k];return(v!==null&&v!==undefined)&&v>=1000}).length;
+      var row='<div class="cmp-sum-item"><span class="cmp-sum-label">可用源</span><span class="cmp-sum-val">'+usN+' / '+A.length+'</span></div>'+
+        '<div class="cmp-sum-item"><span class="cmp-sum-label">超时</span><span class="cmp-sum-val">'+(fail||'0')+'</span></div>'+
+        '<div class="cmp-sum-item"><span class="cmp-sum-label">慢（≥1000ms）</span><span class="cmp-sum-val">'+slow+'</span></div>'+
+        '<div class="cmp-sum-item"><span class="cmp-sum-label">平均延迟</span><span class="cmp-sum-val">'+avg+' ms</span></div>'+
+        '<div class="cmp-sum-item cmp-sum-recommend"><span class="cmp-sum-label">推荐使用</span><span class="cmp-sum-val"><span style="color:var(--green)">'+dohName(best)+'</span> '+dohLats[best]+'ms</span></div>';
+      sum.innerHTML=row;sum.style.display='flex';
+    }
+    // 自动切到最快源并解析域名（用户核心诉求："只用 DoH"）
+    if(best){
+      dohValue=best;dLabel.textContent=dohName(best);
+      renderUnified();
+      setProgress(35,'解析 GitHub 域名…');
+      await fetchDomains(function(p){setProgress(35+Math.round(p*0.6),'解析 GitHub 域名…')});
+      setProgress(100,'完成 ✓');
+    }else{
+      setProgress(null);
+    }
+  }finally{
+    clearTimeout(hardTimer);
+    cmpTesting=false;btn.disabled=false;btn.textContent='⚡ 测 DoH + 解析域名';
+    setTimeout(function(){setProgress(null)},800);
   }
-  cmpTesting=false;btn.disabled=false;btn.textContent='⚡ 测 DoH + 解析域名';
-  setTimeout(function(){setProgress(null)},800);
 }
 
 // 渲染统一表：DoH 源 + GitHub 域名合并为一张表
