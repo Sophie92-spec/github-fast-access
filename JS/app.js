@@ -1,5 +1,6 @@
 const DOMAINS=['github.com','api.github.com','raw.githubusercontent.com','objects.githubusercontent.com','codeload.github.com','github.global.ssl.fastly.net','assets-cdn.github.com','github.githubassets.com','gist.github.com','live.github.com','favicons.githubusercontent.com','collector.github.com'];
-const P={dnspod:{url:d=>`https://doh.pub/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},alidns:{url:d=>`https://dns.alidns.com/resolve?name=${d}&type=A`,headers:{}},cloudflare:{url:d=>`https://cloudflare-dns.com/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},google:{url:d=>`https://dns.google/resolve?name=${d}&type=A`,headers:{}},quad9:{url:d=>`https://dns.quad9.net/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},adguard:{url:d=>`https://dns.adguard-dns.com/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},360:{url:d=>`https://doh.360.cn/resolve?name=${d}&type=A`,headers:{}}};
+// 仅保留国内可达且 CORS 友好的 DoH 源（与 A 一致）；其余在国内被墙/无 CORS 头，留着也只是死代码
+const P={alidns:{url:d=>`https://dns.alidns.com/resolve?name=${d}&type=A`,headers:{}},'360':{url:d=>`https://doh.360.cn/resolve?name=${d}&type=A`,headers:{}}};
 // 仅保留国内可达且 CORS 友好的 DoH 源（阿里/360）。其余（DNSPod 无 CORS 头、Google/Cloudflare/Quad9/AdGuard 国内被墙）前端 fetch 必失败，测了只会增加等待，故只测这两个
 const A=['alidns','360'];
 const S={};DOMAINS.forEach(d=>{S[d]={domain:d,ips:[],selectedIp:'',status:'pending',latency:null,included:false}});
