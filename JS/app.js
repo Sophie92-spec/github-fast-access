@@ -301,7 +301,7 @@ function gen(restore) {
       'try {',
       '  $content = Get-Content $hostsPath -Raw -ErrorAction SilentlyContinue',
       '  if ($content) { $content = $content -replace \'(?s)\\r?\\n?# GitHub Hosts Start.*?# GitHub Hosts End\\r?\\n?\', "`n" } else { $content = "" }',
-      '  Set-Content -Path $hostsPath -Value $content.TrimEnd() + "`n" -Encoding UTF8 -NoNewline',
+      '  Set-Content -Path $hostsPath -Value ($content.TrimEnd() + "`n") -Encoding UTF8 -NoNewline',
       '  ipconfig /flushdns | Out-Null',
       '  Write-Host "Removed GitHub Hosts entries and flushed DNS." -ForegroundColor Green',
       '} catch {',
