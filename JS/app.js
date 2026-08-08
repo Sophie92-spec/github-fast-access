@@ -58,7 +58,17 @@ function ipCellHtml(d){
   return'<span style="color:var(--muted)">—</span>';
 }
 
-function update(){const e=[];DOMAINS.forEach(d=>{const s=S[d];if(s.included&&domStatusOk(d)&&s.selectedIp&&/^(\d{1,3}\.){3}\d{1,3}$/.test(s.selectedIp))e.push(`${s.selectedIp.padEnd(22)} ${d}`)});H.value=`# GitHub Hosts Start (更新于 ${new Date().toLocaleString('zh-CN')})\n${e.join('\n')}\n# GitHub Hosts End`;$('hosts-count').textContent=e.length;H.style.height='auto';H.style.height=H.scrollHeight+'px'}
+function update(){const e=[];DOMAINS.forEach(d=>{const s=S[d];if(s.included&&domStatusOk(d)&&s.selectedIp&&/^(\d{1,3}\.){3}\d{1,3}$/.test(s.selectedIp))e.push(`${s.selectedIp.padEnd(22)} ${d}`)});H.value=`# GitHub Hosts Start (更新于 ${new Date().toLocaleString('zh-CN')})\n${e.join('\n')}\n# GitHub Hosts End`;$('hosts-count').textContent=e.length;  H.style.height='auto';H.style.height=H.scrollHeight+'px'}
+
+// 测试进度条：pct 为 0-100 显示并设宽度；pct 为 null/undefined 隐藏
+function setProgress(pct,label){
+  var box=$('test-progress'),bar=$('test-progress-bar'),lab=$('test-progress-label');
+  if(!box)return;
+  if(pct===null||pct===undefined){box.style.display='none';return;}
+  box.style.display='block';
+  bar.style.width=Math.max(0,Math.min(100,pct))+'%';
+  if(label)lab.textContent=label;
+}
 
 async function pickAuto(){
   const races=A.map(k=>rwp('github.com',k).then(()=>k).catch(()=>null));
