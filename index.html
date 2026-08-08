@@ -16,7 +16,8 @@
     <div class="section-title">📊 DoH 延迟对比</div>
     <div class="cmp-hint">测每个 DoH 解析源（DNSPod / 阿里 / Cloudflare / Google…）的延迟，挑最快的用于后续「🔍 获取 IP」。<span style="color:var(--green)">绿框</span> = 本次最快，<span style="color:var(--red)">红框</span> = 本次最慢（不建议用），<span style="color:var(--green)">✓ 当前</span> = 下拉选中的源。<b>测完后会自动切到最快的源</b>，不用再手动点。</div>
     <div class="controls">
-      <div class="ctl-row">
+      <!-- Row 1: DoH 配置行（绿底强调 · 源选择/测速） -->
+      <div class="ctl-row ctl-row-doh">
         <div id="doh-trigger-wrap">
           <button type="button" class="btn doh-trigger" id="doh-trigger">
             <span id="doh-label">自动 DoH</span>
@@ -25,14 +26,16 @@
         </div>
         <button class="btn" id="cmp-test">⚡ 测 DoH 延迟</button>
         <button class="btn" id="cmp-apply-all">✅ 选用最快</button>
-        <button class="btn" id="test-btn">⚡ 测 IP 延迟</button>
+        <div class="status-inline status-doh"><span class="dot"></span><span id="doh-status">DoH 未测速</span></div>
       </div>
+
+      <!-- Row 2: IP 获取主区（紫底强调 · 主操作/测延迟） -->
       <div class="ctl-row ctl-row-accent">
         <button class="btn primary" id="fetch-btn">🔍 获取 IP</button>
         <div class="prog" id="progress"><div class="fill" id="progress-fill"></div></div>
-        <div class="status-inline"><span class="dot"></span><span id="ip-status">就绪</span></div>
+        <div class="status-inline status-ip"><span class="dot"></span><span id="ip-status">就绪</span></div>
+        <button class="btn" id="test-btn">⚡ 测 IP 延迟</button>
       </div>
-      <div class="doh-status-row"><span class="dot"></span><span id="doh-status">DoH 状态：未测</span></div>
     </div>
     <div class="cmp-table-wrap"><table class="cmp-table" id="cmp-table"></table></div>
     <div class="cmp-summary" id="cmp-summary" style="display:none"></div>
@@ -118,6 +121,6 @@
 </div></div>
 <div class="toast" id="toast"></div>
 
-<script src="JS/app.js?v=20260808m"></script>
+<script src="JS/app.js?v=20260808n"></script>
 </body>
 </html>

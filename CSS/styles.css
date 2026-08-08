@@ -53,13 +53,13 @@ head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
   box-shadow:var(--shadow);
 }
 
-/* Controls */
-.controls{display:flex;flex-direction:column;gap:clamp(6px,.6vh,10px);margin-bottom:clamp(10px,1vh,14px)}
-.controls .ctl-row{display:flex;gap:clamp(6px,.8vw,10px);align-items:center;flex-wrap:wrap}
-.controls .ctl-row-accent{padding:clamp(6px,.6vh,10px) clamp(10px,1vw,14px);border-radius:clamp(8px,.8vw,10px);background:rgba(128,160,255,.06);border:1px solid rgba(128,160,255,.18)}
-.controls .doh-status-row{display:flex;align-items:center;gap:6px;font-size:clamp(11px,.9vw,13px);color:var(--muted);padding:2px 4px}
-.controls .doh-status-row .dot{width:clamp(5px,.5vw,7px);height:clamp(5px,.5vw,7px);border-radius:50%;background:var(--accent);animation:pulse 2s infinite;flex-shrink:0}
-.controls .doh-status-row #doh-status{color:var(--text);font-weight:500}
+/* Controls - 三行节奏，DoH 配置行（绿底） + IP 获取主区（紫底） + 状态位差异化 */
+.controls{display:flex;flex-direction:column;gap:clamp(8px,.8vh,12px);margin-bottom:clamp(10px,1vh,14px)}
+.controls .ctl-row{display:flex;gap:clamp(8px,.8vw,12px);align-items:center;flex-wrap:wrap;padding:clamp(8px,.8vh,12px) clamp(12px,1.2vw,16px);border-radius:clamp(10px,1vw,12px);border:1px solid var(--border-strong)}
+/* Row 1: DoH 配置行（绿调柔底，强调"源选择 / 测速"是第一步） */
+.ctl-row-doh{background:rgba(74,222,128,.045);border-color:rgba(74,222,128,.18)}
+/* Row 2: IP 获取主区（紫调柔底，强调"获取 IP + 测延迟"是核心操作） */
+.ctl-row-accent{background:rgba(128,160,255,.07);border-color:rgba(128,160,255,.22);box-shadow:0 2px 14px rgba(128,160,255,.06) inset}
 .controls .btn{
   padding:clamp(8px,.8vh,12px) clamp(14px,1.4vw,22px);border-radius:clamp(8px,.8vw,10px);border:1px solid var(--border-strong);
   background:var(--glass-2);color:var(--text);font-family:var(--sans);font-size:clamp(13px,1.1vw,16px);font-weight:500;
@@ -79,12 +79,19 @@ head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
 .controls .prog.on{display:block}
 .controls .prog .fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0%;border-radius:99px;transition:width .25s var(--ease)}
 
-/* Status inline */
+/* Status inline - 基础 + DoH/IP 两种差异化 */
 .controls .status-inline{
   display:flex;align-items:center;gap:clamp(6px,.6vw,8px);font-size:clamp(12px,1vw,14px);color:var(--muted);
-  padding:0 clamp(8px,1vw,14px) 0 clamp(2px,.3vw,6px);flex-shrink:0;border-left:1px solid var(--border-strong);margin-left:auto;
+  flex-shrink:0;
 }
-.controls .status-inline .dot{width:clamp(5px,.5vw,7px);height:clamp(5px,.5vw,7px);border-radius:50%;background:var(--green);flex-shrink:0;animation:pulse 2s infinite}
+.controls .status-inline .dot{width:clamp(5px,.5vw,7px);height:clamp(5px,.5vw,7px);border-radius:50%;animation:pulse 2s infinite;flex-shrink:0}
+/* DoH 状态：靠右贴边 + 竖线（与「测 DoH 延迟」按钮形成视觉单元） */
+.controls .status-doh{margin-left:auto;padding-left:clamp(12px,1.2vw,16px);border-left:1px solid var(--border-strong)}
+.controls .status-doh .dot{background:var(--accent)}
+.controls .status-doh #doh-status{color:var(--text);font-weight:500}
+/* IP 状态：紧贴进度条（无竖线，避免和「测 IP 延迟」按钮视觉冲突） */
+.controls .status-ip .dot{background:var(--green)}
+.controls .status-ip #ip-status{color:var(--text);font-weight:500}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
 /* Table */
