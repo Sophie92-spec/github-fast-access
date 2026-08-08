@@ -1,6 +1,7 @@
 const DOMAINS=['github.com','api.github.com','raw.githubusercontent.com','objects.githubusercontent.com','codeload.github.com','github.global.ssl.fastly.net','assets-cdn.github.com','github.githubassets.com','gist.github.com','live.github.com','favicons.githubusercontent.com','collector.github.com'];
 const P={dnspod:{url:d=>`https://doh.pub/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},alidns:{url:d=>`https://dns.alidns.com/resolve?name=${d}&type=A`,headers:{}},cloudflare:{url:d=>`https://cloudflare-dns.com/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},google:{url:d=>`https://dns.google/resolve?name=${d}&type=A`,headers:{}},quad9:{url:d=>`https://dns.quad9.net/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},adguard:{url:d=>`https://dns.adguard-dns.com/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},360:{url:d=>`https://doh.360.cn/resolve?name=${d}&type=A`,headers:{}}};
-const A=['dnspod','alidns','cloudflare','google','quad9','adguard','360'];
+// 顺序：国内可用（CORS 友好）的源排前面，被墙/无 CORS 的排后面作兜底
+const A=['alidns','360','dnspod','cloudflare','google','quad9','adguard'];
 const S={};DOMAINS.forEach(d=>{S[d]={domain:d,ips:[],selectedIp:'',status:'pending',latency:null,included:false}});
 const $=id=>document.getElementById(id),H=$('hosts-content'),T=$('toast');
 let dohValue='auto';
@@ -27,8 +28,15 @@ dTrigger.addEventListener('click',function(e){e.stopPropagation();openDoh()});
 document.addEventListener('click',function(e){if(dMenu&&!dMenu.contains(e.target)&&e.target!==dTrigger)closeDoh()});
 window.addEventListener('resize',closeDoh);window.addEventListener('scroll',closeDoh,true);
 function toast(m,g){T.textContent=m;T.className='toast on '+(g||'');setTimeout(()=>T.className='toast',2500)}
-async function rwp(d,k,t=2500){const p=P[k],c=new AbortController();const id=setTimeout(()=>c.abort(),t);try{const r=await fetch(p.url(d),{headers:p.headers,signal:c.signal});clearTimeout(id);const d2=await r.json();return d2.Answer?d2.Answer.filter(a=>a.type===1).map(a=>a.data):[]}catch(e){clearTimeout(id);throw e}}
-async function rd(d,pref){const ps=pref==='auto'?A:[pref];for(const p of ps){try{const ips=await rwp(d,p);if(ips.length>0)return{ips}}catch(e){}}return{ips:[]}}
+async function rwp(d,k,t=3500){const p=P[k],c=new AbortController();const id=setTimeout(()=>c.abort(),t);try{const r=await fetch(p.url(d),{headers:p.headers,signal:c.signal});clearTimeout(id);const d2=await r.json();return d2.Answer?d2.Answer.filter(a=>a.type===1).map(a=>a.data):[]}catch(e){clearTimeout(id);throw e}}
+// 解析域名：优先用 pref 指定的源；若该源失败（如 DNSPod 无 CORS 被浏览器拦），自动兜底试其他所有源
+async function rd(d,pref){
+  const order=pref==='auto'?A:[pref,...A.filter(x=>x!==pref)];
+  for(const p of order){
+    try{const ips=await rwp(d,p);if(ips.length>0)return{ips}}catch(e){}
+  }
+  return{ips:[]}
+}
 function tl(d,t=5000){return new Promise(r=>{const img=new Image(),s=performance.now();let done=false;const id=setTimeout(()=>{if(!done){done=true;r(null)}},t);img.onload=img.onerror=()=>{if(!done){done=true;clearTimeout(id);r(Math.round(performance.now()-s))}};img.src=`https://${d}/favicon.ico?_t=${Date.now()}`})}
 // 按具体 IP 实测延迟（用于"选最快 IP"）：直接连该 IP 的 443，TLS 失败也算到达，取耗时作 RTT 代理
 async function ipLat(ip,t=3500){for(var a=0;a<2;a++){var v=await new Promise(function(r){var img=new Image(),s=performance.now(),done=false;var id=setTimeout(function(){if(!done){done=true;r(null)}},t);img.onload=img.onerror=function(){if(!done){done=true;clearTimeout(id);r(Math.round(performance.now()-s))}};img.src='https://'+ip+'/favicon.ico?_t='+Date.now()+'_a'+a});if(v!==null)return v}return null}
@@ -173,11 +181,11 @@ async function dohTest(){
         done++;ds.textContent='DoH 状态：测速中 '+done+'/'+total;setProgress(Math.round(done/total*35),'测 DoH 源 '+done+'/'+total);renderUnified();
       }));
     }
-    var best=dohBest(),worst=dohWorst(),usN=us(),avg=dohAvg();
-    if(usN===0){
-      ds.textContent='DoH 状态：全 '+total+' 个源都连不上';
-      toast('测速完成（都连不上）','bad');
-    }else if(usN<A.length){
+  var best=dohBest(),worst=dohWorst(),usN=us(),avg=dohAvg();
+  if(usN===0){
+    ds.textContent='DoH 状态：所有源都连不上（网络可能限制了 DoH）';
+    toast('所有 DoH 源都无法连接：可手动输入 IP，或换网络/热点再试','bad');
+  }else if(usN<A.length){
       ds.textContent='DoH 状态：'+usN+'/'+total+' 可用，最快 '+dohName(best)+' '+dohLats[best]+'ms（均 '+avg+'ms）';
       toast('最快 '+dohName(best)+' '+dohLats[best]+'ms','good');
     }else{
