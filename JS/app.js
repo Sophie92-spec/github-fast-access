@@ -4,7 +4,6 @@ const A=['dnspod','alidns','cloudflare','google','quad9','adguard','360'];
 const S={};DOMAINS.forEach(d=>{S[d]={domain:d,ips:[],selectedIp:'',status:'pending',latency:null,included:true}});
 const $=id=>document.getElementById(id),H=$('hosts-content'),T=$('toast');
 let dohValue='auto';
-let stateLoaded=false;
 // Portal dropdown
 const dTrigger=$('doh-trigger'),dLabel=$('doh-label'),dWrap=$('doh-trigger-wrap');
 const OPTIONS=[{v:'auto',t:'自动 DoH'},{v:'dnspod',t:'DNSPod (腾讯)'},{v:'alidns',t:'AliDNS (阿里)'},{v:'cloudflare',t:'Cloudflare'},{v:'google',t:'Google'},{v:'quad9',t:'Quad9 (隐私)'},{v:'adguard',t:'AdGuard (去广告)'},{v:'360',t:'360 DoH'}];
@@ -37,28 +36,6 @@ function cls(l){if(l===null)return'fail';if(l<200)return'good';if(l<800)return'o
 function txt(l){return l===null?'—':l+'ms'}
 function domStatusOk(d){return S[d].status==='success'&&S[d].ips.length>0}
 
-// ===== 设置记忆（localStorage 持久化：DoH 源 / 各域名选中状态 / 上次解析结果 / 测速时间）=====
-var LS_KEY='gh_hosts_state_v1';
-function saveState(){
-  if(!stateLoaded)return;
-  try{
-    var st={dohValue:dohValue,dohLats:dohLats,lastFetchAt:lastFetchAt,domains:{}};
-    DOMAINS.forEach(function(d){var s=S[d];st.domains[d]={ips:s.ips,selectedIp:s.selectedIp,status:s.status,latency:s.latency,ipLats:s.ipLats,included:s.included}});
-    localStorage.setItem(LS_KEY,JSON.stringify(st));
-  }catch(e){}
-}
-function loadState(){
-  try{
-    var raw=localStorage.getItem(LS_KEY);if(!raw)return;
-    var st=JSON.parse(raw);
-    if(st.dohValue){dohValue=st.dohValue;dLabel.textContent=dohName(dohValue);}
-    if(st.dohLats)dohLats=st.dohLats;
-    if(typeof st.lastFetchAt==='number')lastFetchAt=st.lastFetchAt;
-    if(st.domains)DOMAINS.forEach(function(d){if(st.domains[d]){var src=st.domains[d],s=S[d];s.ips=src.ips||[];s.selectedIp=src.selectedIp||'';s.status=src.status||'pending';s.latency=(src.latency===undefined?null:src.latency);s.ipLats=src.ipLats||null;s.included=(src.included!==false);}});
-    if($('doh-status')){var u=us();if(u>0)$('doh-status').textContent='DoH 上次测速 '+u+'/'+A.length+' 可用';}
-  }catch(e){}
-  stateLoaded=true;
-}
 
 // IP 单元格渲染（域名行用）：根据 status 渲染不同控件
 function ipCellHtml(d){
@@ -326,7 +303,6 @@ async function verifyConn(){
 $('cmp-test').addEventListener('click',dohTest);
 $('retest-lat').addEventListener('click',retestLatency);
 $('verify-conn').addEventListener('click',verifyConn);
-loadState();
 renderUnified();
 
 function gen(restore) {
