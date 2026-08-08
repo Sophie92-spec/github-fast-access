@@ -1,13 +1,13 @@
 const DOMAINS=['github.com','api.github.com','raw.githubusercontent.com','objects.githubusercontent.com','codeload.github.com','github.global.ssl.fastly.net','assets-cdn.github.com','github.githubassets.com','gist.github.com','live.github.com','favicons.githubusercontent.com','collector.github.com'];
 const P={dnspod:{url:d=>`https://doh.pub/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},alidns:{url:d=>`https://dns.alidns.com/resolve?name=${d}&type=A`,headers:{}},cloudflare:{url:d=>`https://cloudflare-dns.com/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},google:{url:d=>`https://dns.google/resolve?name=${d}&type=A`,headers:{}},quad9:{url:d=>`https://dns.quad9.net/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},adguard:{url:d=>`https://dns.adguard-dns.com/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},360:{url:d=>`https://doh.360.cn/resolve?name=${d}&type=A`,headers:{}}};
-// 顺序：国内可用（CORS 友好）的源排前面，被墙/无 CORS 的排后面作兜底
-const A=['alidns','360','dnspod','cloudflare','google','quad9','adguard'];
+// 仅保留国内可达且 CORS 友好的 DoH 源（阿里/360）。其余（DNSPod 无 CORS 头、Google/Cloudflare/Quad9/AdGuard 国内被墙）前端 fetch 必失败，测了只会增加等待，故只测这两个
+const A=['alidns','360'];
 const S={};DOMAINS.forEach(d=>{S[d]={domain:d,ips:[],selectedIp:'',status:'pending',latency:null,included:false}});
 const $=id=>document.getElementById(id),H=$('hosts-content'),T=$('toast');
 let dohValue='auto';
 // Portal dropdown
 const dTrigger=$('doh-trigger'),dLabel=$('doh-label'),dWrap=$('doh-trigger-wrap');
-const OPTIONS=[{v:'auto',t:'自动 DoH'},{v:'dnspod',t:'DNSPod (腾讯)'},{v:'alidns',t:'AliDNS (阿里)'},{v:'cloudflare',t:'Cloudflare'},{v:'google',t:'Google'},{v:'quad9',t:'Quad9 (隐私)'},{v:'adguard',t:'AdGuard (去广告)'},{v:'360',t:'360 DoH'}];
+const OPTIONS=[{v:'auto',t:'自动 DoH'},{v:'alidns',t:'AliDNS (阿里)'},{v:'360',t:'360 DoH'}];
 let dMenu=null;
 function closeDoh(){if(dMenu){dMenu.remove();dMenu=null;dWrap.classList.remove('doh-open')}}
 function openDoh(){
@@ -28,7 +28,7 @@ dTrigger.addEventListener('click',function(e){e.stopPropagation();openDoh()});
 document.addEventListener('click',function(e){if(dMenu&&!dMenu.contains(e.target)&&e.target!==dTrigger)closeDoh()});
 window.addEventListener('resize',closeDoh);window.addEventListener('scroll',closeDoh,true);
 function toast(m,g){T.textContent=m;T.className='toast on '+(g||'');setTimeout(()=>T.className='toast',2500)}
-async function rwp(d,k,t=3500){const p=P[k],c=new AbortController();const id=setTimeout(()=>c.abort(),t);try{const r=await fetch(p.url(d),{headers:p.headers,signal:c.signal});clearTimeout(id);const d2=await r.json();return d2.Answer?d2.Answer.filter(a=>a.type===1).map(a=>a.data):[]}catch(e){clearTimeout(id);throw e}}
+async function rwp(d,k,t=2500){const p=P[k],c=new AbortController();const id=setTimeout(()=>c.abort(),t);try{const r=await fetch(p.url(d),{headers:p.headers,signal:c.signal});clearTimeout(id);const d2=await r.json();return d2.Answer?d2.Answer.filter(a=>a.type===1).map(a=>a.data):[]}catch(e){clearTimeout(id);throw e}}
 // 解析域名：优先用 pref 指定的源；若该源失败（如 DNSPod 无 CORS 被浏览器拦），自动兜底试其他所有源
 async function rd(d,pref){
   const order=pref==='auto'?A:[pref,...A.filter(x=>x!==pref)];
@@ -39,7 +39,7 @@ async function rd(d,pref){
 }
 function tl(d,t=5000){return new Promise(r=>{const img=new Image(),s=performance.now();let done=false;const id=setTimeout(()=>{if(!done){done=true;r(null)}},t);img.onload=img.onerror=()=>{if(!done){done=true;clearTimeout(id);r(Math.round(performance.now()-s))}};img.src=`https://${d}/favicon.ico?_t=${Date.now()}`})}
 // 按具体 IP 实测延迟（用于"选最快 IP"）：直接连该 IP 的 443，TLS 失败也算到达，取耗时作 RTT 代理
-async function ipLat(ip,t=3500){for(var a=0;a<2;a++){var v=await new Promise(function(r){var img=new Image(),s=performance.now(),done=false;var id=setTimeout(function(){if(!done){done=true;r(null)}},t);img.onload=img.onerror=function(){if(!done){done=true;clearTimeout(id);r(Math.round(performance.now()-s))}};img.src='https://'+ip+'/favicon.ico?_t='+Date.now()+'_a'+a});if(v!==null)return v}return null}
+async function ipLat(ip,t=2500){return new Promise(function(r){var img=new Image(),s=performance.now(),done=false;var id=setTimeout(function(){if(!done){done=true;r(null)}},t);img.onload=img.onerror=function(){if(!done){done=true;clearTimeout(id);r(Math.round(performance.now()-s))}};img.src='https://'+ip+'/favicon.ico?_t='+Date.now()})}
 function cls(l){if(l===null)return'fail';if(l<200)return'good';if(l<800)return'ok';return'slow'}
 function txt(l){return l===null?'—':l+'ms'}
 function domStatusOk(d){return S[d].status==='success'&&S[d].ips.length>0}
@@ -61,7 +61,7 @@ function update(){const e=[];DOMAINS.forEach(d=>{const s=S[d];if(s.included&&dom
 
 async function pickAuto(){
   const races=A.map(k=>rwp('github.com',k).then(()=>k).catch(()=>null));
-  let pref=await Promise.race([...races,new Promise(r=>setTimeout(()=>r(null),3000))]);
+  let pref=await Promise.race([...races,new Promise(r=>setTimeout(()=>r(null),2500))]);
   if(!pref){for(const k of A){try{await rwp('github.com',k);pref=k;break}catch(e){}}}
   return pref;
 }
@@ -73,7 +73,7 @@ async function fetchDomains(onProg){
   if(ok0>0)DOMAINS.forEach(d=>{S[d].status='loading'});   // 二次解析时显示过渡态
   renderUnified();
   const pref=dohValue==='auto'?await pickAuto():dohValue;
-  const batch=4,total=DOMAINS.length;
+  const batch=6,total=DOMAINS.length;
   for(let i=0;i<total;i+=batch){
     const chunk=DOMAINS.slice(i,i+batch);
     await Promise.all(chunk.map(async d=>{
@@ -97,7 +97,7 @@ async function fetchDomains(onProg){
 }
 // 测每个域名候选 IP 的延迟，自动选用最快；并发限 4。无 IP 的域名跳过
 async function measureDomainLatency(onProg){
-  const batch=4,total=DOMAINS.length;
+  const batch=6,total=DOMAINS.length;
   for(let i=0;i<total;i+=batch){
     const chunk=DOMAINS.slice(i,i+batch);
     await Promise.all(chunk.map(async d=>{
@@ -113,7 +113,7 @@ async function measureDomainLatency(onProg){
         S[d].ips.forEach((ip,idx)=>{const v=lats[idx];if(v!==null&&(bv===null||v<bv)){bv=v;bi=ip}});
         S[d].selectedIp=bi;lat=bv;
       }
-      if(lat===null)lat=await tl(d,3500); // 回退：IP 探测全超时则用域名级延迟
+      if(lat===null)lat=await tl(d,2500); // 回退：IP 探测全超时则用域名级延迟
       S[d].latency=lat;
       renderUnified();
     }));
