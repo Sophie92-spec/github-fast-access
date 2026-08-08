@@ -1,7 +1,7 @@
 const DOMAINS=['github.com','api.github.com','raw.githubusercontent.com','objects.githubusercontent.com','codeload.github.com','github.global.ssl.fastly.net','assets-cdn.github.com','github.githubassets.com','gist.github.com','live.github.com','favicons.githubusercontent.com','collector.github.com'];
 const P={dnspod:{url:d=>`https://doh.pub/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},alidns:{url:d=>`https://dns.alidns.com/resolve?name=${d}&type=A`,headers:{}},cloudflare:{url:d=>`https://cloudflare-dns.com/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},google:{url:d=>`https://dns.google/resolve?name=${d}&type=A`,headers:{}},quad9:{url:d=>`https://dns.quad9.net/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},adguard:{url:d=>`https://dns.adguard-dns.com/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},360:{url:d=>`https://doh.360.cn/resolve?name=${d}&type=A`,headers:{}}};
 const A=['dnspod','alidns','cloudflare','google','quad9','adguard','360'];
-const S={};DOMAINS.forEach(d=>{S[d]={domain:d,ips:[],selectedIp:'',status:'pending',latency:null,included:true}});
+const S={};DOMAINS.forEach(d=>{S[d]={domain:d,ips:[],selectedIp:'',status:'pending',latency:null,included:false}});
 const $=id=>document.getElementById(id),H=$('hosts-content'),T=$('toast');
 let dohValue='auto';
 // Portal dropdown
@@ -49,7 +49,7 @@ function ipCellHtml(d){
   return'<span style="color:var(--muted)">—</span>';
 }
 
-function update(){const e=[];DOMAINS.forEach(d=>{const s=S[d];if(s.included&&s.selectedIp&&/^(\d{1,3}\.){3}\d{1,3}$/.test(s.selectedIp))e.push(`${s.selectedIp.padEnd(22)} ${d}`)});H.value=`# GitHub Hosts Start (更新于 ${new Date().toLocaleString('zh-CN')})\n${e.join('\n')}\n# GitHub Hosts End`;$('hosts-count').textContent=e.length;H.style.height='auto';H.style.height=H.scrollHeight+'px'}
+function update(){const e=[];DOMAINS.forEach(d=>{const s=S[d];if(s.included&&domStatusOk(d)&&s.selectedIp&&/^(\d{1,3}\.){3}\d{1,3}$/.test(s.selectedIp))e.push(`${s.selectedIp.padEnd(22)} ${d}`)});H.value=`# GitHub Hosts Start (更新于 ${new Date().toLocaleString('zh-CN')})\n${e.join('\n')}\n# GitHub Hosts End`;$('hosts-count').textContent=e.length;H.style.height='auto';H.style.height=H.scrollHeight+'px'}
 
 async function pickAuto(){
   const races=A.map(k=>rwp('github.com',k).then(()=>k).catch(()=>null));
@@ -76,6 +76,9 @@ async function fetchDomains(){
   }
   // 按延迟自动选用每个域名的最快 IP（轻量版"候选 IP 对比"）
   await measureDomainLatency();
+  // 自动按解析结果勾选：成功的勾上、失败的不勾（覆盖用户此前手动设置）
+  DOMAINS.forEach(d=>{S[d].included=domStatusOk(d)});
+  renderUnified();
   lastFetchAt=Date.now();
   const ok=DOMAINS.filter(domStatusOk).length;
   return ok;
@@ -233,10 +236,16 @@ function renderUnified(){
   var pendN=DOMAINS.filter(d=>S[d].status==='loading').length;
   var progTxt=pendN>0?('解析中 '+pendN+'/'+DOMAINS.length+'…'):(okN+' / '+DOMAINS.length+' 解析成功');
   var fr=freshness();
+  // 「全选」checkbox：只对解析成功的项生效；checked 状态以"可用项是否全勾"为准
+  var usableDoms=DOMAINS.filter(domStatusOk);
+  var allUsableOn=usableDoms.length>0&&usableDoms.every(d=>S[d].included);
+  var selectAllHtml=usableDoms.length>0
+    ?'<label class="divider-sel"><input type="checkbox" id="select-all" '+(allUsableOn?'checked':'')+'> 全选</label>'
+    :'';
   var divider='<tr class="row-divider"><td colspan="4">'+
     '<span class="divider-title">📌 GitHub 域名</span>'+
     '<span class="divider-meta'+(fr.stale?' stale':'')+'">'+progTxt+' · '+fr.text+'</span>'+
-    '<label class="divider-sel"><input type="checkbox" id="select-all" '+(DOMAINS.every(d=>S[d].included)?'checked':'')+'> 全选</label>'+
+    selectAllHtml+
     '</td></tr>';
 
   // —— 段 3：域名行 ——
@@ -268,7 +277,15 @@ function renderUnified(){
   table.querySelectorAll('.ip-select').forEach(function(sel){sel.addEventListener('change',e=>{S[e.target.dataset.domain].selectedIp=e.target.value;update()})});
   table.querySelectorAll('.ip-input').forEach(function(inp){inp.addEventListener('input',e=>{S[e.target.dataset.domain].selectedIp=e.target.value.trim();update()})});
   var selAll=$('select-all');
-  if(selAll)selAll.addEventListener('change',e=>{DOMAINS.forEach(d=>{S[d].included=e.target.checked});table.querySelectorAll('.inc-cb').forEach(cb=>{cb.checked=e.target.checked});update()});
+  if(selAll)selAll.addEventListener('change',e=>{
+    var ck=e.target.checked;
+    // 「全选」只作用于解析成功的项——避免一键把失败项也勾上
+    DOMAINS.forEach(d=>{if(domStatusOk(d))S[d].included=ck});
+    table.querySelectorAll('.inc-cb').forEach(cb=>{
+      if(domStatusOk(cb.dataset.domain))cb.checked=ck;
+    });
+    update()
+  });
 }
 
 async function retestLatency(){
