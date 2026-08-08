@@ -26,30 +26,30 @@ body{
   -webkit-font-smoothing:antialiased;font-size:1rem;
 }
 body::before{
-  content:'';position:fixed;inset:-22%;z-index:0;pointer-events:none;
+  content:'';position:fixed;inset:-25%;z-index:0;pointer-events:none;
   background:
     radial-gradient(42% 52% at 12% 16%, rgba(128,160,255,.22), transparent 60%),
     radial-gradient(40% 50% at 88% 12%, rgba(176,144,248,.20), transparent 62%);
   will-change:transform;
-  animation:bgA 20s ease-in-out infinite;
+  animation:bgA 12s ease-in-out infinite;
 }
 body::after{
-  content:'';position:fixed;inset:-22%;z-index:0;pointer-events:none;
+  content:'';position:fixed;inset:-25%;z-index:0;pointer-events:none;
   background:
     radial-gradient(46% 56% at 82% 86%, rgba(74,222,128,.14), transparent 64%),
     radial-gradient(52% 60% at 16% 92%, rgba(96,165,250,.15), transparent 62%);
   will-change:transform;
-  animation:bgB 24s ease-in-out infinite;
+  animation:bgB 16s ease-in-out infinite;
 }
 @keyframes bgA{
-  0%{transform:translate3d(0,0,0) scale(1.02)}
-  50%{transform:translate3d(11%,-8%,0) scale(1.18)}
-  100%{transform:translate3d(0,0,0) scale(1.02)}
+  0%{transform:translate3d(0,0,0) rotate(0deg) scale(1.05)}
+  50%{transform:translate3d(13%,-10%,0) rotate(10deg) scale(1.18)}
+  100%{transform:translate3d(0,0,0) rotate(0deg) scale(1.05)}
 }
 @keyframes bgB{
-  0%{transform:translate3d(0,0,0) scale(1.06)}
-  50%{transform:translate3d(-10%,7%,0) scale(1.1)}
-  100%{transform:translate3d(0,0,0) scale(1.06)}
+  0%{transform:translate3d(0,0,0) rotate(0deg) scale(1.08)}
+  50%{transform:translate3d(-12%,9%,0) rotate(-10deg) scale(1.12)}
+  100%{transform:translate3d(0,0,0) rotate(0deg) scale(1.08)}
 }
 @media (prefers-reduced-motion:reduce){
   body::before,body::after{animation:none}
