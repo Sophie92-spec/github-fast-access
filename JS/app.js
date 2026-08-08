@@ -31,7 +31,7 @@ async function rwp(d,k,t=2500){const p=P[k],c=new AbortController();const id=set
 async function rd(d,pref){const ps=pref==='auto'?A:[pref];for(const p of ps){try{const ips=await rwp(d,p);if(ips.length>0)return{ips}}catch(e){}}return{ips:[]}}
 function tl(d,t=5000){return new Promise(r=>{const img=new Image(),s=performance.now();let done=false;const id=setTimeout(()=>{if(!done){done=true;r(null)}},t);img.onload=img.onerror=()=>{if(!done){done=true;clearTimeout(id);r(Math.round(performance.now()-s))}};img.src=`https://${d}/favicon.ico?_t=${Date.now()}`})}
 // 按具体 IP 实测延迟（用于"选最快 IP"）：直接连该 IP 的 443，TLS 失败也算到达，取耗时作 RTT 代理
-function ipLat(ip,t=2500){return new Promise(function(r){var img=new Image(),s=performance.now(),done=false;var id=setTimeout(function(){if(!done){done=true;r(null)}},t);img.onload=img.onerror=function(){if(!done){done=true;clearTimeout(id);r(Math.round(performance.now()-s))}};img.src='https://'+ip+'/favicon.ico?_t='+Date.now()})}
+async function ipLat(ip,t=3500){for(var a=0;a<2;a++){var v=await new Promise(function(r){var img=new Image(),s=performance.now(),done=false;var id=setTimeout(function(){if(!done){done=true;r(null)}},t);img.onload=img.onerror=function(){if(!done){done=true;clearTimeout(id);r(Math.round(performance.now()-s))}};img.src='https://'+ip+'/favicon.ico?_t='+Date.now()+'_a'+a});if(v!==null)return v}return null}
 function cls(l){if(l===null)return'fail';if(l<200)return'good';if(l<800)return'ok';return'slow'}
 function txt(l){return l===null?'—':l+'ms'}
 function domStatusOk(d){return S[d].status==='success'&&S[d].ips.length>0}
@@ -279,30 +279,8 @@ async function retestLatency(){
   if(btn)btn.disabled=false;
   toast('域名延迟已重测，已自动选用最快 IP','good');
 }
-// 连通性验证：对当前已选域名逐一发起请求，确认 hosts 是否真正生效
-async function verifyConn(){
-  var btn=$('verify-conn');if(btn)btn.disabled=true;
-  var ds=$('conn-status');if(ds)ds.textContent='连通：检测中…';
-  var inc=DOMAINS.filter(d=>S[d].included&&S[d].status==='success'&&S[d].selectedIp);
-  if(inc.length===0){toast('请先解析域名后再测连通','bad');if(btn)btn.disabled=false;if(ds)ds.textContent='未解析';return;}
-  var res=[];
-  for(var i=0;i<inc.length;i++){
-    var d=inc[i],s=performance.now();
-    try{await fetch('https://'+d+'?_cb='+Date.now(),{method:'GET',cache:'no-store',mode:'no-cors'});res.push({d:d,ok:true,ms:Math.round(performance.now()-s)});}
-    catch(e){res.push({d:d,ok:false,ms:null});}
-  }
-  if(btn)btn.disabled=false;
-  var okN=res.filter(function(r){return r.ok}).length;
-  var box=$('conn-result');
-  if(box){box.innerHTML=res.map(function(r){return r.ok?'<span class="conn-chip ok">✓ '+r.d+' '+r.ms+'ms</span>':'<span class="conn-chip bad">✗ '+r.d+' 不可达</span>'}).join('');box.style.display='flex';}
-  if(ds)ds.textContent='连通：'+okN+'/'+inc.length+' 可达';
-  if(okN===inc.length)toast('✅ 全部 '+okN+' 个域名可达，hosts 生效中','good');
-  else if(okN===0)toast('❌ 全部不可达，请检查网络或重新解析','bad');
-  else toast('⚠️ '+okN+'/'+inc.length+' 可达，'+(inc.length-okN)+' 个不可达','bad');
-}
 $('cmp-test').addEventListener('click',dohTest);
 $('retest-lat').addEventListener('click',retestLatency);
-$('verify-conn').addEventListener('click',verifyConn);
 renderUnified();
 
 function gen(restore) {

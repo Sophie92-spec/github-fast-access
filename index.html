@@ -24,7 +24,6 @@
         <span class="step-divider"></span>
         <span class="step-hint">测速后自动用最快源解析下方 GitHub 域名</span>
         <span class="status-chip status-chip-doh"><span class="chip-dot"></span><span id="doh-status">DoH 未测速</span></span>
-        <span class="status-chip status-chip-conn"><span class="chip-dot"></span><span id="conn-status">连通 未测</span></span>
       </div>
       <div class="step-body doh-step-body">
         <div id="doh-trigger-wrap">
@@ -36,14 +35,12 @@
         </div>
         <button class="btn btn-glow-green" id="cmp-test">⚡ 测 DoH + 解析域名</button>
         <button class="btn" id="retest-lat">🔄 重测延迟</button>
-        <button class="btn" id="verify-conn">🌐 测连通</button>
       </div>
     </div>
 
     <!-- 统一表：DoH 源 + GitHub 域名（同表，类型徽章区分，去重保留不同项） -->
     <div class="cmp-table-wrap"><table class="cmp-table" id="cmp-table"></table></div>
     <div class="cmp-summary" id="cmp-summary" style="display:none"></div>
-    <div class="conn-result" id="conn-result" style="display:none"></div>
     <div class="cmp-empty" id="cmp-empty">点「⚡ 测 DoH + 解析域名」开始：先测每个 DoH 源的延迟，挑最快用于解析下方全部 12 个 GitHub 域名。<b>绿框</b> = 最快，<b>红框</b> = 最慢（≥1000ms）。</div>
   </div>
 
@@ -122,6 +119,6 @@
 </div></div>
 <div class="toast" id="toast"></div>
 
-<script src="JS/app.js?v=20260808v"></script>
+<script src="JS/app.js?v=20260808w"></script>
 </body>
 </html>
