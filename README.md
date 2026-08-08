@@ -19,7 +19,7 @@
 
 ## 它到底干了什么（三句话讲清）
 
-1. **测延迟挑最快 DoH 源**：测国内可用的公共 DNS-over-HTTPS 源（默认阿里 / 360）解析 `github.com` 的耗时，自动切到当前网络里最快的那个。
+1. **测延迟挑最快 DoH 源**：并列测全部 DoH 源（国内可用的 AliDNS / 360 / DNSPod，以及国际 CORS 友好的 Cloudflare / Google / Quad9 / AdGuard / OpenDNS / Mullvad）解析 `github.com` 的耗时，自动切到当前网络里最快且能用的那个。
 2. **解析 + 选最快 IP**：用最快的 DoH 源把 12 个 GitHub 域名解析成候选 IP，再**逐 IP 实测延迟，自动选用每个域名最快的那一个**。
 3. **生成 hosts / 一键脚本**：把选好的 IP 拼成 hosts 文本，给你一个 Windows `.bat` 脚本，双击就写进系统。
 

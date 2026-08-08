@@ -1,14 +1,26 @@
 const DOMAINS=['github.com','api.github.com','raw.githubusercontent.com','objects.githubusercontent.com','codeload.github.com','github.global.ssl.fastly.net','assets-cdn.github.com','github.githubassets.com','gist.github.com','live.github.com','favicons.githubusercontent.com','collector.github.com'];
-// 仅保留国内可达且 CORS 友好的 DoH 源（与 A 一致）；其余在国内被墙/无 CORS 头，留着也只是死代码
-const P={alidns:{url:d=>`https://dns.alidns.com/resolve?name=${d}&type=A`,headers:{}},'360':{url:d=>`https://doh.360.cn/resolve?name=${d}&type=A`,headers:{}}};
-// 仅保留国内可达且 CORS 友好的 DoH 源（阿里/360）。其余（DNSPod 无 CORS 头、Google/Cloudflare/Quad9/AdGuard 国内被墙）前端 fetch 必失败，测了只会增加等待，故只测这两个
-const A=['alidns','360'];
+// DoH 源定义：国内可达（阿里/360）+ 国际 CORS 友好源（Cloudflare/Google/Quad9/AdGuard/OpenDNS/Mullvad）。
+// 国际源在国内多数被墙，但仍列出来——能直连的网络（VPN/特殊线路）可用；自动测速已改为并行，多源也不拖慢。
+// 注：DNSPod(doh.pub) 国内可达但服务端不发 CORS 头，浏览器 fetch 会被拦，故仅作下拉选项；解析时由 rd() 自动兜底回退到可用源。
+const P={
+  alidns:{url:d=>`https://dns.alidns.com/resolve?name=${d}&type=A`,headers:{}},
+  '360':{url:d=>`https://doh.360.cn/resolve?name=${d}&type=A`,headers:{}},
+  dnspod:{url:d=>`https://doh.pub/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},
+  cloudflare:{url:d=>`https://cloudflare-dns.com/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},
+  google:{url:d=>`https://dns.google/resolve?name=${d}&type=A`,headers:{}},
+  quad9:{url:d=>`https://dns.quad9.net/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},
+  adguard:{url:d=>`https://dns.adguard-dns.com/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},
+  opendns:{url:d=>`https://doh.opendns.com/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},
+  mullvad:{url:d=>`https://doh.mullvad.net/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}}
+};
+// 自动测速覆盖全部源（并行执行，总耗时≈单源耗时，不会因源多而变慢）；国内网络通常仅阿里/360 可用
+const A=['alidns','360','dnspod','cloudflare','google','quad9','adguard','opendns','mullvad'];
 const S={};DOMAINS.forEach(d=>{S[d]={domain:d,ips:[],selectedIp:'',status:'pending',latency:null,included:false}});
 const $=id=>document.getElementById(id),H=$('hosts-content'),T=$('toast');
 let dohValue='auto';
 // Portal dropdown
 const dTrigger=$('doh-trigger'),dLabel=$('doh-label'),dWrap=$('doh-trigger-wrap');
-const OPTIONS=[{v:'auto',t:'自动 DoH'},{v:'alidns',t:'AliDNS (阿里)'},{v:'360',t:'360 DoH'}];
+const OPTIONS=[{v:'auto',t:'自动 DoH'},{v:'alidns',t:'AliDNS (阿里)'},{v:'360',t:'360 DoH'},{v:'dnspod',t:'DNSPod (腾讯)'},{v:'cloudflare',t:'Cloudflare'},{v:'google',t:'Google'},{v:'quad9',t:'Quad9 (隐私)'},{v:'adguard',t:'AdGuard (去广告)'},{v:'opendns',t:'OpenDNS (Cisco)'},{v:'mullvad',t:'Mullvad'}];
 let dMenu=null;
 function closeDoh(){if(dMenu){dMenu.remove();dMenu=null;dWrap.classList.remove('doh-open')}}
 function openDoh(){
@@ -182,16 +194,15 @@ async function dohTest(){
     toast('测速超时，建议检查网络或换源','bad');
   },30000);
   try{
-    var total=A.length,done=0,batch=4;
-    for(var i=0;i<A.length;i+=batch){
-      var chunk=A.slice(i,i+batch);
-      await Promise.all(chunk.map(async function(k){
-        var s=performance.now();
-        try{await rwp('github.com',k);dohLats[k]=Math.round(performance.now()-s);}
-        catch(e){dohLats[k]=null;}
-        done++;ds.textContent='DoH 状态：测速中 '+done+'/'+total;setProgress(Math.round(done/total*35),'测 DoH 源 '+done+'/'+total);renderUnified();
-      }));
-    }
+    var total=A.length,done=0;
+    setProgress(2,'测 DoH 源 0/'+total);
+    await Promise.all(A.map(async function(k){
+      var s=performance.now();
+      try{await rwp('github.com',k);dohLats[k]=Math.round(performance.now()-s);}
+      catch(e){dohLats[k]=null;}
+      done++;ds.textContent='DoH 状态：测速中 '+done+'/'+total;
+      setProgress(Math.max(2,Math.round(done/total*35)),'测 DoH 源 '+done+'/'+total);renderUnified();
+    }));
   var best=dohBest(),worst=dohWorst(),usN=us(),avg=dohAvg();
   if(usN===0){
     ds.textContent='DoH 状态：所有源都连不上（网络可能限制了 DoH）';
