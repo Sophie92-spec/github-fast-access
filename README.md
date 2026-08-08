@@ -1,8 +1,10 @@
 # GitHub Hosts 加速工具
 
-一个纯前端的网页小工具：帮你把 GitHub 那一堆域名在当前网络下**最快的 IP** 查出来，自动生成一份 `hosts` 文本，再给你一个 Windows 一键脚本，把 hosts 写进本机 —— 让直连 GitHub 慢得像在翻墙的环境也能跑得顺畅。
+一个**纯前端**的网页小工具：帮你把 GitHub 那一堆域名在当前网络下**最快的 IP** 查出来，自动生成一份 `hosts` 文本，再给你一个 Windows 一键脚本，把 hosts 写进本机 —— 让直连 GitHub 慢得像在翻墙的环境也能跑得顺畅。
 
-不需要装任何东西，打开网页就能用。
+- ✅ 不用装任何东西，打开网页就能用
+- ✅ **中英双语**，右上角一键切换（偏好自动记住）
+- ✅ 一键生成 Windows 自提权 `.bat` 脚本，双击即用
 
 ---
 
@@ -13,13 +15,13 @@
 - 主站：[https://sophieyoucha.cc.cd/](https://sophieyoucha.cc.cd/)
 - 备用（GitHub Pages 官方域）：[https://sophie92-spec.github.io/github-fast-access/](https://sophie92-spec.github.io/github-fast-access/)
 
-> ⚠️ 因为站点挂在 Cloudflare 边缘缓存后面，**改完代码后看到的可能是旧版**。如果功能对不上，请用无痕窗口，或在页面上按 `Ctrl + Shift + R` 强制刷新。
+> ⚠️ 因为站点挂在 Cloudflare 边缘缓存后面，**改完代码后看到的可能是旧版**。如果功能对不上，请用无痕窗口，或在页面上按 `Ctrl + Shift + R`（Mac：`Cmd + Shift + R`）强制刷新。看右下角版本号（如 `v 20260809c`）可确认是否最新。
 
 ---
 
 ## 它到底干了什么（三句话讲清）
 
-1. **测延迟挑最快 DoH 源**：并列测全部 DoH 源（国内可用的 AliDNS / 360 / DNSPod，以及国际 CORS 友好的 Cloudflare / Google / Quad9 / AdGuard / OpenDNS / Mullvad）解析 `github.com` 的耗时，自动切到当前网络里最快且能用的那个。
+1. **测延迟挑最快 DoH 源**：并行测全部 DoH 源（国内可用的 AliDNS / 360 / DNSPod，以及国际 CORS 友好的 Cloudflare / Google / Quad9 / AdGuard / OpenDNS / Mullvad）解析 `github.com` 的耗时，自动切到当前网络里最快且能用的那个。
 2. **解析 + 选最快 IP**：用最快的 DoH 源把 12 个 GitHub 域名解析成候选 IP，再**逐 IP 实测延迟，自动选用每个域名最快的那一个**。
 3. **生成 hosts / 一键脚本**：把选好的 IP 拼成 hosts 文本，给你一个 Windows `.bat` 脚本，双击就写进系统。
 
@@ -42,6 +44,19 @@
 - 蓝色 `✓ 当前` = 下拉框当前选中的 DoH 源
 
 **分隔行**（📌 GitHub 域名）会显示解析进度和**数据新鲜度**：比如「更新于 14:30（12 分钟前）」；超过 6 小时会自动变红并加 ⚠，提醒你重测。
+
+---
+
+## 语言（中文 / English）
+
+页面**默认跟随浏览器语言**，右上角有一个 **🌐 语言切换按钮**：
+
+- 当前是中文时显示 **🇬🇧 EN**，点一下切到英文；
+- 当前是英文时显示 **🇨🇳 中文**，点一下切回中文。
+
+切换是**即时**的——整页（界面文字、解析表、状态、统计）会立刻重渲染，**无需刷新页面**。你的选择会记在浏览器 `localStorage`，下次打开自动沿用。
+
+> 统计数字也会跟着语言变：中文显示「万 / 亿」紧凑单位（如 `1.2万`），英文显示千位逗号（如 `12,345`）。
 
 ---
 
@@ -74,7 +89,7 @@
 
 Windows 第一次跑会冒一个「已保护你的电脑」的提示（SmartScreen 拦不认识的程序，不是脚本有害），点「更多信息 → 仍要运行」即可。脚本完全开源透明。
 
-> 为什么用 `.bat` 而不是 `.ps1`：之前的 `.ps1` 在 Windows 默认执行策略下加载就被拒，窗口红字一闪就没了；`.bat` 不受此限制，也不会有编码乱码问题。
+> 为什么用 `.bat` 而不是 `.ps1`：之前的 `.ps1` 在 Windows 默认执行策略下加载就被拒，窗口红字一闪就没了；`.bat` 不受此限制，也不会有编码乱码问题（脚本内容为纯 ASCII，经 UTF-16LE Base64 嵌入，杜绝 GBK 解析乱码）。
 
 ---
 
@@ -141,13 +156,15 @@ python -m http.server 8765
 
 直接双击 `index.html` 也能跑（注意：统计后端走的是线上 Cloudflare Worker，本地不影响主要功能）。
 
+> 改完前端代码后，记得把 `index.html` 里 `<script src="JS/app.js?v=...">` 的版本号升一档，否则浏览器/Cloudflare 会沿用旧缓存。
+
 ### 项目结构
 
 ```
 github-fast-access/
-├── index.html            # 主页面
-├── CSS/styles.css        # 样式（玻璃拟态深色主题 + 动效）
-├── JS/app.js             # 核心逻辑：DoH 测速 / 域名解析 / 延迟实测 / 自动选最快 IP / 统计 / 下拉菜单
+├── index.html            # 主页面（含 🌐 语言切换按钮）
+├── CSS/styles.css        # 样式（玻璃拟态深色主题 + 动效 + 语言按钮）
+├── JS/app.js             # 核心逻辑：i18n 双语 / DoH 测速 / 域名解析 / 延迟实测 / 自动选最快 IP / 统计 / 下拉菜单
 ├── worker/index.js       # 可选：Cloudflare Workers 访问统计后端（KV: GH_STATS）
 ├── worker/wrangler.toml  # Worker 部署配置
 ├── CNAME                 # GitHub Pages 自定义域名
@@ -167,9 +184,11 @@ MIT。随便用、随便改。
 
 # GitHub Hosts Accelerator
 
-A pure front-end web tool that finds the **fastest IP** for GitHub's domains on your current network, generates a `hosts` file automatically, and gives you a one-click Windows script to apply it — so GitHub loads smoothly even where direct access is slow.
+A **pure front-end** web tool that finds the **fastest IP** for GitHub's domains on your current network, generates a `hosts` file automatically, and gives you a one-click Windows script to apply it — so GitHub loads smoothly even where direct access is slow.
 
-No install needed. Just open the page.
+- ✅ No install needed. Just open the page.
+- ✅ **Bilingual (中文 / English)** — switch instantly from the top-right button (your choice is remembered).
+- ✅ One-click Windows self-elevating `.bat` script, double-click to apply.
 
 ---
 
@@ -180,7 +199,7 @@ Both addresses point to the same page; use whichever opens:
 - Main: [https://sophieyoucha.cc.cd/](https://sophieyoucha.cc.cd/)
 - Backup (official GitHub Pages domain): [https://sophie92-spec.github.io/github-fast-access/](https://sophie92-spec.github.io/github-fast-access/)
 
-> ⚠️ Because the site sits behind Cloudflare's edge cache, **you may see an old version after a code change**. If something doesn't match, open a private/incognito window, or press `Ctrl + Shift + R` on the page to force a refresh.
+> ⚠️ Because the site sits behind Cloudflare's edge cache, **you may see an old version after a code change**. If something doesn't match, open a private/incognito window, or press `Ctrl + Shift + R` (Mac: `Cmd + Shift + R`) on the page to force a refresh. The version tag at the bottom-right (e.g. `v 20260809c`) confirms whether you're on the latest.
 
 ---
 
@@ -209,6 +228,19 @@ The top **📊 comparison table** merges **DoH sources** and **GitHub domains** 
 - Blue `✓ Current` = the DoH source currently selected in the dropdown
 
 The **divider row** (📌 GitHub Domains) shows resolution progress and **data freshness**: e.g. "Updated at 14:30 (12 min ago)". After 6 hours it turns red with ⚠ to remind you to re-test.
+
+---
+
+## Language (中文 / English)
+
+The page **defaults to your browser language**. There is a **🌐 language toggle** at the top-right:
+
+- When the current language is Chinese, it shows **🇬🇧 EN** — click to switch to English.
+- When the current language is English, it shows **🇨🇳 中文** — click to switch back to Chinese.
+
+Switching is **instant** — the whole page (UI text, comparison table, status, and stats) re-renders immediately, **no page refresh needed**. Your choice is stored in the browser's `localStorage` and reused on the next visit.
+
+> Stats numbers also follow the language: Chinese uses compact units `万 / 亿` (e.g. `1.2万`); English uses thousands separators (e.g. `12,345`).
 
 ---
 
@@ -241,7 +273,7 @@ What you download is a **self-elevating batch** (not `.ps1`): double-clicking fi
 
 Windows may show a "Windows protected your PC" prompt on first run (SmartScreen blocking an unknown program, not because the script is harmful) — click "More info → Run anyway". The script is fully open-source and transparent.
 
-> Why `.bat` instead of `.ps1`: the previous `.ps1` was rejected at load time by Windows' default execution policy — the window flashed red and closed. `.bat` isn't limited by that, and has no encoding issues either.
+> Why `.bat` instead of `.ps1`: the previous `.ps1` was rejected at load time by Windows' default execution policy — the window flashed red and closed. `.bat` isn't limited by that, and has no encoding issues either (the script body is pure ASCII embedded via UTF-16LE Base64, ruling out GBK mojibake).
 
 ---
 
@@ -308,13 +340,15 @@ python -m http.server 8765
 
 Double-clicking `index.html` also works (note: the stats backend is the live Cloudflare Worker, unaffected locally).
 
+> After editing the front-end, bump the version in `<script src="JS/app.js?v=...">` inside `index.html` — otherwise the browser / Cloudflare will keep serving the old cached file.
+
 ### Project structure
 
 ```
 github-fast-access/
-├── index.html            # main page
-├── CSS/styles.css        # styles (glassmorphism dark theme + animations)
-├── JS/app.js             # core logic: DoH speed test / domain resolution / latency measurement / auto-pick fastest IP / stats / dropdown
+├── index.html            # main page (with the 🌐 language toggle)
+├── CSS/styles.css        # styles (glassmorphism dark theme + animations + language button)
+├── JS/app.js             # core logic: i18n bilingual / DoH speed test / domain resolution / latency measurement / auto-pick fastest IP / stats / dropdown
 ├── worker/index.js       # optional: Cloudflare Workers visit-stats backend (KV: GH_STATS)
 ├── worker/wrangler.toml  # Worker deploy config
 ├── CNAME                 # GitHub Pages custom domain
@@ -327,4 +361,3 @@ github-fast-access/
 ## License
 
 MIT. Free to use and modify.
-
