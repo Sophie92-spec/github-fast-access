@@ -1,5 +1,5 @@
 
-html{font-size:16px}
+html{font-size:16px;background:var(--bg)}
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
   --bg:#0b0d14;
@@ -52,7 +52,7 @@ head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
 
 /* Card */
 .card{
-  background:var(--glass);border:1px solid var(--border);border-radius:clamp(10px,1vw,14px);
+  background:linear-gradient(180deg,rgba(22,24,40,.97),rgba(15,17,28,.95));border:1px solid var(--border);border-radius:clamp(10px,1vw,14px);
   padding:clamp(14px,2vw,24px);margin-bottom:clamp(10px,1vw,18px);backdrop-filter:blur(20px);
   box-shadow:var(--shadow);
 }
@@ -83,14 +83,14 @@ head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
 /* ① DoH 卡 - 绿光 */
 .step-panel-doh{
   --panel-glow-color:rgba(74,222,128,.7);
-  background:linear-gradient(155deg,rgba(74,222,128,.075) 0%,rgba(74,222,128,.025) 50%,rgba(74,222,128,.05) 100%);
+  background:linear-gradient(155deg,rgba(74,222,128,.075) 0%,rgba(74,222,128,.025) 50%,rgba(74,222,128,.05) 100%),#0d0f1c;
   border-color:rgba(74,222,128,.28);
   box-shadow:0 6px 22px rgba(74,222,128,.08),0 1px 0 rgba(255,255,255,.04) inset;
 }
 /* ② IP 主操作卡 - 紫光 + 强 glow */
 .step-panel-ip{
   --panel-glow-color:rgba(128,160,255,.7);
-  background:linear-gradient(155deg,rgba(128,160,255,.12) 0%,rgba(128,160,255,.035) 50%,rgba(176,144,248,.06) 100%);
+  background:linear-gradient(155deg,rgba(128,160,255,.12) 0%,rgba(128,160,255,.035) 50%,rgba(176,144,248,.06) 100%),#0d0f1c;
   border-color:rgba(128,160,255,.32);
   box-shadow:0 10px 32px rgba(128,160,255,.14),0 1px 0 rgba(255,255,255,.06) inset;
 }
@@ -183,7 +183,7 @@ head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
 /* 流动光环 - hero-shine */
 .hero-shine{
   position:absolute;inset:0;pointer-events:none;z-index:1;
-  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.32) 50%,transparent 70%);
+  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.18) 50%,transparent 70%);
   background-size:200% 100%;
   animation:hero-shine 3.5s ease-in-out infinite;
 }
@@ -429,7 +429,7 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
 }
 @keyframes slideRight{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:translateX(0)}}
 .stats-card{
-  background:var(--glass);border:1px solid var(--border-strong);border-radius:clamp(10px,1vw,14px);
+  background:linear-gradient(180deg,rgba(22,24,40,.97),rgba(15,17,28,.95));border:1px solid var(--border-strong);border-radius:clamp(10px,1vw,14px);
   padding:clamp(10px,1.2vh,16px) clamp(14px,1.4vw,18px);
   backdrop-filter:blur(16px);box-shadow:var(--shadow);
   animation:slideRight .6s var(--ease) .5s both;
