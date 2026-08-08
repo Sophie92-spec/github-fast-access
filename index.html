@@ -96,12 +96,15 @@
 
 <div class="modal" id="ps1-modal"><div class="card">
   <h2 id="modal-title">脚本</h2>
-  <div class="code-box"><div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span>powershell</span></div><textarea id="ps1-content" readonly style="min-height:220px"></textarea></div>
-  <div class="ps1-tip">下载后 Windows 可能提示风险点「仍要运行」——脚本完全开源透明。双击运行，弹 UAC 点「是」，结果会停留显示，看完自行关闭。</div>
+  <div class="code-box"><div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span>windows batch</span></div><textarea id="ps1-content" readonly style="min-height:220px"></textarea></div>
+  <div class="ps1-tip">
+    下载后 Windows 可能提示风险点「仍要运行」——脚本完全开源透明，双击运行并点「是」放行 UAC 即可。<br>
+    运行后窗口会<b>停留</b>显示结果：<b style="color:#86efac">绿色</b> = 备份 / 写入 / 刷 DNS 成功（末尾 All done）；若出错则显示 <b style="color:#fca5a5">红色</b> 错误信息并停留，把那段红字发我即可。看完按任意键或点 X 关闭。
+  </div>
   <div class="actions"><button class="btn primary" id="copy-ps1">复制</button><button class="btn" id="download-ps1">下载</button><button class="btn" id="close-modal">关闭</button></div>
 </div></div>
 <div class="toast" id="toast"></div>
 
-<script src="JS/app.js?v=20260808f"></script>
+<script src="JS/app.js?v=20260808g"></script>
 </body>
 </html>
