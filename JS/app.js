@@ -2,7 +2,7 @@ const DOMAINS=['github.com','api.github.com','raw.githubusercontent.com','object
 const P={dnspod:{url:d=>`https://doh.pub/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},alidns:{url:d=>`https://dns.alidns.com/resolve?name=${d}&type=A`,headers:{}},cloudflare:{url:d=>`https://cloudflare-dns.com/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},google:{url:d=>`https://dns.google/resolve?name=${d}&type=A`,headers:{}},quad9:{url:d=>`https://dns.quad9.net/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},adguard:{url:d=>`https://dns.adguard-dns.com/dns-query?name=${d}&type=A`,headers:{'Accept':'application/dns-json'}},360:{url:d=>`https://doh.360.cn/resolve?name=${d}&type=A`,headers:{}}};
 const A=['dnspod','alidns','cloudflare','google','quad9','adguard','360'];
 const S={};DOMAINS.forEach(d=>{S[d]={domain:d,ips:[],selectedIp:'',status:'pending',latency:null,included:true}});
-const $=id=>document.getElementById(id),B=$('results-body'),H=$('hosts-content'),T=$('toast');
+const $=id=>document.getElementById(id),H=$('hosts-content'),T=$('toast');
 let dohValue='auto';
 // Portal dropdown
 const dTrigger=$('doh-trigger'),dLabel=$('doh-label'),dWrap=$('doh-trigger-wrap');
@@ -18,7 +18,7 @@ function openDoh(){
   OPTIONS.forEach(function(o){
     var el=document.createElement('div');el.className='doh-menu-item';
     if(o.v===dohValue)el.classList.add('on');
-    el.textContent=o.t;el.addEventListener('click',function(e){e.stopPropagation();dohValue=o.v;dLabel.textContent=o.t;closeDoh()});
+    el.textContent=o.t;el.addEventListener('click',function(e){e.stopPropagation();dohPick(o.v)});
     dMenu.appendChild(el)
   });
   document.body.appendChild(dMenu)
@@ -30,13 +30,25 @@ function toast(m,g){T.textContent=m;T.className='toast on '+(g||'');setTimeout((
 async function rwp(d,k,t=2500){const p=P[k],c=new AbortController();const id=setTimeout(()=>c.abort(),t);try{const r=await fetch(p.url(d),{headers:p.headers,signal:c.signal});clearTimeout(id);const d2=await r.json();return d2.Answer?d2.Answer.filter(a=>a.type===1).map(a=>a.data):[]}catch(e){clearTimeout(id);throw e}}
 async function rd(d,pref){const ps=pref==='auto'?A:[pref];for(const p of ps){try{const ips=await rwp(d,p);if(ips.length>0)return{ips}}catch(e){}}return{ips:[]}}
 function tl(d,t=5000){return new Promise(r=>{const img=new Image(),s=performance.now();let done=false;const id=setTimeout(()=>{if(!done){done=true;r(null)}},t);img.onload=img.onerror=()=>{if(!done){done=true;clearTimeout(id);r(Math.round(performance.now()-s))}};img.src=`https://${d}/favicon.ico?_t=${Date.now()}`})}
-function render(){B.innerHTML='';DOMAINS.forEach(d=>{const s=S[d];const tr=document.createElement('tr');tr.innerHTML=`<td><input type="checkbox" class="inc-cb" data-domain="${d}" ${s.included?'checked':''}></td><td class="domain-name">${d}</td><td><span class="status-dot ${s.status}"></span></td><td class="ip-cell" id="ip-cell-${d}">${rip(d)}</td><td><span class="latency ${cls(s.latency)}" id="lat-${d}">${txt(s.latency)}</span></td>`;B.appendChild(tr)});document.querySelectorAll('.inc-cb').forEach(cb=>{cb.addEventListener('change',e=>{S[e.target.dataset.domain].included=e.target.checked;update()})});document.querySelectorAll('.ip-select').forEach(sel=>{sel.addEventListener('change',e=>{S[e.target.dataset.domain].selectedIp=e.target.value;update()})});document.querySelectorAll('.ip-input').forEach(inp=>{inp.addEventListener('input',e=>{S[e.target.dataset.domain].selectedIp=e.target.value.trim();update()})})}
-function rip(d){const s=S[d];if(s.status==='loading')return'<span style="color:var(--muted)">查询中...</span>';if(s.status==='success'&&s.ips.length>0){if(s.ips.length===1)return`<input type="text" class="ip-input" data-domain="${d}" value="${s.selectedIp}">`;return`<select class="ip-select" data-domain="${d}">${s.ips.map(ip=>`<option value="${ip}" ${ip===s.selectedIp?'selected':''}>${ip}</option>`).join('')}</select>`}if(s.status==='fail')return`<input type="text" class="ip-input" data-domain="${d}" placeholder="手动输入IP" value="${s.selectedIp}">`;return'<span style="color:var(--muted)">—</span>'}
-function cls(l){if(l===null)return'fail';if(l<200)return'good';if(l<800)return'ok';return'slow'}function txt(l){return l===null?'—':l+'ms'}
-function upRow(d){const s=S[d];const dot=B.querySelector(`tr:nth-child(${DOMAINS.indexOf(d)+1}) td:nth-child(3) .status-dot`);const ip=$(`ip-cell-${d}`);if(dot)dot.className='status-dot '+s.status;if(ip)ip.innerHTML=rip(d);const sel=ip?.querySelector('.ip-select'),inp=ip?.querySelector('.ip-input');if(sel)sel.addEventListener('change',e=>{S[d].selectedIp=e.target.value;update()});if(inp)inp.addEventListener('input',e=>{S[d].selectedIp=e.target.value.trim();update()})}
+function cls(l){if(l===null)return'fail';if(l<200)return'good';if(l<800)return'ok';return'slow'}
+function txt(l){return l===null?'—':l+'ms'}
+function domStatusOk(d){return S[d].status==='success'&&S[d].ips.length>0}
+
+// IP 单元格渲染（域名行用）：根据 status 渲染不同控件
+function ipCellHtml(d){
+  const s=S[d];
+  if(s.status==='loading')return'<span style="color:var(--muted)">查询中...</span>';
+  if(s.status==='success'&&s.ips.length>0){
+    if(s.ips.length===1)return`<input type="text" class="ip-input" data-domain="${d}" value="${s.selectedIp}">`;
+    return`<select class="ip-select" data-domain="${d}">${s.ips.map(ip=>`<option value="${ip}" ${ip===s.selectedIp?'selected':''}>${ip}</option>`).join('')}</select>`;
+  }
+  if(s.status==='fail')return`<input type="text" class="ip-input" data-domain="${d}" placeholder="手动输入IP" value="${s.selectedIp}">`;
+  return'<span style="color:var(--muted)">—</span>';
+}
+
 function update(){const e=[];DOMAINS.forEach(d=>{const s=S[d];if(s.included&&s.selectedIp&&/^(\d{1,3}\.){3}\d{1,3}$/.test(s.selectedIp))e.push(`${s.selectedIp.padEnd(22)} ${d}`)});H.value=`# GitHub Hosts Start (更新于 ${new Date().toLocaleString('zh-CN')})\n${e.join('\n')}\n# GitHub Hosts End`;$('hosts-count').textContent=e.length;H.style.height='auto';H.style.height=H.scrollHeight+'px'}
+
 let autoPref=null;
-// Probe all DoH sources in parallel, pick the first one that answers (caps wait at 3s)
 async function pickAuto(){
   if(autoPref)return autoPref;
   const races=A.map(k=>rwp('github.com',k).then(()=>k).catch(()=>null));
@@ -44,27 +56,177 @@ async function pickAuto(){
   if(!autoPref){for(const k of A){try{await rwp('github.com',k);autoPref=k;break}catch(e){}}}
   return autoPref;
 }
-async function fetchAll(){
-  const btn=$('fetch-btn'),tbtn=$('test-btn');btn.disabled=true;tbtn.disabled=true;btn.textContent='…';$('progress').classList.add('on');$('progress-percent').classList.add('on');$('progress-percent').textContent='0%';$('ip-status').textContent='获取中…';
-  DOMAINS.forEach(d=>{S[d].status='loading';upRow(d)});
-  let done=0;const total=DOMAINS.length;
+
+// 解析域名（通过当前 dohValue），并发限 4，结果更新到 S[d] 并刷新表格
+async function fetchDomains(){
+  const ok0=DOMAINS.filter(domStatusOk).length;
+  if(ok0>0)DOMAINS.forEach(d=>{S[d].status='loading'});   // 二次解析时显示过渡态
+  renderUnified();
   const pref=dohValue==='auto'?await pickAuto():dohValue;
-  const batch=4;                                  // limit concurrency so the UI thread stays responsive
-  for(let i=0;i<DOMAINS.length;i+=batch){
+  const batch=4,total=DOMAINS.length;
+  for(let i=0;i<total;i+=batch){
     const chunk=DOMAINS.slice(i,i+batch);
     await Promise.all(chunk.map(async d=>{
       const r=await rd(d,pref||'auto');
       S[d].ips=r.ips;S[d].selectedIp=r.ips[0]||'';S[d].status=r.ips.length>0?'success':'fail';
-      done++;const pct=Math.round(done/total*100);$('progress-fill').style.width=pct+'%';$('progress-percent').textContent=pct+'%';upRow(d);
+    }));
+    renderUnified();
+    update();
+  }
+  const ok=DOMAINS.filter(domStatusOk).length;
+  return ok;
+}
+
+// ===== DoH 延迟对比（同时驱动统一表渲染）=====
+var dohLats={},cmpTesting=false;
+function dohName(k){for(var i=0;i<OPTIONS.length;i++){if(OPTIONS[i].v===k)return OPTIONS[i].t}return k}
+function dohBest(){var bk=null,bv=null;A.forEach(function(k){var v=dohLats[k];if(v!==null&&v!==undefined&&(bv===null||v<bv)){bv=v;bk=k}});return bk}
+function dohWorst(){var wk=null,wv=null;A.forEach(function(k){var v=dohLats[k];if(v!==null&&v!==undefined&&(wv===null||v>wv)){wv=v;wk=k}});return wk}
+function dohUsable(){return A.filter(function(k){return(k in dohLats)&&dohLats[k]!==null}).length}
+function dohAvg(){var vs=A.map(function(k){return dohLats[k]}).filter(function(v){return v!==null&&v!==undefined});return vs.length?Math.round(vs.reduce(function(a,b){return a+b},0)/vs.length):null}
+function us(){return dohUsable()}
+
+// 选用某个 DoH 源 = 设为当前 + 自动用其解析域名
+async function dohPick(k){
+  if(!k)return;
+  var wasSame=dohValue===k;
+  dohValue=k;dLabel.textContent=dohName(k);
+  if(!wasSame)toast('已选用 DoH：'+dohName(k),'good');
+  await fetchDomains();
+  renderUnified();
+}
+
+// 测 DoH 源延迟 + 自动选用最快 + 解析域名
+async function dohTest(){
+  if(cmpTesting)return;cmpTesting=true;
+  var btn=$('cmp-test');btn.disabled=true;btn.textContent='…';
+  var ds=$('doh-status');ds.textContent='DoH 状态：测速中…';
+  dohLats={};renderUnified();$('cmp-summary').style.display='none';if($('cmp-empty'))$('cmp-empty').style.display='none';
+  var total=A.length,done=0,batch=4;
+  for(var i=0;i<A.length;i+=batch){
+    var chunk=A.slice(i,i+batch);
+    await Promise.all(chunk.map(async function(k){
+      var s=performance.now();
+      try{await rwp('github.com',k);dohLats[k]=Math.round(performance.now()-s);}
+      catch(e){dohLats[k]=null;}
+      done++;ds.textContent='DoH 状态：测速中 '+done+'/'+total;renderUnified();
     }));
   }
-  update();
-  const ok=DOMAINS.filter(d=>S[d].status==='success').length,fail=total-ok;
-  $('ip-status').textContent=new Date().toLocaleTimeString('zh-CN')+` (${ok}/${total} 成功${fail?`, ${fail} 失败`:''})`;
-  btn.disabled=false;tbtn.disabled=false;btn.textContent='🔍 获取 IP';$('progress').classList.remove('on');$('progress-percent').classList.remove('on');$('progress-fill').style.width='0%';
-  if(ok===total)toast(`✅ ${total} 个域名全部成功`,'good');else if(ok>0)toast(`⚠️ ${ok}/${total} 成功`,'');else toast('❌ 不可用','bad')
+  cmpTesting=false;btn.disabled=false;btn.textContent='⚡ 测 DoH + 解析域名';
+  var best=dohBest(),worst=dohWorst(),usN=us(),avg=dohAvg();
+  if(usN===0){
+    ds.textContent='DoH 状态：全 '+total+' 个源都连不上';
+    toast('测速完成（都连不上）','bad');
+  }else if(usN<A.length){
+    ds.textContent='DoH 状态：'+usN+'/'+total+' 可用，最快 '+dohName(best)+' '+dohLats[best]+'ms（均 '+avg+'ms）';
+    toast('最快 '+dohName(best)+' '+dohLats[best]+'ms','good');
+  }else{
+    ds.textContent='DoH 状态：'+usN+'/'+total+' 全部可用，最快 '+dohName(best)+' '+dohLats[best]+'ms（均 '+avg+'ms）';
+    toast('最快 '+dohName(best)+' '+dohLats[best]+'ms','good');
+  }
+  // 汇总
+  var sum=$('cmp-summary');
+  if(sum&&usN>0){
+    var fail=A.filter(function(k){return(k in dohLats)&&dohLats[k]===null}).length;
+    var slow=A.filter(function(k){var v=dohLats[k];return(v!==null&&v!==undefined)&&v>=1000}).length;
+    var row='<div class="cmp-sum-item"><span class="cmp-sum-label">可用源</span><span class="cmp-sum-val">'+usN+' / '+A.length+'</span></div>'+
+      '<div class="cmp-sum-item"><span class="cmp-sum-label">超时</span><span class="cmp-sum-val">'+(fail||'0')+'</span></div>'+
+      '<div class="cmp-sum-item"><span class="cmp-sum-label">慢（≥1000ms）</span><span class="cmp-sum-val">'+slow+'</span></div>'+
+      '<div class="cmp-sum-item"><span class="cmp-sum-label">平均延迟</span><span class="cmp-sum-val">'+avg+' ms</span></div>'+
+      '<div class="cmp-sum-item cmp-sum-recommend"><span class="cmp-sum-label">推荐使用</span><span class="cmp-sum-val"><span style="color:var(--green)">'+dohName(best)+'</span> '+dohLats[best]+'ms</span></div>';
+    sum.innerHTML=row;sum.style.display='flex';
+  }
+  // 自动切到最快源并解析域名（用户核心诉求："只用 DoH"）
+  if(best){
+    dohValue=best;dLabel.textContent=dohName(best);
+    renderUnified();
+    await fetchDomains();
+  }
 }
-async function testAll(){const btn=$('test-btn'),fbtn=$('fetch-btn');btn.disabled=true;fbtn.disabled=true;btn.textContent='…';$('progress').classList.add('on');$('progress-percent').classList.add('on');$('progress-percent').textContent='0%';$('ip-status').textContent='测延迟中…';DOMAINS.forEach(d=>{S[d].latency=null;const el=$(`lat-${d}`);if(el){el.className='latency fail';el.textContent='...'}});let done=0;const total=DOMAINS.length;const batch=4;let best=null,bestD=null,worst=null,worstD=null;for(let i=0;i<DOMAINS.length;i+=batch){const chunk=DOMAINS.slice(i,i+batch);await Promise.all(chunk.map(async d=>{const l=await tl(d);S[d].latency=l;let clsName='latency';if(l===null){clsName+=' lt-timeout'}else{if(best===null||l<best){best=l;bestD=d}if(worst===null||l>worst){worst=l;worstD=d}clsName+=' '+cls(l)}const el=$(`lat-${d}`);if(el){el.className=clsName;el.textContent=l===null?'超时':l+'ms'};done++;const pct=Math.round(done/total*100);$('progress-fill').style.width=pct+'%';$('progress-percent').textContent=pct+'%'}))}const usable=DOMAINS.filter(d=>S[d].latency!==null);if(usable.length>=2){if(bestD){const e=$(`lat-${bestD}`);if(e)e.className='latency '+cls(S[bestD].latency)+' lt-best'}if(worstD&&worstD!==bestD){const e=$(`lat-${worstD}`);if(e)e.className='latency '+cls(S[worstD].latency)+' lt-worst'}};$('progress').classList.remove('on');$('progress-percent').classList.remove('on');$('progress-fill').style.width='0%';btn.disabled=false;fbtn.disabled=false;btn.textContent='⚡ 测 IP 延迟';const avg=usable.map(d=>S[d].latency);if(avg.length>0){$('ip-status').textContent='平均 '+Math.round(avg.reduce((a,b)=>a+b,0)/avg.length)+'ms ('+avg.length+'/'+total+' 测到)';toast(`⚡ 平均: ${Math.round(avg.reduce((a,b)=>a+b,0)/avg.length)}ms`,'good')}else{$('ip-status').textContent='无法连接';toast('❌ 无法连接','bad')}}
+
+// 渲染统一表：DoH 源 + GitHub 域名合并为一张表
+function renderUnified(){
+  var table=$('cmp-table'),empty=$('cmp-empty');if(!table)return;
+  if(A.length===0&&DOMAINS.length===0){table.innerHTML='';if(empty)empty.style.display='block';return}
+  if(empty)empty.style.display='none';
+
+  var head='<thead><tr>'+
+    '<th style="width:3.5rem">类型</th>'+
+    '<th>名称</th>'+
+    '<th style="width:11rem">IP 地址</th>'+
+    '<th style="width:4.5rem">延迟</th>'+
+    '<th style="width:5rem">操作</th>'+
+    '</tr></thead>';
+
+  var best=dohBest(),worst=dohWorst();
+
+  // —— 段 1：DoH 源 ——
+  var dohRows=A.map(function(k){
+    var measured=(k in dohLats),l=dohLats[k];
+    var c,win,warn,label;
+    if(!measured){c='fail';win='';warn='';label='未测';}
+    else if(l===null){c='fail';win='';warn=' lt-timeout';label='超时';}
+    else{
+      c=cls(l);
+      win=(k===best&&best&&l!==null)?' lt-best':'';
+      warn=(k===worst&&worst&&k!==best&&us()>=2&&l>=1000)?' lt-worst':'';
+      label=l+'ms';
+    }
+    var cur=(k===dohValue)?' <span class="lt-cur">✓ 当前</span>':'';
+    return '<tr class="row-doh">'+
+      '<td><span class="type-badge type-doh">源</span></td>'+
+      '<td class="domain-name">'+dohName(k)+cur+'</td>'+
+      '<td class="ip-cell"><span class="ip-empty">—</span></td>'+
+      '<td><span class="latency '+c+win+warn+'">'+label+'</span></td>'+
+      '<td><button class="lt-pick" data-k="'+k+'">选用</button></td>'+
+      '</tr>';
+  }).join('');
+
+  // —— 段 2：分隔行（含域名解析进度） ——
+  var okN=DOMAINS.filter(domStatusOk).length;
+  var pendN=DOMAINS.filter(d=>S[d].status==='loading').length;
+  var progTxt=pendN>0?('解析中 '+pendN+'/'+DOMAINS.length+'…'):(okN+' / '+DOMAINS.length+' 解析成功');
+  var divider='<tr class="row-divider"><td colspan="5">'+
+    '<span class="divider-title">📌 GitHub 域名</span>'+
+    '<span class="divider-meta">'+progTxt+'</span>'+
+    '<label class="divider-sel"><input type="checkbox" id="select-all" '+(DOMAINS.every(d=>S[d].included)?'checked':'')+'> 全选</label>'+
+    '</td></tr>';
+
+  // —— 段 3：域名行 ——
+  var domRows=DOMAINS.map(function(d){
+    var s=S[d];
+    var ipHtml=ipCellHtml(d);
+    var checked=s.included?'checked':'';
+    return '<tr class="row-dom">'+
+      '<td><span class="type-badge type-dom">域</span></td>'+
+      '<td class="domain-name"><label class="dom-label">'+
+        '<input type="checkbox" class="inc-cb" data-domain="'+d+'" '+checked+'> '+
+        '<span class="dom-name-text">'+d+'</span>'+
+        ' <span class="status-dot '+s.status+'"></span>'+
+      '</label></td>'+
+      '<td class="ip-cell">'+ipHtml+'</td>'+
+      '<td><span class="latency '+cls(s.latency)+'">'+txt(s.latency)+'</span></td>'+
+      '<td><span class="op-empty">—</span></td>'+
+      '</tr>';
+  }).join('');
+
+  table.innerHTML=head+
+    '<tbody class="section-doh">'+dohRows+'</tbody>'+
+    '<tbody class="section-divider">'+divider+'</tbody>'+
+    '<tbody class="section-dom">'+domRows+'</tbody>';
+
+  // —— 事件绑定 ——
+  table.querySelectorAll('.lt-pick').forEach(function(b){b.addEventListener('click',function(){dohPick(b.dataset.k)})});
+  table.querySelectorAll('.inc-cb').forEach(function(cb){cb.addEventListener('change',e=>{S[e.target.dataset.domain].included=e.target.checked;update()})});
+  table.querySelectorAll('.ip-select').forEach(function(sel){sel.addEventListener('change',e=>{S[e.target.dataset.domain].selectedIp=e.target.value;update()})});
+  table.querySelectorAll('.ip-input').forEach(function(inp){inp.addEventListener('input',e=>{S[e.target.dataset.domain].selectedIp=e.target.value.trim();update()})});
+  var selAll=$('select-all');
+  if(selAll)selAll.addEventListener('change',e=>{DOMAINS.forEach(d=>{S[d].included=e.target.checked});table.querySelectorAll('.inc-cb').forEach(cb=>{cb.checked=e.target.checked});update()});
+}
+
+$('cmp-test').addEventListener('click',dohTest);
+renderUnified();
+
 function gen(restore) {
   var ts = new Date().toLocaleString('zh-CN');
   var entries = [];
@@ -156,17 +318,15 @@ function utf16leB64(str) {
 }
 async function copy(text){try{await navigator.clipboard.writeText(text);return true}catch(e){const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');document.body.removeChild(ta);return true}catch(e2){document.body.removeChild(ta);return false}}}
 function dl(fn,content){const blob=new Blob([content],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=fn;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url)}
-$('fetch-btn').addEventListener('click',fetchAll);$('test-btn').addEventListener('click',testAll);
-$('select-all').addEventListener('change',e=>{DOMAINS.forEach(d=>{S[d].included=e.target.checked});document.querySelectorAll('.inc-cb').forEach(cb=>{cb.checked=e.target.checked});update()});
 $('copy-hosts').addEventListener('click',async()=>{const ok=await copy(H.value);toast(ok?'✅ 已复制':'❌ 失败',ok?'good':'bad')});
 $('download-hosts').addEventListener('click',()=>{dl('hosts.txt',H.value);toast('✅ hosts.txt 下载完成','good')});
-$('gen-ps1').addEventListener('click',()=>{$('modal-title').textContent='Windows 加速脚本 (.bat)';$('ps1-content').value=gen(false);$('ps1-modal').classList.add('on');$('download-ps1').dataset.mode='apply'});
+$('gen-ps1').addEventListener('click',()=>{$('modal-title').textContent='Windows 脚本 (.bat)';$('ps1-content').value=gen(false);$('ps1-modal').classList.add('on');$('download-ps1').dataset.mode='apply'});
 $('gen-restore').addEventListener('click',()=>{$('modal-title').textContent='恢复脚本 (.bat)';$('ps1-content').value=gen(true);$('ps1-modal').classList.add('on');$('download-ps1').dataset.mode='restore'});
 $('copy-ps1').addEventListener('click',async()=>{const ok=await copy($('ps1-content').value);toast(ok?'✅ 已复制':'❌ 失败',ok?'good':'bad')});
 $('download-ps1').addEventListener('click',()=>{const m=$('download-ps1').dataset.mode;const n=m==='restore'?'github-hosts-restore.bat':'github-hosts-apply.bat';dl(n,$('ps1-content').value);toast('✅ '+n,'good')});
 $('close-modal').addEventListener('click',()=>{$('ps1-modal').classList.remove('on')});
 $('ps1-modal').addEventListener('click',e=>{if(e.target===$('ps1-modal'))$('ps1-modal').classList.remove('on')});
-render();
+update();
 // 按钮水波纹动效
 document.querySelectorAll('.btn').forEach(function(b){
   b.addEventListener('click',function(e){
@@ -182,102 +342,9 @@ document.querySelectorAll('.btn').forEach(function(b){
 });
 document.querySelectorAll('.howto-tab').forEach(tab=>{tab.addEventListener('click',()=>{const scope=tab.closest('.howto');scope.querySelectorAll('.howto-tab').forEach(t=>t.classList.remove('on'));scope.querySelectorAll('.howto-panel').forEach(c=>c.classList.remove('on'));tab.classList.add('on');document.getElementById('tab-'+tab.dataset.tab).classList.add('on')})});
 
-// ===== DoH 延迟对比 =====
-// 测每个 DoH 解析源的延迟，挑最快的用于「🔍 获取 IP」。
-// dohLats: { provider: ms|null }；dohValue 为当前选中源（与顶部下拉联动）。
-// 测完自动 dohPick(best)，用户不用再点「✅ 选用最快」（保留按钮作手动覆盖）。
-var dohLats={},cmpTesting=false;
-function dohName(k){for(var i=0;i<OPTIONS.length;i++){if(OPTIONS[i].v===k)return OPTIONS[i].t}return k}
-function dohBest(){var bk=null,bv=null;A.forEach(function(k){var v=dohLats[k];if(v!==null&&v!==undefined&&(bv===null||v<bv)){bv=v;bk=k}});return bk}
-function dohWorst(){var wk=null,wv=null;A.forEach(function(k){var v=dohLats[k];if(v!==null&&v!==undefined&&(wv===null||v>wv)){wv=v;wk=k}});return wk}
-function dohUsable(){return A.filter(function(k){return(k in dohLats)&&dohLats[k]!==null}).length}
-function dohAvg(){var vs=A.map(function(k){return dohLats[k]}).filter(function(v){return v!==null&&v!==undefined});return vs.length?Math.round(vs.reduce(function(a,b){return a+b},0)/vs.length):null}
-function dohPick(k){
-  if(!k)return;
-  var wasSame=dohValue===k;
-  dohValue=k;dLabel.textContent=dohName(k);renderDoh();
-  if(!wasSame)toast('已选用 DoH：'+dohName(k),'good');
-}
-async function dohTest(){
-  if(cmpTesting)return;cmpTesting=true;
-  var btn=$('cmp-test');btn.disabled=true;btn.textContent='…';var ds=$('doh-status');ds.textContent='DoH 状态：测速中…';
-  dohLats={};renderDoh();$('cmp-summary').style.display='none';if($('cmp-empty'))$('cmp-empty').style.display='none';
-  var total=A.length,done=0,batch=4;
-  for(var i=0;i<A.length;i+=batch){
-    var chunk=A.slice(i,i+batch);
-    await Promise.all(chunk.map(async function(k){
-      var s=performance.now();
-      try{await rwp('github.com',k);dohLats[k]=Math.round(performance.now()-s);}
-      catch(e){dohLats[k]=null;}
-      done++;ds.textContent='DoH 状态：测速中 '+done+'/'+total;renderDoh();
-    }));
-  }
-  cmpTesting=false;btn.disabled=false;btn.textContent='⚡ 测 DoH 延迟';
-  var best=dohBest(),worst=dohWorst(),us=dohUsable(),avg=dohAvg();
-  if(us===0){
-    ds.textContent='DoH 状态：全 '+total+' 个源都连不上';
-    toast('测速完成（都连不上）','bad');
-  }else if(us<A.length){
-    ds.textContent='DoH 状态：'+us+'/'+total+' 可用，最快 '+dohName(best)+' '+dohLats[best]+'ms（均 '+avg+'ms）';
-    toast('最快 '+dohName(best)+' '+dohLats[best]+'ms','good');
-  }else{
-    ds.textContent='DoH 状态：'+us+'/'+total+' 全部可用，最快 '+dohName(best)+' '+dohLats[best]+'ms（均 '+avg+'ms）';
-    toast('最快 '+dohName(best)+' '+dohLats[best]+'ms','good');
-  }
-  // 自动切到最快源——用户原本就要"用最快的"
-  if(best&&dohValue!==best){
-    dohValue=best;dLabel.textContent=dohName(best);
-  }
-  renderDoh();
-  // 汇总
-  var sum=$('cmp-summary');if(sum&&us>0){
-    var sup=Math.max(...A.map(function(k){var v=dohLats[k];return(v===null||v===undefined)?0:v}));
-    var fail=A.filter(function(k){return(k in dohLats)&&dohLats[k]===null}).length;
-    var slow=A.filter(function(k){var v=dohLats[k];return(v!==null&&v!==undefined)&&v>=1000}).length;
-    var row='<div class="cmp-sum-item"><span class="cmp-sum-label">可用源</span><span class="cmp-sum-val">'+us+' / '+A.length+'</span></div>'+
-      '<div class="cmp-sum-item"><span class="cmp-sum-label">超时</span><span class="cmp-sum-val">'+(fail||'0')+'</span></div>'+
-      '<div class="cmp-sum-item"><span class="cmp-sum-label">慢（≥1000ms）</span><span class="cmp-sum-val">'+slow+'</span></div>'+
-      '<div class="cmp-sum-item"><span class="cmp-sum-label">平均延迟</span><span class="cmp-sum-val">'+avg+' ms</span></div>'+
-      '<div class="cmp-sum-item cmp-sum-recommend"><span class="cmp-sum-label">推荐使用</span><span class="cmp-sum-val"><span style="color:var(--green)">'+dohName(best)+'</span> '+dohLats[best]+'ms</span></div>';
-    sum.innerHTML=row;sum.style.display='flex';
-  }
-}
-function renderDoh(){
-  var table=$('cmp-table'),empty=$('cmp-empty');if(!table)return;
-  if(A.length===0){table.innerHTML='';if(empty)empty.style.display='block';return}
-  if(empty)empty.style.display='none';
-  var best=dohBest(),worst=dohWorst();
-  var head='<thead><tr><th>DoH 源</th><th>延迟</th><th>操作</th></tr></thead>';
-  var body='<tbody>'+A.map(function(k){
-    var measured=(k in dohLats),l=dohLats[k];
-    var c,win,warn,label;
-    if(!measured){c='fail';win='';warn='';label='未测';}
-    else if(l===null){c='fail';win='';warn=' lt-timeout';label='超时';}
-    else{
-      c=cls(l);
-      win=(k===best&&best&&l!==null)?' lt-best':'';
-      warn=(k===worst&&worst&&k!==best&&us()>=2&&l>=1000)?' lt-worst':'';
-      label=l+'ms';
-    }
-    var cur=(k===dohValue)?' <span class="lt-cur">✓ 当前</span>':'';
-    return '<tr><td class="domain-name">'+dohName(k)+cur+'</td><td class="latency '+c+win+warn+'">'+label+'</td><td><button class="lt-pick" data-k="'+k+'">选用</button></td></tr>';
-  }).join('')+'</tbody>';
-  table.innerHTML=head+body;
-  table.querySelectorAll('.lt-pick').forEach(function(b){b.addEventListener('click',function(){dohPick(b.dataset.k)})});
-}
-// 可用源数（供 renderDoh 闭包用，避免函数递归依赖）
-function us(){return dohUsable()}
-$('cmp-test').addEventListener('click',dohTest);
-$('cmp-apply-all').addEventListener('click',function(){dohPick(dohBest())});
-renderDoh();
-
 // ===== 访问统计 =====
-// 默认走本地 localStorage（离线/未配置后端时）；若配置 STATS_API（Cloudflare Workers+KV），
-// 则改为全网真实共享统计：PV/UV/今日/30天趋势 全部由后端返回，且每次打开页面 +1 计入后端。
-// 请改成你部署后的 Worker 地址，例如 'https://stats.yourdomain.com'
 var STATS_API='https://stats.sophieyoucha.cc.cd';
 var K='gh_hosts_stats',t=new Date().toISOString().slice(0,10);
-// 本地记录：仅作为后端不可用时的降级数据源（每次打开页面给「今天」+1）
 (function(){
   try{var d=JSON.parse(localStorage.getItem(K)||'{}');d[t]=(d[t]||0)+1;localStorage.setItem(K,JSON.stringify(d))}catch(e){}
 })();
@@ -346,7 +413,7 @@ function tkShow(i,ev,guide,dot){
   tip.classList.add('on')
 }
 function tkHide(guide,dot){
-  if(guide)guide.style.opacity=0;
+  if(guide)guide.style.opacity=0
   if(dot)dot.style.opacity=0;
   var tip=document.getElementById('tk-tip');if(tip)tip.classList.remove('on')
 }
@@ -355,7 +422,7 @@ function selectDate(i,sel,selLine){
   var iso=TK_DATES[i];
   var x=(i/29)*240,y=96-2-Math.max((TK_VALS[i]/TK_MX)*(96-8),0);
   if(sel){sel.setAttribute('cx',x);sel.setAttribute('cy',y);sel.style.opacity=1}
-  if(selLine){selLine.setAttribute('x1',x);selLine.setAttribute('x2',x);selLine.style.opacity=1}
+  if(selLine){selLine.setAttribute('x1',x);selLine.setAttribute('x2',x);selLine.setAttribute('x1',x);selLine.setAttribute('x2',x);selLine.setAttribute('x2',x);selLine.style.opacity=1}
   var pick=document.getElementById('date-pick');if(pick&&pick.value!==iso)pick.value=iso;
   var ss=document.getElementById('sel-stat');
   if(ss)ss.innerHTML='<span class="sel-date">'+fmtDate(iso)+'</span><span class="sel-val">访问 '+fmtNum(TK_VALS[i]||0)+' 次</span>'
@@ -365,7 +432,6 @@ function localVals(){
   for(var i=29;i>=0;i--){var dd=new Date();dd.setDate(dd.getDate()-i);vals.push(d[dd.toISOString().slice(0,10)]||0)}
   return vals
 }
-// 从本地数据派生一份统计对象（后端不可用时的降级数据）
 function localData(){
   var d=JSON.parse(localStorage.getItem(K)||'{}');
   var vals=localVals();
@@ -376,7 +442,6 @@ function localData(){
     trend:vals
   }
 }
-// 渲染：data = { pv, uv, today, trend:[30] }；live=true 表示数据来自后端（真实共享）
 function renderStats(data,live){
   data=data||localData();
   drawTrend(data.trend);
@@ -384,11 +449,9 @@ function renderStats(data,live){
   countUp(document.getElementById('report-today'),data.today);
   countUp(document.getElementById('report-pv'),data.pv);
   countUp(document.getElementById('report-uv'),data.uv);
-  // 仅当数据确实来自后端时才标「全网实时」，降级本地时不误导
   var tt=document.querySelector('.stats-chart-card .stats-card-title');
   if(tt)tt.textContent=live?'📈 近 30 天访问趋势 · 全网实时':'📈 近 30 天访问趋势';
 }
-// 加载统计：优先后端（真实共享），失败则降级到本地，保证页面永不卡死
 async function loadStats(){
   if(!STATS_API){renderStats(localData(),false);return}
   try{
@@ -400,16 +463,14 @@ async function loadStats(){
     if(typeof j.pv!=='number'||!Array.isArray(j.trend))throw new Error('bad payload');
     renderStats({pv:j.pv,uv:j.uv||0,today:j.today||0,trend:j.trend},true);
   }catch(e){
-    renderStats(localData());   // 后端不可用 -> 本地降级，不影响主功能
+    renderStats(localData());
   }
 }
 loadStats();
-
-// 大数字格式化（88027687 -> 8802.8万，120000000 -> 1.2亿）
 function fmtNum(n){
   if(n==null||n==='-')return'-';
   var s=String(n).trim();
-  if(/[万亿]/.test(s))return s;            // already formatted -> return as-is (prevents re-parse loop)
+  if(/[万亿]/.test(s))return s;
   n=parseInt(s);if(isNaN(n))return s;
   if(n>=1e8)return (n/1e8).toFixed(1)+'亿';
   if(n>=1e4)return (n/1e4).toFixed(1)+'万';
@@ -426,4 +487,3 @@ function countUp(el,target){
   }
   requestAnimationFrame(tick);
 }
-// 注：PV/UV 数字由 renderStats() 直接写入并格式化（fmtNum），无需 MutationObserver 监听
