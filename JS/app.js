@@ -478,7 +478,7 @@ function selectDate(i,sel,selLine){
   var iso=TK_DATES[i];
   var x=(i/29)*240,y=96-2-Math.max((TK_VALS[i]/TK_MX)*(96-8),0);
   if(sel){sel.setAttribute('cx',x);sel.setAttribute('cy',y);sel.style.opacity=1}
-  if(selLine){selLine.setAttribute('x1',x);selLine.setAttribute('x2',x);selLine.setAttribute('x1',x);selLine.setAttribute('x2',x);selLine.setAttribute('x2',x);selLine.style.opacity=1}
+  if(selLine){selLine.setAttribute('x1',x);selLine.setAttribute('x2',x);selLine.style.opacity=1}
   var pick=document.getElementById('date-pick');if(pick&&pick.value!==iso)pick.value=iso;
   var ss=document.getElementById('sel-stat');
   if(ss)ss.innerHTML='<span class="sel-date">'+fmtDate(iso)+'</span><span class="sel-val">访问 '+fmtNum(TK_VALS[i]||0)+' 次</span>'

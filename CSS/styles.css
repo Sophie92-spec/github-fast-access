@@ -46,7 +46,9 @@ head-bar{display:flex;align-items:center;gap:1rem;margin-bottom:clamp(20px,3vh,3
 .logo{
   width:clamp(44px,3.5vw,56px);height:clamp(44px,3.5vw,56px);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:clamp(22px,2vw,28px);
   background:linear-gradient(135deg,var(--accent),var(--accent-2));flex-shrink:0;
+  animation:logoFloat 5s ease-in-out infinite;transition:transform .15s var(--ease);
 }
+.logo:hover{transform:scale(1.07);box-shadow:0 6px 22px rgba(128,160,255,.5)}
 head-bar h2{font-size:clamp(18px,2.2vw,26px);font-weight:700;letter-spacing:-.3px}
 head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
 
@@ -57,7 +59,7 @@ head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
   box-shadow:var(--shadow);
 }
 
-/* ===== 操作面板（Step 流程：① 选 DoH 源 + ② 获取 IP 主操作） ===== */
+/* ===== 操作面板（① 选 DoH 源 · 测速后自动解析下方全部 GitHub 域名） ===== */
 /* 每卡自带顶部细线高光 + 右上角柔光晕（伪元素），分别用 --panel-glow-color 控色 */
 .step-panel{
   position:relative;
@@ -67,6 +69,7 @@ head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
   border:1px solid var(--border-strong);
   margin-bottom:clamp(12px,1.2vh,16px);
   overflow:hidden;backdrop-filter:blur(20px);
+  animation:panelIn .5s var(--ease) both;
 }
 /* 顶部细线高光 */
 .step-panel::before{
@@ -87,14 +90,6 @@ head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
   border-color:rgba(74,222,128,.28);
   box-shadow:0 6px 22px rgba(74,222,128,.08),0 1px 0 rgba(255,255,255,.04) inset;
 }
-/* ② IP 主操作卡 - 紫光 + 强 glow */
-.step-panel-ip{
-  --panel-glow-color:rgba(128,160,255,.7);
-  background:linear-gradient(155deg,rgba(128,160,255,.12) 0%,rgba(128,160,255,.035) 50%,rgba(176,144,248,.06) 100%),#0d0f1c;
-  border-color:rgba(128,160,255,.32);
-  box-shadow:0 10px 32px rgba(128,160,255,.14),0 1px 0 rgba(255,255,255,.06) inset;
-}
-
 /* step-head 横向：步骤徽章 + 标题 + 分隔条 + 副标题 + 状态 chip */
 .step-head{
   display:flex;align-items:center;gap:clamp(10px,1vw,14px);
@@ -107,9 +102,10 @@ head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
   border-radius:50%;font-weight:800;font-size:clamp(14px,1.2vw,16px);
   border:1px solid rgba(255,255,255,.18);color:#fff;flex-shrink:0;
   box-shadow:0 4px 12px rgba(0,0,0,.3),0 1px 0 rgba(255,255,255,.18) inset;
+  transition:transform .15s var(--ease);cursor:default;
 }
+.step-num:hover{transform:scale(1.08)}
 .step-num-doh{background:linear-gradient(135deg,#4ade80 0%,#22c55e 100%);box-shadow:0 4px 16px rgba(74,222,128,.5),0 1px 0 rgba(255,255,255,.22) inset,0 0 18px rgba(74,222,128,.3)}
-.step-num-ip{background:linear-gradient(135deg,#80a0ff 0%,#b090f8 100%);box-shadow:0 4px 16px rgba(128,160,255,.5),0 1px 0 rgba(255,255,255,.22) inset,0 0 18px rgba(128,160,255,.3)}
 .step-title{font-weight:700;color:var(--text);font-size:clamp(14.5px,1.2vw,16.5px);letter-spacing:-.2px}
 /* 竖虚线分隔条 */
 .step-divider{width:1px;height:14px;background:linear-gradient(180deg,transparent,var(--border-strong) 30%,var(--border-strong) 70%,transparent);flex-shrink:0}
@@ -121,28 +117,22 @@ head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
   font-size:clamp(11.5px,1vw,12.5px);color:var(--text);font-weight:500;
   padding:5px 12px;border-radius:999px;flex-shrink:0;
   backdrop-filter:blur(8px);white-space:nowrap;
+  animation:chipIn .45s var(--ease) both;
 }
 .status-chip-doh{
   background:rgba(128,160,255,.10);border:1px solid rgba(128,160,255,.35);
   box-shadow:0 0 14px rgba(128,160,255,.12),0 1px 0 rgba(255,255,255,.04) inset;
-}
-.status-chip-ip{
-  background:rgba(74,222,128,.10);border:1px solid rgba(74,222,128,.35);
-  box-shadow:0 0 14px rgba(74,222,128,.12),0 1px 0 rgba(255,255,255,.04) inset;
 }
 .chip-dot{
   width:7px;height:7px;border-radius:50%;flex-shrink:0;
   animation:pulse 2s infinite;
 }
 .status-chip-doh .chip-dot{background:var(--accent);box-shadow:0 0 8px var(--accent)}
-.status-chip-ip .chip-dot{background:var(--green);box-shadow:0 0 8px var(--green)}
 @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.85)}}
 
 /* step-body */
 .step-body{display:flex;gap:clamp(8px,.8vw,12px);align-items:center;flex-wrap:wrap}
 .doh-step-body{padding-top:2px}
-.ip-step-body{flex-direction:column;align-items:stretch;gap:clamp(12px,1.2vh,16px)}
-.ip-progress-row{display:flex;align-items:center;gap:clamp(10px,1vw,14px)}
 
 /* DoH/IP 面板内的普通 .btn */
 .step-panel .btn{
@@ -164,100 +154,6 @@ head-bar p{font-size:clamp(12px,1.1vw,15px);color:var(--muted);margin-top:2px}
   box-shadow:0 4px 16px rgba(74,222,128,.25),0 1px 0 rgba(255,255,255,.08) inset;
 }
 
-/* HERO 主按钮（② IP 面板的「立即获取 IP」+ 三色渐变 + 顶部描边 + 流动光环 + 主操作徽章） */
-.btn-hero{
-  position:relative;
-  display:flex;align-items:center;justify-content:center;gap:clamp(12px,1.2vw,16px);
-  width:100%;padding:clamp(18px,2.2vh,26px) clamp(18px,1.8vw,26px);
-  border:none;border-radius:clamp(12px,1.2vw,16px);
-  background:linear-gradient(135deg,#80a0ff 0%,#6e84ff 45%,#b090f8 100%);
-  color:#fff;cursor:pointer;
-  box-shadow:
-    0 10px 32px rgba(128,160,255,.42),
-    0 2px 6px rgba(0,0,0,.25),
-    0 1px 0 rgba(255,255,255,.30) inset,
-    0 -1px 0 rgba(0,0,0,.18) inset;
-  transition:.22s var(--ease);font-family:var(--sans);
-  overflow:hidden;isolation:isolate;
-}
-/* 流动光环 - hero-shine */
-.hero-shine{
-  position:absolute;inset:0;pointer-events:none;z-index:1;
-  background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.18) 50%,transparent 70%);
-  background-size:200% 100%;
-  animation:hero-shine 3.5s ease-in-out infinite;
-}
-@keyframes hero-shine{
-  0%{background-position:150% 0;opacity:0}
-  15%{opacity:.95}
-  50%{background-position:-50% 0;opacity:.95}
-  65%{opacity:0}
-  100%{background-position:-50% 0;opacity:0}
-}
-/* 主操作徽章 (右上角) */
-.hero-badge{
-  position:absolute;top:9px;right:14px;z-index:2;
-  font-size:10px;font-weight:700;letter-spacing:.14em;
-  color:#fff;background:rgba(0,0,0,.32);border:1px solid rgba(255,255,255,.35);
-  padding:3px 9px;border-radius:999px;backdrop-filter:blur(8px);
-}
-.btn-hero>span:not(.hero-shine):not(.hero-badge){
-  position:relative;z-index:2;display:flex;align-items:center;gap:clamp(10px,1vw,14px);
-}
-/* 兼容纯文本子节点的 hero-text 子选择器对齐 */
-.hero-icon{font-size:clamp(22px,2vw,26px);line-height:1;text-shadow:0 2px 8px rgba(0,0,0,.28)}
-.hero-text{font-size:clamp(17px,1.5vw,20px);font-weight:700;letter-spacing:.4px;text-shadow:0 2px 8px rgba(0,0,0,.28)}
-.hero-sub{font-size:clamp(11.5px,1vw,13px);opacity:.95;font-weight:400;color:rgba(255,255,255,.95);text-shadow:0 1px 4px rgba(0,0,0,.22)}
-
-.btn-hero:hover{
-  transform:translateY(-2px);
-  box-shadow:
-    0 16px 40px rgba(128,160,255,.55),
-    0 3px 8px rgba(0,0,0,.3),
-    0 1px 0 rgba(255,255,255,.35) inset;
-}
-.btn-hero:active{transform:translateY(-1px) scale(.99)}
-.btn-hero:disabled{
-  opacity:.55;cursor:not-allowed;transform:none;
-  box-shadow:0 4px 14px rgba(128,160,255,.2),0 1px 0 rgba(255,255,255,.18) inset;
-}
-
-/* ② IP 面板"测 IP 延迟"次按钮 */
-.btn-secondary{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  width:100%;padding:clamp(9px,.9vh,12px) clamp(14px,1.4vw,20px);
-  border-radius:clamp(10px,1vw,12px);
-  border:1px solid var(--border-strong);background:var(--glass-2);
-  color:var(--text);font-family:var(--sans);
-  font-size:clamp(13px,1.05vw,14.5px);font-weight:500;cursor:pointer;
-  transition:.15s;backdrop-filter:blur(10px);
-}
-.btn-secondary:hover{
-  background:var(--glass-hover);border-color:rgba(255,255,255,.22);
-  transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.25);
-}
-.btn-secondary:active{transform:translateY(0) scale(.98)}
-.btn-secondary:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
-.btn-secondary-icon{font-size:14px;line-height:1}
-
-/* 进度条 - 加大 + 微光 + 百分比 chip */
-.step-panel .prog{
-  flex:1;min-width:clamp(80px,12vw,160px);height:clamp(6px,.6vw,8px);
-  background:rgba(0,0,0,.42);border-radius:99px;overflow:hidden;display:none;
-  border:1px solid rgba(255,255,255,.05);
-  box-shadow:0 1px 0 rgba(255,255,255,.05) inset;
-}
-.step-panel .prog.on{display:block}
-.step-panel .prog .fill{
-  height:100%;background:linear-gradient(90deg,#80a0ff 0%,#b090f8 100%);
-  width:0%;border-radius:99px;transition:width .25s var(--ease);
-  box-shadow:0 0 14px rgba(128,160,255,.6);
-}
-.progress-percent{
-  font-family:var(--mono);font-size:clamp(11.5px,1vw,12.5px);font-weight:700;
-  color:var(--accent);min-width:42px;text-align:right;flex-shrink:0;display:none;
-}
-.progress-percent.on{display:inline-block}
 
 /* Table */
 table{width:100%;border-collapse:collapse}
@@ -280,7 +176,7 @@ tbody tr:hover{background:rgba(128,160,255,.05)}tbody tr:last-child td{border-bo
 .ip-select{max-width:clamp(140px,15vw,190px);appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%238890a8' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 8px center;padding-right:clamp(24px,2.5vw,28px)}
 .ip-select:focus,.ip-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px rgba(128,160,255,.4)}
 .ip-input{width:clamp(130px,14vw,170px)}
-.latency{font-family:var(--mono);font-size:clamp(11px,.9vw,13px);font-weight:600;padding:2px 8px;border-radius:999px;display:inline-block}
+.latency{font-family:var(--mono);font-size:clamp(11px,.9vw,13px);font-weight:600;padding:2px 8px;border-radius:999px;display:inline-block;transition:background .25s var(--ease),color .25s var(--ease),box-shadow .25s var(--ease),outline-color .25s var(--ease)}
 .latency.good{color:var(--green);background:rgba(74,222,128,.1)}.latency.ok{color:var(--orange);background:rgba(251,146,60,.1)}
 .latency.slow{color:var(--red);background:rgba(248,113,113,.1)}.latency.fail{color:var(--muted)}
 
@@ -352,7 +248,10 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
 /* Modal */
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:100;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(6px)}
 .modal.on{display:flex}.modal.on .card{animation:pop .2s var(--ease)}
-@keyframes pop{from{opacity:0;transform:scale(.96)}}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@keyframes panelIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes logoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
+@keyframes chipIn{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:none}}
 .modal .card{width:min(92%, 700px);max-height:90vh;overflow:auto}
 .modal .card h2{margin-bottom:clamp(10px,1vh,16px);font-size:clamp(16px,1.4vw,18px);font-weight:600}
 .ps1-tip{padding:clamp(10px,1vh,14px);border-radius:clamp(8px,.8vw,10px);background:rgba(251,146,60,.08);border:1px solid rgba(251,146,60,.15);color:#e8b860;font-size:clamp(12.5px,1vw,14px);line-height:1.55;margin-bottom:clamp(10px,1vh,14px)}
@@ -383,10 +282,6 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
   .doh-step-body .btn,.step-panel-doh .btn{flex:1 1 auto;justify-content:center}
   .step-panel .btn{justify-content:center}
   .status-chip{margin-left:auto}
-  /* ② IP 面板：Hero 按钮移动端缩小内边距，chip 仍可见 */
-  .btn-hero{padding:clamp(14px,1.6vh,18px) clamp(14px,1.4vw,18px);gap:8px}
-  .hero-text{font-size:clamp(15px,1.4vw,18px)}
-  .hero-sub{font-size:11px}
   /* 移动端停用大模糊滤镜保证渲染性能 */
   .card,.social-link,.modal{backdrop-filter:none;-webkit-backdrop-filter:none}
 }
@@ -396,9 +291,6 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
   .step-head{flex-direction:column;align-items:flex-start;gap:6px}
   .status-chip{margin-left:0}
   .step-num{width:26px;height:26px;font-size:13px}
-  /* Hero 按钮文本靠左 */
-  .btn-hero{justify-content:flex-start;padding:14px 16px}
-  .hero-icon{font-size:20px}
 }
 
 
@@ -435,7 +327,7 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
 .cmp-sum-val{font-family:var(--mono);font-size:clamp(13px,1.1vw,15px);font-weight:700;color:var(--text)}
 .cmp-sum-recommend{flex:1 1 220px;background:rgba(74,222,128,.06);border-color:rgba(74,222,128,.25)}
 .cmp-sum-recommend .cmp-sum-val{font-size:clamp(14px,1.2vw,16px)}
-.cmp-empty{color:var(--muted);font-size:clamp(12.5px,1vw,14px);padding:clamp(12px,1.4vh,18px);text-align:center;border:1px dashed var(--border-strong);border-radius:10px;line-height:1.7}
+.cmp-empty{color:var(--muted);font-size:clamp(12.5px,1vw,14px);padding:clamp(12px,1.4vh,18px);text-align:center;border:1px dashed var(--border-strong);border-radius:10px;line-height:1.7;animation:in .4s var(--ease) both}
 
 /* 右侧统计栏 */
 .stats-side{
@@ -564,3 +456,13 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
 /* 数据新鲜度：分隔行「已过期」警告文字 */
 .cmp-table .divider-meta.stale{color:var(--red);font-weight:600}
 .cmp-table .divider-meta.stale::before{content:'⚠ '}
+
+/* 无障碍：尊重「减少动态效果」系统偏好，关闭非必要动画（保留功能） */
+@media (prefers-reduced-motion: reduce){
+  *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
+  .logo{animation:none}
+  .chip-dot{animation:none}
+  .status-dot.loading{animation:none}
+  .trend-dot{animation:none}
+  .trend-area{animation:none}
+}
