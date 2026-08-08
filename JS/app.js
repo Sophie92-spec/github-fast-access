@@ -65,17 +65,105 @@ async function fetchAll(){
   if(ok===total)toast(`✅ ${total} 个域名全部成功`,'good');else if(ok>0)toast(`⚠️ ${ok}/${total} 成功`,'');else toast('❌ 不可用','bad')
 }
 async function testAll(){const btn=$('test-btn'),fbtn=$('fetch-btn');btn.disabled=true;fbtn.disabled=true;btn.textContent='…';$('progress').classList.add('on');DOMAINS.forEach(d=>{S[d].latency=null;const el=$(`lat-${d}`);if(el){el.className='latency fail';el.textContent='...'}});let done=0;const total=DOMAINS.length;const batch=4;for(let i=0;i<DOMAINS.length;i+=batch){const chunk=DOMAINS.slice(i,i+batch);await Promise.all(chunk.map(async d=>{const l=await tl(d);S[d].latency=l;const el=$(`lat-${d}`);if(el){el.className='latency '+cls(l);el.textContent=txt(l)};done++;$('progress-fill').style.width=(done/total*100)+'%'}))}$('progress').classList.remove('on');$('progress-fill').style.width='0%';btn.disabled=false;fbtn.disabled=false;btn.textContent='⚡ 延迟';const avg=DOMAINS.filter(d=>S[d].latency!==null).map(d=>S[d].latency);if(avg.length>0)toast(`⚡ 平均: ${Math.round(avg.reduce((a,b)=>a+b,0)/avg.length)}ms`,'good');else toast('❌ 无法连接','bad')}
-function gen(restore=false){const ts=new Date().toLocaleString('zh-CN');if(restore){return['# GitHub Hosts Restore Script','# '+ts,'','$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)','if (-not $isAdmin) { Start-Process powershell -Verb RunAs -ArgumentList \'-ExecutionPolicy Bypass\',\'-NoProfile\',\'-File\',\'"$PSCommandPath"\' -WindowStyle Normal; Write-Host "Please approve the UAC prompt. A new administrator window will then open and stay open with the result." -ForegroundColor Yellow; Start-Sleep -Seconds 6; exit }','','try { $hostsPath = \"$env:WINDIR\\System32\\drivers\\etc\\hosts\"','$content = Get-Content $hostsPath -Raw',"$content = $content -replace " + "'" + '(?s)\\r?\\n?# GitHub Hosts Start.*?# GitHub Hosts End\\r?\\n?' + "'" + ', \"`n\"','Set-Content -Path $hostsPath -Value $content.TrimEnd() + \"`n\" -Encoding UTF8 -NoNewline','ipconfig /flushdns | Out-Null','Write-Host \"Removed entries and flushed DNS.\" -ForegroundColor Green','} catch { Write-Host ($_.ToString()) -ForegroundColor Red } finally { Read-Host \"Press Enter to close, or click the X\" }'].join('\n')}const e=[];DOMAINS.forEach(d=>{const s=S[d];if(s.included&&s.selectedIp&&/^(\d{1,3}\.){3}\d{1,3}$/.test(s.selectedIp))e.push(s.selectedIp+' '+d)});return['# GitHub Hosts Script','# '+ts,'','$isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)','if (-not $isAdmin) { Start-Process powershell -Verb RunAs -ArgumentList \'-ExecutionPolicy Bypass\',\'-NoProfile\',\'-File\',\'"$PSCommandPath"\' -WindowStyle Normal; Write-Host "Please approve the UAC prompt. A new administrator window will then open and stay open with the result." -ForegroundColor Yellow; Start-Sleep -Seconds 6; exit }','','try { $hostsPath = \"$env:WINDIR\\System32\\drivers\\etc\\hosts\"','$backupPath = \"$env:WINDIR\\System32\\drivers\\etc\\hosts.backup.'+Date.now()+'\"','Copy-Item $hostsPath $backupPath -Force','Write-Host \"Backup -> $backupPath\" -ForegroundColor Green','','$content = Get-Content $hostsPath -Raw -ErrorAction SilentlyContinue',"if ($content) { $content = $content -replace " + "'" + '(?s)\\r?\\n?# GitHub Hosts Start.*?# GitHub Hosts End\\r?\\n?' + "'" + ', \"`n\" } else { $content = \"\" }','','$newEntries = @\"','','# GitHub Hosts Start ('+ts+')',e.join('\n'),'# GitHub Hosts End','\"@','','$content = $content.TrimEnd() + \"`n\" + $newEntries + \"`n\"','Set-Content -Path $hostsPath -Value $content -Encoding UTF8 -NoNewline','Write-Host \"Wrote GitHub Hosts entries." -ForegroundColor Green','ipconfig /flushdns | Out-Null','Write-Host \"DNS cache flushed.\" -ForegroundColor Green','Write-Host \"All done.\" -ForegroundColor Cyan','} catch { Write-Host ($_.ToString()) -ForegroundColor Red } finally { Read-Host \"Press Enter to close, or click the X\" }'].join('\n')}
+function gen(restore) {
+  var ts = new Date().toLocaleString('zh-CN');
+  var entries = [];
+  if (!restore) {
+    DOMAINS.forEach(function (d) {
+      var s = S[d];
+      if (s.included && s.selectedIp && /^(\d{1,3}\.){3}\d{1,3}$/.test(s.selectedIp)) entries.push(s.selectedIp + ' ' + d);
+    });
+  }
+  var ps;
+  if (restore) {
+    ps = [
+      '# GitHub Hosts Restore',
+      "$ErrorActionPreference = 'Stop'",
+      '$hostsPath = "$env:WINDIR\\System32\\drivers\\etc\\hosts"',
+      'try {',
+      '  $content = Get-Content $hostsPath -Raw -ErrorAction SilentlyContinue',
+      '  if ($content) { $content = $content -replace \'(?s)\\r?\\n?# GitHub Hosts Start.*?# GitHub Hosts End\\r?\\n?\', "`n" } else { $content = "" }',
+      '  Set-Content -Path $hostsPath -Value $content.TrimEnd() + "`n" -Encoding UTF8 -NoNewline',
+      '  ipconfig /flushdns | Out-Null',
+      '  Write-Host "Removed GitHub Hosts entries and flushed DNS." -ForegroundColor Green',
+      '} catch {',
+      '  Write-Host $_.Exception.Message -ForegroundColor Red',
+      '}',
+      'Write-Host "All done." -ForegroundColor Cyan'
+    ].join('\n');
+  } else {
+    ps = [
+      '# GitHub Hosts Apply',
+      "$ErrorActionPreference = 'Stop'",
+      '$hostsPath = "$env:WINDIR\\System32\\drivers\\etc\\hosts"',
+      'try {',
+      '  $stamp = Get-Date -Format \'yyyyMMdd-HHmmss\'',
+      '  $backupPath = "$env:WINDIR\\System32\\drivers\\etc\\hosts.backup.$stamp"',
+      '  Copy-Item $hostsPath $backupPath -Force',
+      '  Write-Host "Backup -> $backupPath" -ForegroundColor Green',
+      '  $content = Get-Content $hostsPath -Raw -ErrorAction SilentlyContinue',
+      '  if ($content) { $content = $content -replace \'(?s)\\r?\\n?# GitHub Hosts Start.*?# GitHub Hosts End\\r?\\n?\', "`n" } else { $content = "" }',
+      '  $newEntries = @"',
+      '',
+      '# GitHub Hosts Start (' + ts + ')',
+      entries.join('\n'),
+      '# GitHub Hosts End',
+      '"@',
+      '  $content = $content.TrimEnd() + "`n" + $newEntries + "`n"',
+      '  Set-Content -Path $hostsPath -Value $content -Encoding UTF8 -NoNewline',
+      '  Write-Host "Wrote GitHub Hosts entries." -ForegroundColor Green',
+      '  ipconfig /flushdns | Out-Null',
+      '  Write-Host "DNS cache flushed." -ForegroundColor Green',
+      '  Write-Host "All done." -ForegroundColor Cyan',
+      '} catch {',
+      '  Write-Host $_.Exception.Message -ForegroundColor Red',
+      '}'
+    ].join('\n');
+  }
+  var b64 = utf16leB64(ps);
+  var title = restore ? 'GitHub Hosts Restore' : 'GitHub Hosts Apply';
+  var bat = [
+    '@echo off',
+    'title ' + title,
+    'net session >nul 2>&1',
+    'if %errorlevel% equ 0 goto admin',
+    'echo Please approve the UAC prompt.',
+    'echo An administrator window will then open with the result.',
+    'powershell -NoProfile -Command "Start-Process -FilePath \'%~f0\' -Verb RunAs"',
+    'ping -n 7 127.0.0.1 >nul',
+    'exit /b',
+    ':admin',
+    'powershell -NoProfile -ExecutionPolicy Bypass -EncodedCommand ' + b64,
+    'echo.',
+    'pause'
+  ].join('\r\n');
+  return bat;
+}
+function utf16leB64(str) {
+  var T = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+  var b = [], r = '';
+  for (var i = 0; i < str.length; i++) {
+    var c = str.charCodeAt(i);
+    b.push(c & 255, (c >> 8) & 255);
+  }
+  for (var j = 0; j < b.length; j += 3) {
+    var b1 = b[j], b2 = b[j + 1], b3 = b[j + 2];
+    r += T[b1 >> 2] + T[((b1 & 3) << 4) | (b2 >> 4)];
+    r += (j + 1 < b.length) ? T[((b2 & 15) << 2) | (b3 >> 6)] : '=';
+    r += (j + 2 < b.length) ? T[b3 & 63] : '=';
+  }
+  return r;
+}
 async function copy(text){try{await navigator.clipboard.writeText(text);return true}catch(e){const ta=document.createElement('textarea');ta.value=text;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');document.body.removeChild(ta);return true}catch(e2){document.body.removeChild(ta);return false}}}
 function dl(fn,content){const blob=new Blob([content],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=fn;document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(url)}
 $('fetch-btn').addEventListener('click',fetchAll);$('test-btn').addEventListener('click',testAll);
 $('select-all').addEventListener('change',e=>{DOMAINS.forEach(d=>{S[d].included=e.target.checked});document.querySelectorAll('.inc-cb').forEach(cb=>{cb.checked=e.target.checked});update()});
 $('copy-hosts').addEventListener('click',async()=>{const ok=await copy(H.value);toast(ok?'✅ 已复制':'❌ 失败',ok?'good':'bad')});
 $('download-hosts').addEventListener('click',()=>{dl('hosts.txt',H.value);toast('✅ hosts.txt 下载完成','good')});
-$('gen-ps1').addEventListener('click',()=>{$('modal-title').textContent='PowerShell 加速脚本';$('ps1-content').value=gen(false);$('ps1-modal').classList.add('on');$('download-ps1').dataset.mode='apply'});
-$('gen-restore').addEventListener('click',()=>{$('modal-title').textContent='PowerShell 恢复脚本';$('ps1-content').value=gen(true);$('ps1-modal').classList.add('on');$('download-ps1').dataset.mode='restore'});
+$('gen-ps1').addEventListener('click',()=>{$('modal-title').textContent='Windows 加速脚本 (.bat)';$('ps1-content').value=gen(false);$('ps1-modal').classList.add('on');$('download-ps1').dataset.mode='apply'});
+$('gen-restore').addEventListener('click',()=>{$('modal-title').textContent='恢复脚本 (.bat)';$('ps1-content').value=gen(true);$('ps1-modal').classList.add('on');$('download-ps1').dataset.mode='restore'});
 $('copy-ps1').addEventListener('click',async()=>{const ok=await copy($('ps1-content').value);toast(ok?'✅ 已复制':'❌ 失败',ok?'good':'bad')});
-$('download-ps1').addEventListener('click',()=>{const m=$('download-ps1').dataset.mode;const n=m==='restore'?'github-hosts-restore.ps1':'github-hosts-apply.ps1';dl(n,$('ps1-content').value);toast('✅ '+n,'good')});
+$('download-ps1').addEventListener('click',()=>{const m=$('download-ps1').dataset.mode;const n=m==='restore'?'github-hosts-restore.bat':'github-hosts-apply.bat';dl(n,$('ps1-content').value);toast('✅ '+n,'good')});
 $('close-modal').addEventListener('click',()=>{$('ps1-modal').classList.remove('on')});
 $('ps1-modal').addEventListener('click',e=>{if(e.target===$('ps1-modal'))$('ps1-modal').classList.remove('on')});
 render();

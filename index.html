@@ -35,14 +35,14 @@
     <div class="section-title">📝 Hosts 内容 <span class="count" id="hosts-count">0</span></div>
     <div class="code-box"><div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span>hosts</span></div><textarea id="hosts-content" readonly></textarea></div>
     <div class="actions">
-      <button class="btn primary" id="copy-hosts">复制</button><button class="btn" id="download-hosts">hosts.txt</button><button class="btn" id="gen-ps1">生成 .ps1</button><button class="btn danger" id="gen-restore">恢复</button>
+      <button class="btn primary" id="copy-hosts">复制</button><button class="btn" id="download-hosts">hosts.txt</button><button class="btn" id="gen-ps1">生成 .bat</button><button class="btn danger" id="gen-restore">恢复 .bat</button>
     </div>
   </div>
 
   <div class="card"><div class="section-title" style="margin-bottom:6px">📖 使用说明</div>
     <div class="howto">
       <div class="howto-tabs"><button class="howto-tab on" data-tab="windows">Windows</button><button class="howto-tab" data-tab="mac">macOS</button><button class="howto-tab" data-tab="linux">Linux</button></div>
-      <div class="howto-panel on" id="tab-windows"><ol><li>选择 DoH 来源，点击 <code>获取 IP</code>，等待所有域名解析完成</li><li>查看状态列：绿色 ✓ 表示成功，红色 ✗ 可手动输入 IP</li><li>确认需要加速的域名已勾选（可取消不需要的域名）</li><li>切换到下方 Hosts 内容区，点击 <code>生成 .ps1</code></li><li>下载后<strong>右键 → 以管理员身份运行</strong> .ps1 脚本</li><li>脚本将自动：备份原 hosts → 写入新条目 → 刷新 DNS 缓存</li></ol><div class="tip">💡 也可手动操作：以管理员身份打开记事本 → 打开文件 <code>C:\Windows\System32\drivers\etc\hosts</code>（注意文件无扩展名！）→ 将 Hosts 内容粘贴到文件末尾 → 保存 → 在 CMD 中执行 <code>ipconfig /flushdns</code></div></div>
+      <div class="howto-panel on" id="tab-windows"><ol><li>选择 DoH 来源，点击 <code>获取 IP</code>，等待所有域名解析完成</li><li>查看状态列：绿色 ✓ 表示成功，红色 ✗ 可手动输入 IP</li><li>确认需要加速的域名已勾选（可取消不需要的域名）</li><li>切换到下方 Hosts 内容区，点击 <code>生成 .bat</code></li><li>下载后<strong>双击运行</strong>（或右键 → 以管理员身份运行），首次会弹 UAC 请求管理员权限</li><li>脚本将自动：备份原 hosts → 写入新条目 → 刷新 DNS 缓存，结果会停留显示</li></ol><div class="tip">💡 也可手动操作：以管理员身份打开记事本 → 打开文件 <code>C:\Windows\System32\drivers\etc\hosts</code>（注意文件无扩展名！）→ 将 Hosts 内容粘贴到文件末尾 → 保存 → 在 CMD 中执行 <code>ipconfig /flushdns</code></div></div>
       <div class="howto-panel" id="tab-mac"><ol><li>选择 DoH 来源，点击 <code>获取 IP</code>，等待所有域名解析完成</li><li>查看状态列确认解析成功（绿色 ✓），勾选需要加速的域名</li><li>切换到下方 Hosts 内容区，点击 <code>复制</code> 或手动全选文本</li><li>打开终端（Terminal.app），输入 <code>sudo nano /etc/hosts</code></li><li>输入系统密码后，将光标移至文件末尾，粘贴 Hosts 内容</li><li>按 <code>Control + O</code> 保存文件，再按 <code>Control + X</code> 退出 nano</li><li>终端执行 <code>sudo dscacheutil -flushcache</code> 和 <code>sudo killall -HUP mDNSResponder</code></li></ol><div class="tip">💡 如果 nano 提示无写入权限，请确认当前账号具有管理员权限（系统偏好设置 → 用户与群组）</div></div>
       <div class="howto-panel" id="tab-linux"><ol><li>选择 DoH 来源，点击 <code>获取 IP</code>，等待所有域名解析完成</li><li>查看状态列，绿色 ✓ 表示成功，取消不需要加速的域名勾选</li><li>切换到 Hosts 内容区，点击 <code>复制</code> 获取 hosts 文本</li><li>打开终端，输入 <code>sudo nano /etc/hosts</code>（也可用 <code>sudo vi /etc/hosts</code>）</li><li>将光标移至文件末尾，粘贴 Hosts 内容</li><li>按 <code>Control + O</code> 保存，<code>Control + X</code> 退出</li><li>刷新 DNS 缓存，根据发行版选择对应命令</li></ol><div class="tip">💡 不同发行版刷新命令：Ubuntu/Debian → <code>sudo systemd-resolve --flush-caches</code>；CentOS/RHEL/Fedora → <code>sudo systemctl restart NetworkManager</code>；Arch → <code>sudo resolvectl flush-caches</code></div></div>
     </div>
@@ -97,11 +97,11 @@
 <div class="modal" id="ps1-modal"><div class="card">
   <h2 id="modal-title">脚本</h2>
   <div class="code-box"><div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span>powershell</span></div><textarea id="ps1-content" readonly style="min-height:220px"></textarea></div>
-  <div class="ps1-tip">下载后 Windows 提示风险点「保留」——脚本完全开源透明。右键「使用 PowerShell 运行」并以管理员身份运行。</div>
+  <div class="ps1-tip">下载后 Windows 可能提示风险点「仍要运行」——脚本完全开源透明。双击运行，弹 UAC 点「是」，结果会停留显示，看完自行关闭。</div>
   <div class="actions"><button class="btn primary" id="copy-ps1">复制</button><button class="btn" id="download-ps1">下载</button><button class="btn" id="close-modal">关闭</button></div>
 </div></div>
 <div class="toast" id="toast"></div>
 
-<script src="JS/app.js?v=20260808e"></script>
+<script src="JS/app.js?v=20260808f"></script>
 </body>
 </html>
