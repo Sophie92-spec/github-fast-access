@@ -160,3 +160,171 @@ github-fast-access/
 ## License
 
 MIT。随便用、随便改。
+
+---
+
+## English
+
+# GitHub Hosts Accelerator
+
+A pure front-end web tool that finds the **fastest IP** for GitHub's domains on your current network, generates a `hosts` file automatically, and gives you a one-click Windows script to apply it — so GitHub loads smoothly even where direct access is slow.
+
+No install needed. Just open the page.
+
+---
+
+## Use it online
+
+Both addresses point to the same page; use whichever opens:
+
+- Main: [https://sophieyoucha.cc.cd/](https://sophieyoucha.cc.cd/)
+- Backup (official GitHub Pages domain): [https://sophie92-spec.github.io/github-fast-access/](https://sophie92-spec.github.io/github-fast-access/)
+
+> ⚠️ Because the site sits behind Cloudflare's edge cache, **you may see an old version after a code change**. If something doesn't match, open a private/incognito window, or press `Ctrl + Shift + R` on the page to force a refresh.
+
+---
+
+## What it actually does (in three sentences)
+
+1. **Pick the fastest DoH source**: it speed-tests all DoH sources in parallel (domestic-friendly AliDNS / 360 / DNSPod, plus CORS-friendly international Cloudflare / Google / Quad9 / AdGuard / OpenDNS / Mullvad) by resolving `github.com`, then auto-picks the fastest one that works on your network.
+2. **Resolve + pick the fastest IP**: using the fastest DoH source, it resolves the 12 GitHub domains into candidate IPs, then **measures each IP's real latency and auto-selects the fastest one per domain**.
+3. **Generate hosts / one-click script**: it assembles the chosen IPs into a hosts file and gives you a Windows `.bat` script that writes it into the system on double-click.
+
+---
+
+## The interface at a glance
+
+The top **📊 comparison table** merges **DoH sources** and **GitHub domains** into one table, distinguished by a left-side badge:
+
+| Badge | Meaning | What the row shows |
+|-------|---------|--------------------|
+| `SRC` (green) | DoH resolver | Name, this run's latency (`—` / `Timeout` / `xxxms`), `✓ Current` marks the source in use |
+| `DOM` (purple) | GitHub domain | checkbox, resolved IP (editable), measured latency |
+
+**Latency colors (same language in both tables):**
+
+- 🟢 **Green box** = fastest this run (the fastest DoH source and the fastest domain both get marked green)
+- 🔴 **Red box** = slowest this run (and ≥1000ms, so only clearly-slow ones are flagged)
+- Faint red dashed = tested but timed out / not measured
+- Blue `✓ Current` = the DoH source currently selected in the dropdown
+
+The **divider row** (📌 GitHub Domains) shows resolution progress and **data freshness**: e.g. "Updated at 14:30 (12 min ago)". After 6 hours it turns red with ⚠ to remind you to re-test.
+
+---
+
+## How to actually write the hosts into your system
+
+1. Open the page and click **⚡ Test DoH + Resolve Domains** — it does everything in one pass: test DoH latency → auto-pick fastest source → resolve all 12 domains → measure each IP's latency → auto-select fastest IP. (A progress bar appears under the button; if the network misbehaves and it hasn't finished in 30s, it auto-times-out with a hint instead of freezing.)
+2. Confirm the domains you want are checked (uncheck any you don't need; **domains that failed to resolve are unchecked by default** so a dead IP is never written).
+3. Click **Generate .bat** and download the script.
+4. **Double-click to run** (or right-click → Run as administrator) — a UAC prompt asks for admin rights; click **Yes**.
+5. The script automatically: backs up the original hosts → writes the new entries → flushes the DNS cache, and **stays on screen** so you can see the result.
+6. Reopen your browser and try GitHub's speed.
+
+### Don't want the script? Do it manually (two ways)
+
+**Way 1: copy the text box**
+Click **Copy** to get the hosts text → open `C:\Windows\System32\drivers\etc\hosts` **as administrator** (Notepad / VSCode both work, but must be admin or the save is rejected) → paste the text at the end of the file → save → run `ipconfig /flushdns` in CMD / PowerShell.
+
+**Way 2: download `hosts.txt`**
+Click **Download hosts.txt** to get a `hosts.txt` (same content as the text box). Either:
+- Open `hosts.txt`, copy its content, and paste into the system hosts as in Way 1; or
+- Rename `hosts.txt` to `hosts` (**no extension**) and overwrite `C:\Windows\System32\drivers\etc\hosts` as administrator, then `ipconfig /flushdns`.
+
+### About that `.bat` script
+
+What you download is a **self-elevating batch** (not `.ps1`): double-clicking first requests admin rights; after approval an admin window does the work and stays open —
+
+- **Green lines** = backup / write / DNS flush all succeeded, ending with `All done`
+- **Red lines** = where it failed; the window prints the exact error (no more flash-and-gone) — send me that red text
+- Press any key or click the X at top-right to close when done
+
+Windows may show a "Windows protected your PC" prompt on first run (SmartScreen blocking an unknown program, not because the script is harmful) — click "More info → Run anyway". The script is fully open-source and transparent.
+
+> Why `.bat` instead of `.ps1`: the previous `.ps1` was rejected at load time by Windows' default execution policy — the window flashed red and closed. `.bat` isn't limited by that, and has no encoding issues either.
+
+---
+
+## Button reference
+
+| Button | Action |
+|--------|--------|
+| 🌐 Auto DoH (dropdown) | Choose a DoH source. `Auto DoH` re-probes the fastest source each time; picking a specific one fixes it for resolution |
+| ⚡ Test DoH + Resolve Domains | **Main action**: runs the entire flow described above in one step |
+| 🔄 Retest latency | Without re-running the DoH speed test, only re-measures each domain's IP latency and refreshes the fastest IP |
+| Copy / hosts.txt / Generate .bat / Restore .bat | Export the hosts text or Windows script (the restore script removes the written entries and flushes DNS) |
+
+**When to use "Retest latency"?** E.g. after switching networks, or a few hours later when you want to confirm the IPs are still fast — lighter than re-running the whole resolution.
+
+---
+
+## Visit stats (top-right cards)
+
+The PV / UV / last-30-days trend connects to a Cloudflare Workers + KV backend, a **globally shared** visit counter:
+
+- **PV** = cumulative page views, **UV** = unique visitors (deduped by a `__gh_uid` cookie issued on first visit — random string, no personal info collected)
+- The trend line chart is hoverable for a specific day, and a date picker selects any single day
+- Numbers animate with a "count-up" effect when loading
+- If the backend hiccups, the front-end falls back to local `localStorage` counting (the trend card title then drops the "live" suffix) — you still get a rough picture
+
+---
+
+## Security
+
+- Fully HTTPS; Cloudflare uses Full mode to origin
+- Orange-cloud proxy on; GitHub Pages' real IP is not exposed
+- Pure static front-end — **zero login, zero backend writing user data**
+- Built-in Cloudflare basic DDoS protection
+
+---
+
+## FAQ
+
+**Custom domain won't open / shows 1016 / 530?**
+The apex `sophieyoucha.cc.cd` needs a Cloudflare origin (GitHub Pages or a Worker) bound, or it errors with "no origin". Confirm three things: the repo root has a `CNAME` file with the right content, Cloudflare adds 4 A records for the apex pointing to GitHub Pages' official IPs (`185.199.108.153` / `.109.153` / `.110.153` / `.111.153`) with proxy on, and Cloudflare SSL/TLS mode is set to Full. After all three, wait 5–30 min for DNS propagation. When it won't open, just use the GitHub Pages backup link above.
+
+**Stats stay local / no "live" suffix?**
+Usually the backend Workers are temporarily unreachable; wait a few minutes and refresh — it typically returns to live on its own.
+
+**Window flashed by / can't see the result?**
+The download is now a `.bat`: double-clicking first pops a UAC elevation; after approval an admin window does the work and stays open (success shows `All done`, red errors stay too) — close it yourself with X. If you clicked "No" on UAC, the original window just shows one line and auto-closes — double-click again and this time click "Yes".
+
+**Why does some domain show "—" for latency?**
+When that domain's resolved IPs all time out on connection AND the domain-level latency probe also fails, it shows "—". Usually that CDN edge node is unreachable on your network and doesn't affect other domains. Click **🔄 Retest latency** to try again, or manually enter an IP you can reach in the IP box.
+
+**Want `www.sophieyoucha.cc.cd`?**
+In Cloudflare DNS add a CNAME named `www` targeting `sophieyoucha.cc.cd` with proxy on, then back in GitHub Pages custom-domain page click "Check again".
+
+---
+
+## Run locally / modify
+
+```bash
+git clone https://github.com/Sophie92-spec/github-fast-access.git
+cd github-fast-access
+python -m http.server 8765
+# open http://localhost:8765 in your browser
+```
+
+Double-clicking `index.html` also works (note: the stats backend is the live Cloudflare Worker, unaffected locally).
+
+### Project structure
+
+```
+github-fast-access/
+├── index.html            # main page
+├── CSS/styles.css        # styles (glassmorphism dark theme + animations)
+├── JS/app.js             # core logic: DoH speed test / domain resolution / latency measurement / auto-pick fastest IP / stats / dropdown
+├── worker/index.js       # optional: Cloudflare Workers visit-stats backend (KV: GH_STATS)
+├── worker/wrangler.toml  # Worker deploy config
+├── CNAME                 # GitHub Pages custom domain
+├── LICENSE               # MIT
+└── README.md
+```
+
+---
+
+## License
+
+MIT. Free to use and modify.
+

@@ -15,31 +15,38 @@
 
 <div class="layout">
 <div class="wrap">
-  <head-bar><div class="logo">🚀</div><div><h2>GitHub Hosts 加速</h2><p>DoH 查询最优 IP · 一键生成 hosts · .bat 脚本</p></div></head-bar>
+  <head-bar>
+    <div class="logo">🚀</div>
+    <div class="head-text">
+      <h2 data-i18n="app_title">GitHub Hosts 加速</h2>
+      <p data-i18n="app_sub">DoH 查询最优 IP · 一键生成 hosts · .bat 脚本</p>
+    </div>
+    <button type="button" id="lang-toggle" class="lang-btn" title="Switch language / 切换语言">🇬🇧 EN</button>
+  </head-bar>
 
   <div class="card" id="cmp-card">
-    <div class="section-title">📊 解析表 · DoH 源 + GitHub 域名</div>
-    <div class="cmp-hint">测每个 DoH 源的延迟并自动切最快源解析下方全部 GitHub 域名；每个域名会实测各候选 IP 延迟、<b>自动选用最快的那个</b>。<span style="color:var(--green)">绿框</span> = 最快，<span style="color:var(--red)">红框</span> = 最慢（≥1000ms）。点「🔄 重测延迟」可在不重跑 DoH 测速的情况下刷新域名延迟与最快 IP。</div>
+    <div class="section-title" data-i18n="sec_cmp">📊 解析表 · DoH 源 + GitHub 域名</div>
+    <div class="cmp-hint" data-i18n-html="cmp_hint">测每个 DoH 源的延迟并自动切最快源解析下方全部 GitHub 域名；每个域名会实测各候选 IP 延迟、<b>自动选用最快的那个</b>。<span style="color:var(--green)">绿框</span> = 最快，<span style="color:var(--red)">红框</span> = 最慢（≥1000ms）。点「🔄 重测延迟」可在不重跑 DoH 测速的情况下刷新域名延迟与最快 IP。</div>
 
     <!-- ① 选 DoH 源 (绿光玻璃卡) —— 测速后自动解析下方所有 GitHub 域名 -->
     <div class="step-panel step-panel-doh">
       <div class="step-head">
         <span class="step-num step-num-doh">①</span>
-        <span class="step-title">选 DoH 源</span>
+        <span class="step-title" data-i18n="step_doh_title">选 DoH 源</span>
         <span class="step-divider"></span>
-        <span class="step-hint">测速后自动用最快源解析下方 GitHub 域名</span>
-        <span class="status-chip status-chip-doh"><span class="chip-dot"></span><span id="doh-status">DoH 未测速</span></span>
+        <span class="step-hint" data-i18n="step_doh_hint">测速后自动用最快源解析下方 GitHub 域名</span>
+        <span class="status-chip status-chip-doh"><span class="chip-dot"></span><span id="doh-status" data-i18n="doh_status_init">DoH 未测速</span></span>
       </div>
       <div class="step-body doh-step-body">
         <div id="doh-trigger-wrap">
           <button type="button" class="btn doh-trigger" id="doh-trigger">
             <span class="doh-trigger-icon">🌐</span>
-            <span id="doh-label">自动 DoH</span>
+            <span id="doh-label" data-i18n="opt_auto">自动 DoH</span>
             <span class="doh-arrow">▾</span>
           </button>
         </div>
-        <button class="btn btn-glow-green" id="cmp-test">⚡ 测 DoH + 解析域名</button>
-        <button class="btn" id="retest-lat">🔄 重测延迟</button>
+        <button class="btn btn-glow-green" id="cmp-test" data-i18n="btn_test">⚡ 测 DoH + 解析域名</button>
+        <button class="btn" id="retest-lat" data-i18n="btn_retest">🔄 重测延迟</button>
       </div>
     </div>
 
@@ -52,41 +59,39 @@
     <!-- 统一表：DoH 源 + GitHub 域名（同表，类型徽章区分，去重保留不同项） -->
     <div class="cmp-table-wrap"><table class="cmp-table" id="cmp-table"></table></div>
     <div class="cmp-summary" id="cmp-summary" style="display:none"></div>
-    <div class="cmp-empty" id="cmp-empty">点「⚡ 测 DoH + 解析域名」开始：先测每个 DoH 源的延迟，挑最快用于解析下方全部 12 个 GitHub 域名。<b>绿框</b> = 最快，<b>红框</b> = 最慢（≥1000ms）。</div>
+    <div class="cmp-empty" id="cmp-empty" data-i18n-html="cmp_empty">点「⚡ 测 DoH + 解析域名」开始：先测每个 DoH 源的延迟，挑最快用于解析下方全部 12 个 GitHub 域名。<b>绿框</b> = 最快，<b>红框</b> = 最慢（≥1000ms）。</div>
   </div>
 
-  
   <div class="card">
-    <div class="section-title">📝 Hosts 内容 <span class="count" id="hosts-count">0</span></div>
+    <div class="section-title"><span data-i18n="sec_hosts">📝 Hosts 内容</span> <span class="count" id="hosts-count">0</span></div>
     <div class="code-box"><div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span>hosts</span></div><textarea id="hosts-content" readonly></textarea></div>
     <div class="actions">
-      <button class="btn primary" id="copy-hosts">复制</button><button class="btn" id="download-hosts">hosts.txt</button><button class="btn" id="gen-ps1">生成 .bat</button><button class="btn danger" id="gen-restore">恢复 .bat</button>
+      <button class="btn primary" id="copy-hosts" data-i18n="btn_copy">复制</button><button class="btn" id="download-hosts">hosts.txt</button><button class="btn" id="gen-ps1" data-i18n="btn_gen">生成 .bat</button><button class="btn danger" id="gen-restore" data-i18n="btn_restore">恢复 .bat</button>
     </div>
   </div>
 
-  <div class="card"><div class="section-title" style="margin-bottom:6px">📖 使用说明</div>
+  <div class="card"><div class="section-title" style="margin-bottom:6px"><span data-i18n="sec_howto">📖 使用说明</span></div>
     <div class="howto">
       <div class="howto-tabs"><button class="howto-tab on" data-tab="windows">Windows</button><button class="howto-tab" data-tab="mac">macOS</button><button class="howto-tab" data-tab="linux">Linux</button></div>
-      <div class="howto-panel on" id="tab-windows"><ol><li>选择 DoH 来源，点击 <code>测 DoH + 解析域名</code>，等待所有 DoH 源和域名解析完成</li><li>查看状态列：绿色 ✓ 表示成功，红色 ✗ 可手动输入 IP</li><li>确认需要加速的域名已勾选（可取消不需要的域名）</li><li>切换到下方 Hosts 内容区，点击 <code>生成 .bat</code></li><li>下载后<strong>双击运行</strong>（或右键 → 以管理员身份运行），首次会弹 UAC 请求管理员权限</li><li>脚本将自动：备份原 hosts → 写入新条目 → 刷新 DNS 缓存，结果会停留显示</li></ol><div class="tip">💡 也可手动操作：以管理员身份打开记事本 → 打开文件 <code>C:\Windows\System32\drivers\etc\hosts</code>（注意文件无扩展名！）→ 将 Hosts 内容粘贴到文件末尾 → 保存 → 在 CMD 中执行 <code>ipconfig /flushdns</code></div></div>
-      <div class="howto-panel" id="tab-mac"><ol><li>选择 DoH 来源，点击 <code>测 DoH + 解析域名</code>，等待所有 DoH 源和域名解析完成</li><li>查看状态列确认解析成功（绿色 ✓），勾选需要加速的域名</li><li>切换到下方 Hosts 内容区，点击 <code>复制</code> 或手动全选文本</li><li>打开终端（Terminal.app），输入 <code>sudo nano /etc/hosts</code></li><li>输入系统密码后，将光标移至文件末尾，粘贴 Hosts 内容</li><li>按 <code>Control + O</code> 保存文件，再按 <code>Control + X</code> 退出 nano</li><li>终端执行 <code>sudo dscacheutil -flushcache</code> 和 <code>sudo killall -HUP mDNSResponder</code></li></ol><div class="tip">💡 如果 nano 提示无写入权限，请确认当前账号具有管理员权限（系统偏好设置 → 用户与群组）</div></div>
-      <div class="howto-panel" id="tab-linux"><ol><li>选择 DoH 来源，点击 <code>测 DoH + 解析域名</code>，等待所有 DoH 源和域名解析完成</li><li>查看状态列，绿色 ✓ 表示成功，取消不需要加速的域名勾选</li><li>切换到 Hosts 内容区，点击 <code>复制</code> 获取 hosts 文本</li><li>打开终端，输入 <code>sudo nano /etc/hosts</code>（也可用 <code>sudo vi /etc/hosts</code>）</li><li>将光标移至文件末尾，粘贴 Hosts 内容</li><li>按 <code>Control + O</code> 保存，<code>Control + X</code> 退出</li><li>刷新 DNS 缓存，根据发行版选择对应命令</li></ol><div class="tip">💡 不同发行版刷新命令：Ubuntu/Debian → <code>sudo systemd-resolve --flush-caches</code>；CentOS/RHEL/Fedora → <code>sudo systemctl restart NetworkManager</code>；Arch → <code>sudo resolvectl flush-caches</code></div></div>
+      <div class="howto-panel on" id="tab-windows" data-i18n-html="howto_win"><ol><li>选择 DoH 来源，点击 <code>测 DoH + 解析域名</code>，等待所有 DoH 源和域名解析完成</li><li>查看状态列：绿色 ✓ 表示成功，红色 ✗ 可手动输入 IP</li><li>确认需要加速的域名已勾选（可取消不需要的域名）</li><li>切换到下方 Hosts 内容区，点击 <code>生成 .bat</code></li><li>下载后<strong>双击运行</strong>（或右键 → 以管理员身份运行），首次会弹 UAC 请求管理员权限</li><li>脚本将自动：备份原 hosts → 写入新条目 → 刷新 DNS 缓存，结果会停留显示</li></ol><div class="tip">💡 也可手动操作：以管理员身份打开记事本 → 打开文件 <code>C:\Windows\System32\drivers\etc\hosts</code>（注意文件无扩展名！）→ 将 Hosts 内容粘贴到文件末尾 → 保存 → 在 CMD 中执行 <code>ipconfig /flushdns</code></div></div>
+      <div class="howto-panel" id="tab-mac" data-i18n-html="howto_mac"><ol><li>选择 DoH 来源，点击 <code>测 DoH + 解析域名</code>，等待所有 DoH 源和域名解析完成</li><li>查看状态列确认解析成功（绿色 ✓），勾选需要加速的域名</li><li>切换到下方 Hosts 内容区，点击 <code>复制</code> 或手动全选文本</li><li>打开终端（Terminal.app），输入 <code>sudo nano /etc/hosts</code></li><li>输入系统密码后，将光标移至文件末尾，粘贴 Hosts 内容</li><li>按 <code>Control + O</code> 保存文件，再按 <code>Control + X</code> 退出 nano</li><li>终端执行 <code>sudo dscacheutil -flushcache</code> 和 <code>sudo killall -HUP mDNSResponder</code></li></ol><div class="tip">💡 如果 nano 提示无写入权限，请确认当前账号具有管理员权限（系统偏好设置 → 用户与群组）</div></div>
+      <div class="howto-panel" id="tab-linux" data-i18n-html="howto_linux"><ol><li>选择 DoH 来源，点击 <code>测 DoH + 解析域名</code>，等待所有 DoH 源和域名解析完成</li><li>查看状态列，绿色 ✓ 表示成功，取消不需要加速的域名勾选</li><li>切换到 Hosts 内容区，点击 <code>复制</code> 获取 hosts 文本</li><li>打开终端，输入 <code>sudo nano /etc/hosts</code>（也可用 <code>sudo vi /etc/hosts</code>）</li><li>将光标移至文件末尾，粘贴 Hosts 内容</li><li>按 <code>Control + O</code> 保存，<code>Control + X</code> 退出</li><li>刷新 DNS 缓存，根据发行版选择对应命令</li></ol><div class="tip">💡 不同发行版刷新命令：Ubuntu/Debian → <code>sudo systemd-resolve --flush-caches</code>；CentOS/RHEL/Fedora → <code>sudo systemctl restart NetworkManager</code>；Arch → <code>sudo resolvectl flush-caches</code></div></div>
     </div>
   </div>
 
-  <div class="social"><a class="social-link" href="https://github.com/Sophie92-spec/github-fast-access" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> GitHub</a><a class="social-link" href="https://space.bilibili.com/447878463" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.223 3.086a1.25 1.25 0 0 1 0 1.768L17.08 5.996h1.17A3.75 3.75 0 0 1 22 9.747v7.5a3.75 3.75 0 0 1-3.75 3.75H5.75A3.75 3.75 0 0 1 2 17.247v-7.5a3.75 3.75 0 0 1 3.75-3.751h1.166L5.775 4.854a1.25 1.25 0 1 1 1.767-1.768l2.652 2.652c.079.079.145.165.198.257h3.213c.053-.092.12-.18.199-.258l2.651-2.652a1.25 1.25 0 0 1 1.768 0zM18.25 8.496H5.75a1.25 1.25 0 0 0-1.247 1.157l-.003.094v7.5c0 .659.51 1.198 1.157 1.246l.093.004h12.5a1.25 1.25 0 0 0 1.247-1.157l-.003-.093v-7.5c0-.69-.56-1.25-1.25-1.25zm-9.5 3.064c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25zm5.5 0c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25z"/></svg> 哔哩哔哩</a></div>
+  <div class="social"><a class="social-link" href="https://github.com/Sophie92-spec/github-fast-access" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> <span data-i18n="social_github">GitHub</span></a><a class="social-link" href="https://space.bilibili.com/447878463" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.223 3.086a1.25 1.25 0 0 1 0 1.768L17.08 5.996h1.17A3.75 3.75 0 0 1 22 9.747v7.5a3.75 3.75 0 0 1-3.75 3.75H5.75A3.75 3.75 0 0 1 2 17.247v-7.5a3.75 3.75 0 0 1 3.75-3.751h1.166L5.775 4.854a1.25 1.25 0 1 1 1.767-1.768l2.652 2.652c.079.079.145.165.198.257h3.213c.053-.092.12-.18.199-.258l2.651-2.652a1.25 1.25 0 0 1 1.768 0zM18.25 8.496H5.75a1.25 1.25 0 0 0-1.247 1.157l-.003.094v7.5c0 .659.51 1.198 1.157 1.246l.093.004h12.5a1.25 1.25 0 0 0 1.247-1.157l-.003-.093v-7.5c0-.69-.56-1.25-1.25-1.25zm-9.5 3.064c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25zm5.5 0c.69 0 1.25.56 1.25 1.25v1.5a1.25 1.25 0 1 1-2.5 0v-1.5c0-.69.56-1.25 1.25-1.25z"/></svg> <span data-i18n="social_bili">哔哩哔哩</span></a></div>
 
-  
 </div>
 
 <div class="stats-side">
     <!-- 折线图卡片 -->
     <div class="stats-card stats-chart-card">
-      <div class="stats-card-head"><span class="stats-card-title">📈 近 30 天访问趋势</span></div>
+      <div class="stats-card-head"><span class="stats-card-title" data-i18n="stats_trend_title">📈 近 30 天访问趋势</span></div>
       <div class="sv-chart" id="sv-chart"></div>
       <div class="tk-tip" id="tk-tip"><span class="tk-date"></span><span class="tk-val"></span></div>
       <div class="chart-foot">
         <label class="date-pick" for="date-pick">
-          <span class="dp-label">📅 选择日期</span>
+          <span class="dp-label" data-i18n="stats_date_pick">📅 选择日期</span>
           <input type="date" id="date-pick" />
         </label>
         <div class="sel-stat" id="sel-stat"></div>
@@ -96,23 +101,23 @@
     <div class="stats-card stats-report-card">
       <div class="report-head">
         <span class="report-badge">REPORT</span>
-        <span class="report-title">访问统计</span>
+        <span class="report-title" data-i18n="stats_report_title">访问统计</span>
         <span class="report-date" id="report-date"></span>
       </div>
       <div class="report-grid">
         <div class="report-item">
-          <div class="report-label">总访问量 PV</div>
+          <div class="report-label" data-i18n="stats_pv_label">总访问量 PV</div>
           <div class="report-value"><span class="sv-icon">👁</span><span class="sv-num" id="report-pv">0</span></div>
           <div class="report-sub">Page Views</div>
         </div>
         <div class="report-item">
-          <div class="report-label">独立访客 UV</div>
+          <div class="report-label" data-i18n="stats_uv_label">独立访客 UV</div>
           <div class="report-value"><span class="sv-icon">👤</span><span class="sv-num" id="report-uv">0</span></div>
           <div class="report-sub">Unique Visitors</div>
         </div>
       </div>
       <div class="report-foot">
-        <span>今日新增</span>
+        <span data-i18n="stats_today_label">今日新增</span>
         <span class="report-today" id="report-today">0</span>
       </div>
     </div>
@@ -120,19 +125,19 @@
 </div>
 
 <div class="modal" id="ps1-modal"><div class="card">
-  <h2 id="modal-title">脚本</h2>
+  <h2 id="modal-title" data-i18n="modal_title">脚本</h2>
   <div class="code-box"><div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span>windows batch</span></div><textarea id="ps1-content" readonly style="min-height:220px"></textarea></div>
-  <div class="ps1-tip">
+  <div class="ps1-tip" data-i18n-html="ps1_tip">
     下载后 Windows 可能提示风险点「仍要运行」——脚本完全开源透明，双击运行并点「是」放行 UAC 即可。<br>
     运行后窗口会<b>停留</b>显示结果：<b style="color:#86efac">绿色</b> = 备份 / 写入 / 刷 DNS 成功（末尾 All done）；若出错则显示 <b style="color:#fca5a5">红色</b> 错误信息并停留，把那段红字发我即可。看完按任意键或点 X 关闭。
   </div>
-  <div class="actions"><button class="btn primary" id="copy-ps1">复制</button><button class="btn" id="download-ps1">下载</button><button class="btn" id="close-modal">关闭</button></div>
+  <div class="actions"><button class="btn primary" id="copy-ps1" data-i18n="btn_copy">复制</button><button class="btn" id="download-ps1" data-i18n="btn_dl">下载</button><button class="btn" id="close-modal" data-i18n="btn_close">关闭</button></div>
 </div></div>
 <div class="toast" id="toast"></div>
 
 <!-- 版本标识（用户可见，便于确认是否拿到最新版） -->
-<div class="ver-tag" id="ver-tag" title="当前版本号">v 20260808ah</div>
+<div class="ver-tag" id="ver-tag" title="当前版本号">v 20260809</div>
 
-<script src="JS/app.js?v=20260808ah"></script>
+<script src="JS/app.js?v=20260809"></script>
 </body>
 </html>
