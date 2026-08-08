@@ -19,10 +19,6 @@ html{font-size:16px;background:var(--bg)}
   --ease:cubic-bezier(.4,0,.2,1);
   --mono:"JetBrains Mono","Cascadia Code","Consolas",monospace;
   --sans:"Segoe UI",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
-  /* Hero button (新主操作按钮) */
-  --hero-grad-from:#7c9aff;
-  --hero-grad-to:#6e84ff;
-  --hero-glow:rgba(124,154,255,.45);
 }
 body{
   font-family:var(--sans);background:var(--bg);color:var(--text);
