@@ -453,6 +453,13 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
 .cmp-table .divider-meta.stale{color:var(--red);font-weight:600}
 .cmp-table .divider-meta.stale::before{content:'⚠ '}
 
+/* 测试进度条 */
+.test-progress{margin:14px 2px 4px;animation:panelIn .35s var(--ease) both}
+.tp-track{height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,.25)}
+.tp-bar{height:100%;width:0;border-radius:99px;background:linear-gradient(90deg,var(--green),#7c9aff);transition:width .35s var(--ease);box-shadow:0 0 8px rgba(108,231,148,.55);background-size:200% 100%;animation:tpflow 1.1s linear infinite}
+@keyframes tpflow{from{background-position:0 0}to{background-position:200% 0}}
+.tp-label{margin-top:6px;font-size:.8rem;color:var(--muted);text-align:center;letter-spacing:.02em}
+
 /* 无障碍：尊重「减少动态效果」系统偏好，关闭非必要动画（保留功能） */
 @media (prefers-reduced-motion: reduce){
   *{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
@@ -461,4 +468,5 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
   .status-dot.loading{animation:none}
   .trend-dot{animation:none}
   .trend-area{animation:none}
+  .tp-bar{animation:none}
 }

@@ -59,7 +59,8 @@ async function pickAuto(){
 }
 
 // 解析域名（通过当前 dohValue），并发限 4，结果更新到 S[d] 并刷新表格
-async function fetchDomains(){
+// onProg(0-100) 可选：由上层用于驱动测试进度条（解析占 0-60，延迟占 60-90，结束 100）
+async function fetchDomains(onProg){
   const ok0=DOMAINS.filter(domStatusOk).length;
   if(ok0>0)DOMAINS.forEach(d=>{S[d].status='loading'});   // 二次解析时显示过渡态
   renderUnified();
@@ -73,18 +74,21 @@ async function fetchDomains(){
     }));
     renderUnified();
     update();
+    if(onProg)onProg(Math.round((i+batch)/total*60));
   }
   // 按延迟自动选用每个域名的最快 IP（轻量版"候选 IP 对比"）
-  await measureDomainLatency();
+  await measureDomainLatency(onProg?p=>onProg(60+Math.round(p*0.3)):undefined);
+  if(onProg)onProg(90);
   // 自动按解析结果勾选：成功的勾上、失败的不勾（覆盖用户此前手动设置）
   DOMAINS.forEach(d=>{S[d].included=domStatusOk(d)});
   renderUnified();
+  if(onProg)onProg(100);
   lastFetchAt=Date.now();
   const ok=DOMAINS.filter(domStatusOk).length;
   return ok;
 }
 // 测每个域名候选 IP 的延迟，自动选用最快；并发限 4。无 IP 的域名跳过
-async function measureDomainLatency(){
+async function measureDomainLatency(onProg){
   const batch=4,total=DOMAINS.length;
   for(let i=0;i<total;i+=batch){
     const chunk=DOMAINS.slice(i,i+batch);
@@ -105,6 +109,7 @@ async function measureDomainLatency(){
       S[d].latency=lat;
       renderUnified();
     }));
+    if(onProg)onProg(Math.round((i+batch)/total*100));
   }
   update();
 }
@@ -148,6 +153,7 @@ async function dohTest(){
   var btn=$('cmp-test');btn.disabled=true;btn.textContent='…';
   var ds=$('doh-status');ds.textContent='DoH 状态：测速中…';
   dohLats={};renderUnified();$('cmp-summary').style.display='none';if($('cmp-empty'))$('cmp-empty').style.display='none';
+  setProgress(0,'准备测速…');
   var total=A.length,done=0,batch=4;
   for(var i=0;i<A.length;i+=batch){
     var chunk=A.slice(i,i+batch);
@@ -155,10 +161,9 @@ async function dohTest(){
       var s=performance.now();
       try{await rwp('github.com',k);dohLats[k]=Math.round(performance.now()-s);}
       catch(e){dohLats[k]=null;}
-      done++;ds.textContent='DoH 状态：测速中 '+done+'/'+total;renderUnified();
+      done++;ds.textContent='DoH 状态：测速中 '+done+'/'+total;setProgress(Math.round(done/total*35),'测 DoH 源 '+done+'/'+total);renderUnified();
     }));
   }
-  cmpTesting=false;btn.disabled=false;btn.textContent='⚡ 测 DoH + 解析域名';
   var best=dohBest(),worst=dohWorst(),usN=us(),avg=dohAvg();
   if(usN===0){
     ds.textContent='DoH 状态：全 '+total+' 个源都连不上';
@@ -186,8 +191,14 @@ async function dohTest(){
   if(best){
     dohValue=best;dLabel.textContent=dohName(best);
     renderUnified();
-    await fetchDomains();
+    setProgress(35,'解析 GitHub 域名…');
+    await fetchDomains(function(p){setProgress(35+Math.round(p*0.6),'解析 GitHub 域名…')});
+    setProgress(100,'完成 ✓');
+  }else{
+    setProgress(null);
   }
+  cmpTesting=false;btn.disabled=false;btn.textContent='⚡ 测 DoH + 解析域名';
+  setTimeout(function(){setProgress(null)},800);
 }
 
 // 渲染统一表：DoH 源 + GitHub 域名合并为一张表
@@ -292,8 +303,10 @@ async function retestLatency(){
   if(cmpTesting)return;
   if(!DOMAINS.some(d=>S[d].ips.length>0)){toast('请先点「测 DoH + 解析域名」解析域名','bad');return;}
   var btn=$('retest-lat');if(btn)btn.disabled=true;
-  await measureDomainLatency();
+  setProgress(0,'重测域名延迟…');
+  await measureDomainLatency(function(p){setProgress(Math.round(p*100),'重测域名延迟…')});
   if(btn)btn.disabled=false;
+  setProgress(100,'完成 ✓');setTimeout(function(){setProgress(null)},800);
   toast('域名延迟已重测，已自动选用最快 IP','good');
 }
 $('cmp-test').addEventListener('click',dohTest);
