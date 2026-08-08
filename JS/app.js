@@ -182,42 +182,67 @@ document.querySelectorAll('.btn').forEach(function(b){
 });
 document.querySelectorAll('.howto-tab').forEach(tab=>{tab.addEventListener('click',()=>{const scope=tab.closest('.howto');scope.querySelectorAll('.howto-tab').forEach(t=>t.classList.remove('on'));scope.querySelectorAll('.howto-panel').forEach(c=>c.classList.remove('on'));tab.classList.add('on');document.getElementById('tab-'+tab.dataset.tab).classList.add('on')})});
 
-// ===== 运营商延迟对比（快照式并排对比）=====
-// 浏览器只能测当前网络的延迟；用户在不同运营商网络下各测一次并保存快照，
-// 即可在此并排对比（同一组域名，不同运营商的延迟），并自动标出每域最快的运营商。
-const SNAP_KEY='gh_hosts_snaps';
-function loadSnaps(){try{return JSON.parse(localStorage.getItem(SNAP_KEY)||'[]')}catch(e){return[]}}
-function saveSnaps(a){localStorage.setItem(SNAP_KEY,JSON.stringify(a))}
+// ===== 候选 IP 延迟对比 =====
+// 对每个域名，把它解析出的多个候选 IP 全部测一遍延迟并排对比，
+// 自动标出每个域名最快的 IP（绿框），并支持「选用最快」替换当前选中的 IP。
+// 测延迟复用 tl()；仅多 IP 的域名进入对比（单 IP 域名无需对比）。
+var CMP=[],cmpTesting=false;
 function escCmp(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
-function bestIdx(vals){var m=null,mi=-1;for(var i=0;i<vals.length;i++){if(vals[i]!==null&&(m===null||vals[i]<m)){m=vals[i];mi=i}}return mi}
-function cmpSave(){
-  var snaps=loadSnaps();
-  if(!DOMAINS.some(function(d){return S[d].latency!==null})){toast('请先点上方「⚡ 延迟」测出延迟再保存','bad');return}
-  var name=$('cmp-name').value.trim();
-  if(!name){var n=1;while(snaps.some(function(s){return s.name==='网络'+n}))n++;name='网络'+n}
-  var lat={};DOMAINS.forEach(function(d){lat[d]=S[d].latency});
-  snaps.push({name:name,time:new Date().toLocaleString('zh-CN'),lat:lat});
-  saveSnaps(snaps);$('cmp-name').value='';renderSnaps();toast('已保存快照：'+name,'good');
-}
-function delSnap(i){var s=loadSnaps();if(i<0||i>=s.length)return;s.splice(i,1);saveSnaps(s);renderSnaps();toast('已删除该快照','')}
-function renderSnaps(){
-  var snaps=loadSnaps();if($('cmp-count'))$('cmp-count').textContent=snaps.length;
+function bestIdx(arr){var m=null,mi=-1;for(var i=0;i<arr.length;i++){if(arr[i].l!==null&&(m===null||arr[i].l<m)){m=arr[i].l;mi=i}}return mi}
+function cmpMulti(){return DOMAINS.filter(function(d){return S[d].ips&&S[d].ips.length>1})}
+function renderCmp(){
   var table=$('cmp-table'),empty=$('cmp-empty');if(!table)return;
-  if(snaps.length===0){table.innerHTML='';empty.style.display='block';return}
+  if(CMP.length===0){table.innerHTML='';empty.style.display='block';if($('cmp-count'))$('cmp-count').textContent='0';return}
   empty.style.display='none';
-  var head='<thead><tr><th>域名</th>'+snaps.map(function(s,i){return '<th>'+escCmp(s.name)+' <button class="cmp-del" data-i="'+i+'" title="删除该快照">✕</button></th>'}).join('')+'<th>最快</th></tr></thead>';
-  var body='<tbody>'+DOMAINS.map(function(d){
-    var vals=snaps.map(function(s){return s.lat[d]});
-    var best=bestIdx(vals);
-    var cells=snaps.map(function(s,i){var l=s.lat[d];return '<td class="latency '+(l===null?'fail':cls(l))+(i===best?' cmp-win':'')+'">'+(l===null?'—':l+'ms')+'</td>'}).join('');
-    return '<tr><td class="domain-name">'+d+'</td>'+cells+'<td class="cmp-best">'+(best<0?'—':escCmp(snaps[best].name))+'</td></tr>';
+  if($('cmp-count'))$('cmp-count').textContent=CMP.length;
+  var head='<thead><tr><th>域名</th>'+CMP[0].ips.map(function(ip,i){return '<th>IP '+(i+1)+'</th>'}).join('')+'<th>最快</th><th>操作</th></tr></thead>';
+  var body='<tbody>'+CMP.map(function(r){
+    var best=bestIdx(r.ips);
+    var cells=r.ips.map(function(it,i){return '<td class="latency '+(it.l===null?'fail':cls(it.l))+(i===best?' cmp-win':'')+'">'+(it.l===null?'—':it.l+'ms')+'</td>'}).join('');
+    var pick='<button class="cmp-pick" data-d="'+r.domain+'" data-ip="'+escCmp(r.ips[best].ip)+'">选用最快</button>';
+    return '<tr><td class="domain-name">'+escCmp(r.domain)+'</td>'+cells+'<td class="cmp-best">'+(best<0?'—':r.ips[best].ip)+'</td><td>'+pick+'</td></tr>';
   }).join('')+'</tbody>';
-  var foot='<tfoot><tr><td>平均</td>'+snaps.map(function(s){var v=DOMAINS.map(function(d){return s.lat[d]}).filter(function(x){return x!==null});var avg=v.length?Math.round(v.reduce(function(a,b){return a+b},0)/v.length):'—';return '<td class="cmp-avg">'+(typeof avg==='number'?avg+'ms':'—')+'</td>'}).join('')+'<td></td></tr></tfoot>';
-  table.innerHTML=head+body+foot;
-  table.querySelectorAll('.cmp-del').forEach(function(b){b.addEventListener('click',function(){delSnap(+b.dataset.i)})});
+  table.innerHTML=head+body;
+  table.querySelectorAll('.cmp-pick').forEach(function(b){b.addEventListener('click',function(){cmpPick(b.dataset.d,b.dataset.ip)})});
 }
-$('cmp-save').addEventListener('click',cmpSave);
-renderSnaps();
+function cmpPick(d,ip){var s=S[d];if(!s)return;s.selectedIp=ip;upRow(d);update();toast('已为 '+d+' 选用最快 IP：'+ip,'good')}
+async function cmpTest(){
+  if(cmpTesting)return;
+  var multi=cmpMulti();
+  if(multi.length===0){toast('请先「🔍 获取 IP」让域名解析出多个候选 IP','bad');return}
+  cmpTesting=true;var tbtn=$('cmp-test');tbtn.disabled=true;tbtn.textContent='…';
+  $('cmp-status').textContent='测速中…';
+  CMP=multi.map(function(d){return{domain:d,ips:S[d].ips.map(function(ip){return{ip:ip,l:null}}),ok:0}});
+  renderCmp();
+  var total=multi.reduce(function(a,d){return a+S[d].ips.length},0),done=0;
+  for(var i=0;i<CMP.length;i++){
+    var r=CMP[i];
+    for(var j=0;j<r.ips.length;j++){
+      var it=r.ips[j];
+      it.l=await tl(it.ip);
+      if(it.l!==null)r.ok++;
+      done++;
+      $('cmp-status').textContent='测速中… '+done+'/'+total;
+      renderCmp();   // 实时刷新本行结果
+    }
+  }
+  // 自动：为每个多 IP 域名选最快（仅在该域全部测出时才自动选，避免半截覆盖用户选择）
+  cmpTesting=false;tbtn.disabled=false;tbtn.textContent='⚡ 测所有候选 IP 延迟';
+  var pickable=CMP.filter(function(r){var b=bestIdx(r.ips);return b>=0&&r.ok===r.ips.length});
+  if(pickable.length){var n=0;pickable.forEach(function(r){var b=bestIdx(r.ips);S[r.domain].selectedIp=r.ips[b].ip;upRow(r.domain);n++});update();}
+  $('cmp-status').textContent=pickable.length+' 个域名已自动选最快';
+  if(pickable.length>0)toast('测速完成，已自动为 '+pickable.length+' 个域名选最快 IP','good');else toast('测速完成（部分 IP 无法连接）','')
+}
+function cmpApplyAll(){
+  var pickable=CMP.filter(function(r){var b=bestIdx(r.ips);return b>=0&&r.ok===r.ips.length});
+  if(pickable.length===0){toast('请先「⚡ 测所有候选 IP 延迟」','bad');return}
+  pickable.forEach(function(r){var b=bestIdx(r.ips);S[r.domain].selectedIp=r.ips[b].ip;upRow(r.domain)});
+  update();renderCmp();
+  toast('已为 '+pickable.length+' 个域名全部选用最快 IP','good');
+}
+$('cmp-test').addEventListener('click',cmpTest);
+$('cmp-apply-all').addEventListener('click',cmpApplyAll);
+renderCmp();
 
 // ===== 访问统计 =====
 // 默认走本地 localStorage（离线/未配置后端时）；若配置 STATS_API（Cloudflare Workers+KV），

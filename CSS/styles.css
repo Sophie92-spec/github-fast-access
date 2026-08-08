@@ -200,11 +200,9 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
 }
 
 
-/* ===== 运营商延迟对比 ===== */
+/* ===== 候选 IP 延迟对比 ===== */
 .cmp-hint{font-size:clamp(12px,1vw,14px);color:var(--muted);margin-bottom:clamp(8px,1vh,12px);line-height:1.65}
 .cmp-actions{display:flex;gap:clamp(6px,.6vw,10px);flex-wrap:wrap;align-items:center;margin-bottom:clamp(10px,1vh,14px)}
-.cmp-name-input{background:var(--glass-2);color:var(--text);border:1px solid var(--border-strong);border-radius:clamp(6px,.6vw,8px);padding:clamp(8px,.8vh,11px) clamp(12px,1.2vw,16px);font-size:clamp(13px,1.1vw,15px);font-family:var(--sans);min-width:clamp(160px,18vw,220px);transition:.12s}
-.cmp-name-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px rgba(128,160,255,.4)}
 .cmp-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:clamp(8px,.8vw,10px)}
 .cmp-table{width:100%;border-collapse:collapse;min-width:max-content}
 .cmp-table th,.cmp-table td{padding:clamp(7px,.6vh,10px) clamp(10px,1vw,16px);border-bottom:1px solid var(--border);font-size:clamp(12px,1vw,14px);white-space:nowrap;text-align:left}
@@ -213,11 +211,9 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
 .cmp-table .domain-name{font-family:var(--mono);color:var(--accent);font-size:clamp(11.5px,1vw,13.5px)}
 .cmp-table .latency{font-family:var(--mono);font-weight:600;padding:2px 8px;border-radius:999px;display:inline-block}
 .cmp-table .latency.cmp-win{outline:2px solid var(--green);box-shadow:0 0 10px rgba(74,222,128,.3)}
-.cmp-table .cmp-best{color:var(--green);font-weight:700;font-family:var(--sans)}
-.cmp-table tfoot td{color:var(--muted);font-weight:600;border-top:1px solid var(--border-strong)}
-.cmp-table tfoot .cmp-avg{font-family:var(--mono);color:var(--text)}
-.cmp-del{background:var(--glass-2);border:1px solid var(--border-strong);color:var(--red);border-radius:6px;cursor:pointer;font-size:11px;padding:2px 6px;line-height:1;margin-left:4px;transition:.12s}
-.cmp-del:hover{border-color:var(--red);background:rgba(248,113,113,.1)}
+.cmp-table .cmp-best{color:var(--green);font-family:var(--mono);font-weight:700}
+.cmp-pick{background:var(--glass-2);border:1px solid var(--border-strong);color:var(--green);border-radius:6px;cursor:pointer;font-size:12px;padding:4px 9px;line-height:1;transition:.12s}
+.cmp-pick:hover{border-color:var(--green);background:rgba(74,222,128,.1)}
 .cmp-empty{color:var(--muted);font-size:clamp(12.5px,1vw,14px);padding:clamp(12px,1.4vh,18px);text-align:center;border:1px dashed var(--border-strong);border-radius:10px;line-height:1.7}
 
 /* 右侧统计栏 */
