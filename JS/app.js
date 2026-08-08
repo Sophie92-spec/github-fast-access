@@ -680,9 +680,9 @@ document.querySelectorAll('.howto-tab').forEach(tab=>{tab.addEventListener('clic
 
 // ===== 访问统计 =====
 var STATS_API='https://stats.sophieyoucha.cc.cd';
-var K='gh_hosts_stats',t=new Date().toISOString().slice(0,10);
+var K='gh_hosts_stats',tdate=new Date().toISOString().slice(0,10);
 (function(){
-  try{var d=JSON.parse(localStorage.getItem(K)||'{}');d[t]=(d[t]||0)+1;localStorage.setItem(K,JSON.stringify(d))}catch(e){}
+  try{var d=JSON.parse(localStorage.getItem(K)||'{}');d[tdate]=(d[tdate]||0)+1;localStorage.setItem(K,JSON.stringify(d))}catch(e){}
 })();
 function fmtDate(iso){
   var p=iso.split('-');var dt=new Date(+p[0],+p[1]-1,+p[2]);
