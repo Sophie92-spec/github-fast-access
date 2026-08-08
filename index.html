@@ -31,6 +31,17 @@
     <table><thead><tr><th style="width:2.5rem"><label><input type="checkbox" id="select-all" checked></label></th><th>域名</th><th style="width:3rem">状态</th><th>IP 地址</th><th style="width:5rem">延迟</th></tr></thead><tbody id="results-body"></tbody></table>
   </div>
 
+  <div class="card" id="cmp-card">
+    <div class="section-title">📊 运营商延迟对比 <span class="count" id="cmp-count">0</span></div>
+    <div class="cmp-hint">浏览器只能测「当前网络」的延迟。方法：连上某运营商网络（电信 / 联通 / 移动）→ 点上方「⚡ 延迟」测出数值 → 在此命名保存为一份快照；换网络重复，即可并排对比同一组域名在不同运营商下的延迟，并自动标出每域最快的运营商。</div>
+    <div class="cmp-actions">
+      <input type="text" id="cmp-name" class="cmp-name-input" placeholder="如：电信 / 联通 / 移动" maxlength="16">
+      <button class="btn" id="cmp-save">💾 保存当前结果为对比快照</button>
+    </div>
+    <div class="cmp-table-wrap"><table class="cmp-table" id="cmp-table"></table></div>
+    <div class="cmp-empty" id="cmp-empty">还没有保存任何快照。先点「⚡ 延迟」测出当前网络延迟，再点「💾 保存当前结果为对比快照」即可开始对比（命名留空会自动编号为「网络1 / 网络2…」）。</div>
+  </div>
+
   <div class="card">
     <div class="section-title">📝 Hosts 内容 <span class="count" id="hosts-count">0</span></div>
     <div class="code-box"><div class="code-bar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span>hosts</span></div><textarea id="hosts-content" readonly></textarea></div>
@@ -105,6 +116,6 @@
 </div></div>
 <div class="toast" id="toast"></div>
 
-<script src="JS/app.js?v=20260808g"></script>
+<script src="JS/app.js?v=20260808h"></script>
 </body>
 </html>

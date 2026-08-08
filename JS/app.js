@@ -182,6 +182,43 @@ document.querySelectorAll('.btn').forEach(function(b){
 });
 document.querySelectorAll('.howto-tab').forEach(tab=>{tab.addEventListener('click',()=>{const scope=tab.closest('.howto');scope.querySelectorAll('.howto-tab').forEach(t=>t.classList.remove('on'));scope.querySelectorAll('.howto-panel').forEach(c=>c.classList.remove('on'));tab.classList.add('on');document.getElementById('tab-'+tab.dataset.tab).classList.add('on')})});
 
+// ===== 运营商延迟对比（快照式并排对比）=====
+// 浏览器只能测当前网络的延迟；用户在不同运营商网络下各测一次并保存快照，
+// 即可在此并排对比（同一组域名，不同运营商的延迟），并自动标出每域最快的运营商。
+const SNAP_KEY='gh_hosts_snaps';
+function loadSnaps(){try{return JSON.parse(localStorage.getItem(SNAP_KEY)||'[]')}catch(e){return[]}}
+function saveSnaps(a){localStorage.setItem(SNAP_KEY,JSON.stringify(a))}
+function escCmp(s){return String(s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function bestIdx(vals){var m=null,mi=-1;for(var i=0;i<vals.length;i++){if(vals[i]!==null&&(m===null||vals[i]<m)){m=vals[i];mi=i}}return mi}
+function cmpSave(){
+  var snaps=loadSnaps();
+  if(!DOMAINS.some(function(d){return S[d].latency!==null})){toast('请先点上方「⚡ 延迟」测出延迟再保存','bad');return}
+  var name=$('cmp-name').value.trim();
+  if(!name){var n=1;while(snaps.some(function(s){return s.name==='网络'+n}))n++;name='网络'+n}
+  var lat={};DOMAINS.forEach(function(d){lat[d]=S[d].latency});
+  snaps.push({name:name,time:new Date().toLocaleString('zh-CN'),lat:lat});
+  saveSnaps(snaps);$('cmp-name').value='';renderSnaps();toast('已保存快照：'+name,'good');
+}
+function delSnap(i){var s=loadSnaps();if(i<0||i>=s.length)return;s.splice(i,1);saveSnaps(s);renderSnaps();toast('已删除该快照','')}
+function renderSnaps(){
+  var snaps=loadSnaps();if($('cmp-count'))$('cmp-count').textContent=snaps.length;
+  var table=$('cmp-table'),empty=$('cmp-empty');if(!table)return;
+  if(snaps.length===0){table.innerHTML='';empty.style.display='block';return}
+  empty.style.display='none';
+  var head='<thead><tr><th>域名</th>'+snaps.map(function(s,i){return '<th>'+escCmp(s.name)+' <button class="cmp-del" data-i="'+i+'" title="删除该快照">✕</button></th>'}).join('')+'<th>最快</th></tr></thead>';
+  var body='<tbody>'+DOMAINS.map(function(d){
+    var vals=snaps.map(function(s){return s.lat[d]});
+    var best=bestIdx(vals);
+    var cells=snaps.map(function(s,i){var l=s.lat[d];return '<td class="latency '+(l===null?'fail':cls(l))+(i===best?' cmp-win':'')+'">'+(l===null?'—':l+'ms')+'</td>'}).join('');
+    return '<tr><td class="domain-name">'+d+'</td>'+cells+'<td class="cmp-best">'+(best<0?'—':escCmp(snaps[best].name))+'</td></tr>';
+  }).join('')+'</tbody>';
+  var foot='<tfoot><tr><td>平均</td>'+snaps.map(function(s){var v=DOMAINS.map(function(d){return s.lat[d]}).filter(function(x){return x!==null});var avg=v.length?Math.round(v.reduce(function(a,b){return a+b},0)/v.length):'—';return '<td class="cmp-avg">'+(typeof avg==='number'?avg+'ms':'—')+'</td>'}).join('')+'<td></td></tr></tfoot>';
+  table.innerHTML=head+body+foot;
+  table.querySelectorAll('.cmp-del').forEach(function(b){b.addEventListener('click',function(){delSnap(+b.dataset.i)})});
+}
+$('cmp-save').addEventListener('click',cmpSave);
+renderSnaps();
+
 // ===== 访问统计 =====
 // 默认走本地 localStorage（离线/未配置后端时）；若配置 STATS_API（Cloudflare Workers+KV），
 // 则改为全网真实共享统计：PV/UV/今日/30天趋势 全部由后端返回，且每次打开页面 +1 计入后端。
