@@ -560,3 +560,29 @@ input[type=checkbox]{width:clamp(14px,1.2vw,17px);height:clamp(14px,1.2vw,17px);
 .btn.primary::after{content:'';position:absolute;top:0;left:-60%;width:55%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.22),transparent);transform:skewX(-18deg);pointer-events:none}
 .btn.primary:hover::after{animation:shimmer .7s var(--ease)}
 @keyframes shimmer{from{left:-60%}to{left:120%}}
+
+/* ===== 第一梯队新增：连通性验证 + 数据新鲜度 ===== */
+/* 连通状态 chip（蓝绿点缀，区分 DoH 状态） */
+.status-chip-conn{
+  background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.30);
+  box-shadow:0 0 14px rgba(74,222,128,.10),0 1px 0 rgba(255,255,255,.04) inset;
+}
+.status-chip-conn .chip-dot{background:var(--green);box-shadow:0 0 8px var(--green)}
+/* 分隔行「已过期」警告文字 */
+.cmp-table .divider-meta.stale{color:var(--red);font-weight:600}
+.cmp-table .divider-meta.stale::before{content:'⚠ '}
+/* 连通性验证结果区 */
+.conn-result{
+  display:flex;gap:clamp(6px,.6vw,9px);flex-wrap:wrap;
+  padding:clamp(9px,1vh,13px);margin-top:clamp(8px,1vh,12px);
+  border-radius:clamp(8px,.8vw,10px);
+  background:rgba(74,222,128,.05);border:1px solid rgba(74,222,128,.15);
+  animation:in .35s var(--ease) both;
+}
+.conn-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  font-family:var(--mono);font-size:clamp(11px,.95vw,12.5px);font-weight:600;
+  padding:4px 10px;border-radius:999px;border:1px solid transparent;white-space:nowrap;
+}
+.conn-chip.ok{color:var(--green);background:rgba(74,222,128,.10);border-color:rgba(74,222,128,.30)}
+.conn-chip.bad{color:var(--red);background:rgba(248,113,113,.10);border-color:rgba(248,113,113,.30)}

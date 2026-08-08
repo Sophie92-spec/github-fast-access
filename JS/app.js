@@ -4,6 +4,7 @@ const A=['dnspod','alidns','cloudflare','google','quad9','adguard','360'];
 const S={};DOMAINS.forEach(d=>{S[d]={domain:d,ips:[],selectedIp:'',status:'pending',latency:null,included:true}});
 const $=id=>document.getElementById(id),H=$('hosts-content'),T=$('toast');
 let dohValue='auto';
+let stateLoaded=false;
 // Portal dropdown
 const dTrigger=$('doh-trigger'),dLabel=$('doh-label'),dWrap=$('doh-trigger-wrap');
 const OPTIONS=[{v:'auto',t:'自动 DoH'},{v:'dnspod',t:'DNSPod (腾讯)'},{v:'alidns',t:'AliDNS (阿里)'},{v:'cloudflare',t:'Cloudflare'},{v:'google',t:'Google'},{v:'quad9',t:'Quad9 (隐私)'},{v:'adguard',t:'AdGuard (去广告)'},{v:'360',t:'360 DoH'}];
@@ -35,6 +36,29 @@ function ipLat(ip,t=2500){return new Promise(function(r){var img=new Image(),s=p
 function cls(l){if(l===null)return'fail';if(l<200)return'good';if(l<800)return'ok';return'slow'}
 function txt(l){return l===null?'—':l+'ms'}
 function domStatusOk(d){return S[d].status==='success'&&S[d].ips.length>0}
+
+// ===== 设置记忆（localStorage 持久化：DoH 源 / 各域名选中状态 / 上次解析结果 / 测速时间）=====
+var LS_KEY='gh_hosts_state_v1';
+function saveState(){
+  if(!stateLoaded)return;
+  try{
+    var st={dohValue:dohValue,dohLats:dohLats,lastFetchAt:lastFetchAt,domains:{}};
+    DOMAINS.forEach(function(d){var s=S[d];st.domains[d]={ips:s.ips,selectedIp:s.selectedIp,status:s.status,latency:s.latency,ipLats:s.ipLats,included:s.included}});
+    localStorage.setItem(LS_KEY,JSON.stringify(st));
+  }catch(e){}
+}
+function loadState(){
+  try{
+    var raw=localStorage.getItem(LS_KEY);if(!raw)return;
+    var st=JSON.parse(raw);
+    if(st.dohValue){dohValue=st.dohValue;dLabel.textContent=dohName(dohValue);}
+    if(st.dohLats)dohLats=st.dohLats;
+    if(typeof st.lastFetchAt==='number')lastFetchAt=st.lastFetchAt;
+    if(st.domains)DOMAINS.forEach(function(d){if(st.domains[d]){var src=st.domains[d],s=S[d];s.ips=src.ips||[];s.selectedIp=src.selectedIp||'';s.status=src.status||'pending';s.latency=(src.latency===undefined?null:src.latency);s.ipLats=src.ipLats||null;s.included=(src.included!==false);}});
+    if($('doh-status')){var u=us();if(u>0)$('doh-status').textContent='DoH 上次测速 '+u+'/'+A.length+' 可用';}
+  }catch(e){}
+  stateLoaded=true;
+}
 
 // IP 单元格渲染（域名行用）：根据 status 渲染不同控件
 function ipCellHtml(d){
@@ -75,6 +99,7 @@ async function fetchDomains(){
   }
   // 按延迟自动选用每个域名的最快 IP（轻量版"候选 IP 对比"）
   await measureDomainLatency();
+  lastFetchAt=Date.now();
   const ok=DOMAINS.filter(domStatusOk).length;
   return ok;
 }
@@ -105,13 +130,27 @@ async function measureDomainLatency(){
 }
 
 // ===== DoH 延迟对比（同时驱动统一表渲染）=====
-var dohLats={},cmpTesting=false;
+var dohLats={},cmpTesting=false,lastFetchAt=null;
 function dohName(k){for(var i=0;i<OPTIONS.length;i++){if(OPTIONS[i].v===k)return OPTIONS[i].t}return k}
 function dohBest(){var bk=null,bv=null;A.forEach(function(k){var v=dohLats[k];if(v!==null&&v!==undefined&&(bv===null||v<bv)){bv=v;bk=k}});return bk}
 function dohWorst(){var wk=null,wv=null;A.forEach(function(k){var v=dohLats[k];if(v!==null&&v!==undefined&&(wv===null||v>wv)){wv=v;wk=k}});return wk}
 function dohUsable(){return A.filter(function(k){return(k in dohLats)&&dohLats[k]!==null}).length}
 function dohAvg(){var vs=A.map(function(k){return dohLats[k]}).filter(function(v){return v!==null&&v!==undefined});return vs.length?Math.round(vs.reduce(function(a,b){return a+b},0)/vs.length):null}
 function us(){return dohUsable()}
+// 数据新鲜度：根据 lastFetchAt 计算多久前解析，>6h 视为过期
+function freshness(){
+  if(!lastFetchAt)return{text:'尚未解析',stale:true};
+  var mins=Math.floor((Date.now()-lastFetchAt)/60000);
+  var d=new Date(lastFetchAt);
+  var hh=('0'+d.getHours()).slice(-2),mm=('0'+d.getMinutes()).slice(-2);
+  var when=hh+':'+mm;
+  if(mins<1)return{text:'刚刚更新',stale:false};
+  if(mins<60)return{text:'更新于 '+when+'（'+mins+' 分钟前）',stale:false};
+  var hrs=Math.floor(mins/60);
+  if(hrs<24)return{text:'更新于 '+when+'（已过期 '+hrs+' 小时前）',stale:true};
+  var dys=Math.floor(hrs/24);
+  return{text:'更新于 '+when+'（已过期 '+dys+' 天前）',stale:true};
+}
 
 // 选用某个 DoH 源 = 设为当前 + 自动用其解析域名
 async function dohPick(k){
@@ -216,9 +255,10 @@ function renderUnified(){
   var okN=DOMAINS.filter(domStatusOk).length;
   var pendN=DOMAINS.filter(d=>S[d].status==='loading').length;
   var progTxt=pendN>0?('解析中 '+pendN+'/'+DOMAINS.length+'…'):(okN+' / '+DOMAINS.length+' 解析成功');
+  var fr=freshness();
   var divider='<tr class="row-divider"><td colspan="4">'+
     '<span class="divider-title">📌 GitHub 域名</span>'+
-    '<span class="divider-meta">'+progTxt+'</span>'+
+    '<span class="divider-meta'+(fr.stale?' stale':'')+'">'+progTxt+' · '+fr.text+'</span>'+
     '<label class="divider-sel"><input type="checkbox" id="select-all" '+(DOMAINS.every(d=>S[d].included)?'checked':'')+'> 全选</label>'+
     '</td></tr>';
 
@@ -262,8 +302,31 @@ async function retestLatency(){
   if(btn)btn.disabled=false;
   toast('域名延迟已重测，已自动选用最快 IP','good');
 }
+// 连通性验证：对当前已选域名逐一发起请求，确认 hosts 是否真正生效
+async function verifyConn(){
+  var btn=$('verify-conn');if(btn)btn.disabled=true;
+  var ds=$('conn-status');if(ds)ds.textContent='连通：检测中…';
+  var inc=DOMAINS.filter(d=>S[d].included&&S[d].status==='success'&&S[d].selectedIp);
+  if(inc.length===0){toast('请先解析域名后再测连通','bad');if(btn)btn.disabled=false;if(ds)ds.textContent='未解析';return;}
+  var res=[];
+  for(var i=0;i<inc.length;i++){
+    var d=inc[i],s=performance.now();
+    try{await fetch('https://'+d+'?_cb='+Date.now(),{method:'GET',cache:'no-store',mode:'no-cors'});res.push({d:d,ok:true,ms:Math.round(performance.now()-s)});}
+    catch(e){res.push({d:d,ok:false,ms:null});}
+  }
+  if(btn)btn.disabled=false;
+  var okN=res.filter(function(r){return r.ok}).length;
+  var box=$('conn-result');
+  if(box){box.innerHTML=res.map(function(r){return r.ok?'<span class="conn-chip ok">✓ '+r.d+' '+r.ms+'ms</span>':'<span class="conn-chip bad">✗ '+r.d+' 不可达</span>'}).join('');box.style.display='flex';}
+  if(ds)ds.textContent='连通：'+okN+'/'+inc.length+' 可达';
+  if(okN===inc.length)toast('✅ 全部 '+okN+' 个域名可达，hosts 生效中','good');
+  else if(okN===0)toast('❌ 全部不可达，请检查网络或重新解析','bad');
+  else toast('⚠️ '+okN+'/'+inc.length+' 可达，'+(inc.length-okN)+' 个不可达','bad');
+}
 $('cmp-test').addEventListener('click',dohTest);
 $('retest-lat').addEventListener('click',retestLatency);
+$('verify-conn').addEventListener('click',verifyConn);
+loadState();
 renderUnified();
 
 function gen(restore) {
