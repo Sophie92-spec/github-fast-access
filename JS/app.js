@@ -22,8 +22,8 @@ let dohValue='auto';
 /* ===== 国际化 i18n（中文 / English） ===== */
 const I18N={
   zh:{
-    page_title:'GitHub Hosts 加速工具',
-    app_title:'GitHub Hosts 加速',
+    page_title:'GitHub Hosts 加速器',
+    app_title:'GitHub Hosts 加速器',
     app_sub:'DoH 查询最优 IP · 一键生成 hosts · .bat 脚本',
     sec_cmp:'📊 解析表 · DoH 源 + GitHub 域名',
     cmp_hint:'测每个 DoH 源的延迟并自动切最快源解析下方全部 GitHub 域名；每个域名会实测各候选 IP 延迟、<b>自动选用最快的那个</b>。<span style="color:var(--green)">绿框</span> = 最快，<span style="color:var(--red)">红框</span> = 最慢（≥1000ms）。点「🔄 重测延迟」可在不重跑 DoH 测速的情况下刷新域名延迟与最快 IP。',
