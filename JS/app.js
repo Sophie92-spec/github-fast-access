@@ -316,6 +316,7 @@ async function fetchDomains(onProg){
   // 自动按解析结果勾选：成功的勾上、失败的不勾（覆盖用户此前手动设置）
   DOMAINS.forEach(d=>{S[d].included=domStatusOk(d)});
   renderUnified();
+  update();
   if(onProg)onProg(100);
   lastFetchAt=Date.now();
   const ok=DOMAINS.filter(domStatusOk).length;
