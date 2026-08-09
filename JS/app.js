@@ -786,7 +786,7 @@ function localData(){
 function renderStats(data,live){
   data=data||localData();
   drawTrend(data.trend);
-  var rdEl=document.getElementById('report-date');if(rdEl)rdEl.textContent=fmtDate(t);
+  var rdEl=document.getElementById('report-date');if(rdEl)rdEl.textContent=fmtDate(tdate);
   countUp(document.getElementById('report-today'),data.today);
   countUp(document.getElementById('report-pv'),data.pv);
   countUp(document.getElementById('report-uv'),data.uv);
