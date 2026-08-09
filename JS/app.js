@@ -108,7 +108,11 @@ const I18N={
     sel_all:'全选',
     parse_progress:'解析中 {0}/{1}…',
     parse_ok:'{0} / {1} 解析成功',
-    cmp_empty:'点「⚡ 测 DoH + 解析域名」开始：先测每个 DoH 源的延迟，挑最快用于解析下方全部 12 个 GitHub 域名。<b>绿框</b> = 最快，<b>红框</b> = 最慢（≥1000ms）。'
+    cmp_empty:'点「⚡ 测 DoH + 解析域名」开始：先测每个 DoH 源的延迟，挑最快用于解析下方全部 12 个 GitHub 域名。<b>绿框</b> = 最快，<b>红框</b> = 最慢（≥1000ms）。',
+    th_type:'类型',
+    th_name:'名称',
+    th_ip:'IP 地址',
+    th_lat:'延迟'
   },
   en:{
     page_title:'GitHub Hosts Optimizer',
@@ -197,7 +201,11 @@ const I18N={
     sel_all:'Select all',
     parse_progress:'Resolving {0}/{1}…',
     parse_ok:'{0} / {1} resolved',
-    cmp_empty:'Click <b>⚡ Test DoH + Resolve Domains</b> to start: it first measures each DoH source\'s latency, then picks the fastest to resolve all 12 GitHub domains below. <b>Green box</b> = fastest, <b>red box</b> = slowest (≥1000ms).'
+    cmp_empty:'Click <b>⚡ Test DoH + Resolve Domains</b> to start: it first measures each DoH source\'s latency, then picks the fastest to resolve all 12 GitHub domains below. <b>Green box</b> = fastest, <b>red box</b> = slowest (≥1000ms).',
+    th_type:'Type',
+    th_name:'Name',
+    th_ip:'IP Address',
+    th_lat:'Latency'
   }
 };
 let lang=(function(){try{var s=localStorage.getItem('gh_lang');if(s==='en'||s==='zh')return s;var n=(navigator.language||'zh-CN').slice(0,2);return n==='en'?'en':'zh';}catch(e){return 'zh';}})();
@@ -450,10 +458,10 @@ function renderUnified(){
   if(empty)empty.style.display='none';
 
   var head='<thead><tr>'+
-    '<th style="width:3.5rem">类型</th>'+
-    '<th>名称</th>'+
-    '<th style="width:11rem">IP 地址</th>'+
-    '<th style="width:4.5rem">延迟</th>'+
+    '<th style="width:3.5rem">'+t('th_type')+'</th>'+
+    '<th>'+t('th_name')+'</th>'+
+    '<th style="width:11rem">'+t('th_ip')+'</th>'+
+    '<th style="width:4.5rem">'+t('th_lat')+'</th>'+
     '</tr></thead>';
 
   var best=dohBest(),worst=dohWorst();
